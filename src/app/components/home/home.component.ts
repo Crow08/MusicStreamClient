@@ -10,6 +10,7 @@ import {AuthenticationService} from '../../services/authentication.service';
 })
 export class HomeComponent implements AfterViewInit {
   $player: HTMLAudioElement;
+  songId: string;
 
 
 
@@ -38,5 +39,21 @@ export class HomeComponent implements AfterViewInit {
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text' };
     this.http.put(`http://${environment.dbServer}/sessions/`, 'TEST SESSION', options)
       .subscribe(value => console.log(value));
+  }
+
+  browseSongs(): void {
+    const options =  {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
+    this.http.get(`http://${environment.dbServer}/songs/all`, options)
+      .subscribe(value => console.log(value));
+  }
+
+  loadSong(): void {
+    const username = this.authenticationService.currentUserValue.username;
+    const password = this.authenticationService.currentUserValue.password;
+
+    this.$player.src = `http://${username}:${password}@${environment.dbServer}/songs/${this.songId}/data`;
+    this.$player.load();
+    this.$player.play();
+    console.log(`SongId: ${this.songId}`)
   }
 }
