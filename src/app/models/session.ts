@@ -1,13 +1,6 @@
 export class Session {
   id: string;
-  username: string;
-  password: string;
-  authdata?: string;
+  host: string;
+  name: string;
 }
-private UUID id;
 
-@Column(nullable = false)
-private String host;
-
-@Column(nullable = false)
-private String name;

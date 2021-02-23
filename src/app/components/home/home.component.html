@@ -8,4 +8,12 @@
     <input type="text" [(ngModel)] = "songId" name="songId">
     <input type="button" value="Browse Songs" (click)="browseSongs()">
   </div>
+  <div>
+    <h4>Sessions</h4>
+    <ul>
+      <li *ngFor="let session of sessions">
+        <input type="button" value="{{session.name}}" (click)="joinSession(session.id)">
+      </li>
+    </ul>
+  </div>
 </div>

@@ -1,33 +1,29 @@
 <div>
-  <div>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <table>
-        <tr>
-          <td colspan="2"><h4>Music Stream Server Login</h4></td>
-        </tr>
-        <tr>
-          <td colspan="2">
-            <div class="error-text">{{error}}&nbsp;</div>
-          </td>
-        </tr>
-        <tr>
-          <td><label for="username">Username:</label></td>
-          <td><input id="username" type="text" formControlName="username"
-                     [ngClass]="{ 'error-box': submitted && f.username.errors }"/></td>
-        </tr>
-        <tr>
-          <td><label for="password">Password:</label></td>
-          <td><input id="password" type="password" formControlName="password"
-                     [ngClass]="{ 'error-box': submitted && f.password.errors }"/></td>
-        </tr>
-        <tr>
-          <td colspan="2" style="text-align: right;">
-            <div class="loader-wrapper">
-              <div *ngIf="loading" class="loader"></div>
-            </div>
-            <input type="submit" [disabled]="loading" value="Login"/></td>
-        </tr>
-      </table>
-    </form>
-  </div>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <table>
+      <tr>
+        <td colspan="2"><h4>Music Stream Server Login</h4></td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div class="error-text">{{error}}&nbsp;</div>
+        </td>
+      </tr>
+      <tr>
+        <td><label for="username">Username:</label></td>
+        <td><input id="username" type="text" formControlName="username"
+                   [ngClass]="{ 'error-box': submitted && f.username.errors }"/></td>
+      </tr>
+      <tr>
+        <td><label for="password">Password:</label></td>
+        <td><input id="password" type="password" formControlName="password"
+                   [ngClass]="{ 'error-box': submitted && f.password.errors }"/></td>
+      </tr>
+      <tr>
+        <td colspan="2" style="text-align: right;">
+          <app-loader [loadingState]="loading"></app-loader>
+          <input type="submit" [disabled]="loading" value="Login"/></td>
+      </tr>
+    </table>
+  </form>
 </div>
