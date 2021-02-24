@@ -1,15 +1,13 @@
 import { InjectableRxStompConfig } from '@stomp/ng2-stompjs';
+import {environment} from '../environments/environment';
 
 export const myRxStompConfig: InjectableRxStompConfig = {
   // Which server?
-  brokerURL: 'ws://localhost:8888/ws',
+  brokerURL: `ws://${environment.dbServer}/ws`,
 
   // Headers
   // Typical keys: login, passcode, host
-  connectHeaders: {
-    login: 'admin',
-    passcode: '',
-  },
+  connectHeaders: { },
 
   // How often to heartbeat?
   // Interval in milliseconds, set to 0 to disable
@@ -19,7 +17,7 @@ export const myRxStompConfig: InjectableRxStompConfig = {
   // Wait in milliseconds before attempting auto reconnect
   // Set to 0 to disable
   // Typical value 500 (500 milli seconds)
-  reconnectDelay: 2000,
+  reconnectDelay: 5000,
 
   // Will log diagnostics on console
   // It can be quite verbose, not recommended in production

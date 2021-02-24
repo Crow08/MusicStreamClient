@@ -59,12 +59,13 @@ export class HomeComponent implements AfterViewInit {
   }
 
   loadSong(): void {
-    const username = this.authenticationService.currentUserValue.username;
-    const password = this.authenticationService.currentUserValue.password;
-
-    this.$player.src = `http://${environment.dbServer}/songs/${this.songId}/data`;
-    this.$player.load();
-    this.$player.play();
-    console.log(`SongId: ${this.songId}`);
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text' };
+    this.http.get(`http://${environment.dbServer}/songs/${this.songId}/data?X-NPE-PSU-Duration=PT1H`, options).subscribe(url => {
+      console.log(url);
+      if (typeof url === 'string') {
+        this.$player.src = url;
+      }
+      this.$player.play();
+    });
   }
 }
