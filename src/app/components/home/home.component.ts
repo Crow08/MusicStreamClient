@@ -14,6 +14,7 @@ import {RxStompService} from '@stomp/ng2-stompjs';
 export class HomeComponent implements AfterViewInit {
   $player: HTMLAudioElement;
   songId: string;
+  sessionId: string;
 
   sessions: Session[] = [];
 
@@ -28,9 +29,6 @@ export class HomeComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.$player.volume = 0.2;
-    this.rxStompService.watch('/topic/greetings').subscribe((message: any) => {
-      console.log(message.body);
-    });
   }
 
   browseSessions(): void {
@@ -43,13 +41,26 @@ export class HomeComponent implements AfterViewInit {
   }
 
   joinSession(id: string): void {
-    this.rxStompService.publish({destination: '/app/hello', body: 'world'});
+    this.sessionId = id;
+    console.log('SESSION ID IS: ' + this.sessionId);
+    this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
+      console.log(message);
+    });
+  }
+  startSession(): void {
+    if (this.sessionId) {
+      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/play`, body: 'world'});
+    } else {
+      alert('No active Session!');
+    }
   }
 
   createSession(): void {
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text' };
     this.http.put(`http://${environment.dbServer}/sessions/`, 'TEST SESSION', options)
-      .subscribe(value => console.log(value));
+      .subscribe(value => {
+        console.log(value);
+      });
   }
 
   browseSongs(): void {
@@ -61,11 +72,17 @@ export class HomeComponent implements AfterViewInit {
   loadSong(): void {
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text' };
     this.http.get(`http://${environment.dbServer}/songs/${this.songId}/data?X-NPE-PSU-Duration=PT1H`, options).subscribe(url => {
+      const startSchedule = (new Date()).getMilliseconds() + 1000;
+
       console.log(url);
-      if (typeof url === 'string') {
-        this.$player.src = url;
-      }
-      this.$player.play();
+      this.$player.src = url;
+      this.$player.currentTime = 0;
+      setTimeout(() => {
+          this.$player.play().then(value => {
+            console.log(value);
+          }
+        ).catch(reason => console.error(reason));
+      }, startSchedule - (new Date()).getMilliseconds());
     });
   }
 }
