@@ -1,21 +1,36 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {first} from 'rxjs/operators';
 
 import {AuthenticationService} from '../../services/authentication.service';
+import {ErrorStateMatcher} from '@angular/material/core';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
+
+
 export class LoginComponent implements OnInit {
+
+  static InputErrorStateMatcher = class {
+
+    error: boolean;
+
+    isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+      const isSubmitted = form && form.submitted;
+      return !!(control && (control.invalid || this.error) && (control.dirty || control.touched || isSubmitted));
+    }
+  };
+
   loginForm: FormGroup;
   loading = false;
   submitted = false;
   returnUrl: string;
   error = '';
+  matcher = new LoginComponent.InputErrorStateMatcher();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -40,12 +55,14 @@ export class LoginComponent implements OnInit {
   }
 
   // convenience getter for easy access to form fields
-  get f() {
+  get f(): {[key: string]: AbstractControl} {
     return this.loginForm.controls;
   }
 
   onSubmit(): void {
     this.submitted = true;
+    this.error = '';
+    this.matcher.error = false;
 
     // stop here if form is invalid
     if (this.loginForm.invalid) {
@@ -62,6 +79,7 @@ export class LoginComponent implements OnInit {
         error => {
           console.error(error);
           this.error = 'Login failed.';
+          this.matcher.error = true;
           this.loading = false;
         });
   }

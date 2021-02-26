@@ -14,6 +14,12 @@ import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@s
 import {myRxStompConfig} from './my-rx-stomp.config';
 import { PlayerComponent } from './components/player/player.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input'
+import {MatCardModule} from '@angular/material/card';
 
 @NgModule({
   declarations: [
@@ -28,10 +34,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserModule,
     ReactiveFormsModule,
     HttpClientModule,
-    RouterModule.forRoot([{ path: '', component: HomeComponent, canActivate: [AuthGuard] },
-      { path: 'login', component: LoginComponent },
-      { path: '**', redirectTo: '' }], { relativeLinkResolution: 'legacy' }),
-    BrowserAnimationsModule
+    RouterModule.forRoot([{path: '', component: HomeComponent, canActivate: [AuthGuard]},
+      {path: 'login', component: LoginComponent},
+      {path: '**', redirectTo: ''}], {relativeLinkResolution: 'legacy'}),
+    BrowserAnimationsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule
   ],
   providers: [{
       provide: InjectableRxStompConfig,

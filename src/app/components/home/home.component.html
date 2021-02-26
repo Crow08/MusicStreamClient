@@ -1,3 +1,39 @@
+<mat-card id="database-card">
+  <mat-card-header>
+    <mat-card-title>Database:</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <ul>
+      <li><b>Functions:</b></li>
+      <li>Query Songs</li>
+      <li>Manage Metadata</li>
+      <li>Import Data</li>
+      <li>Export Data</li>
+      <li>Create Playlists</li>
+    </ul>
+
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary">Database Browser</button>
+  </mat-card-actions>
+</mat-card>
+
+<mat-card id="music-card">
+  <mat-card-header>
+    <mat-card-title>Music:</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p>
+      Host or join music sessions to enjoy a synchronized music listening experience across multiple clients.
+    </p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary">Join Session</button>
+    <button mat-raised-button color="primary">Host Session</button>
+  </mat-card-actions>
+</mat-card>
+
+
 <div class="card mt-4">
   <div>
     <input type="button" value="Create session" (click)="createSession()">

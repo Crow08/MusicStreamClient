@@ -1,7 +1,7 @@
-:host{
-  background-color: whitesmoke;
-  box-shadow: 2px 4px 10px gray;
-  padding: 10px;
+:host {
+  display: flex;
+  justify-content: center;
+  margin: 100px 0px;
 }
 
 .error-text {
@@ -12,13 +12,18 @@
   border-color: red;
 }
 
-table {
-  line-height: 50px;
+.button {
+  display: flex;
+  justify-content: flex-end;
 }
 
-td {
-  padding: 0 10px;
+mat-card-title,
+mat-card-content {
+  display: flex;
+  justify-content: center;
 }
-h4 {
-  margin-bottom: -10px;
+
+.mat-form-field {
+  width: 100%;
+  min-width: 300px;
 }

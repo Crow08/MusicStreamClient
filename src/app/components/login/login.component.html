@@ -1,29 +1,27 @@
-<div>
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <table>
-      <tr>
-        <td colspan="2"><h4>Music Stream Server Login</h4></td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <div class="error-text">{{error}}&nbsp;</div>
-        </td>
-      </tr>
-      <tr>
-        <td><label for="username">Username:</label></td>
-        <td><input id="username" type="text" formControlName="username"
-                   [ngClass]="{ 'error-box': submitted && f.username.errors }"/></td>
-      </tr>
-      <tr>
-        <td><label for="password">Password:</label></td>
-        <td><input id="password" type="password" formControlName="password"
-                   [ngClass]="{ 'error-box': submitted && f.password.errors }"/></td>
-      </tr>
-      <tr>
-        <td colspan="2" style="text-align: right;">
-          <app-loader [loadingState]="loading"></app-loader>
-          <input type="submit" [disabled]="loading" value="Login"/></td>
-      </tr>
-    </table>
-  </form>
-</div>
+<mat-card id="login-card">
+  <mat-card-title>Login</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <p *ngIf="error" class="error-text">
+          {{error}}
+      </p>
+      <p>
+        <mat-form-field>
+          <input matInput placeholder="Username" id="username" type="text" formControlName="username"
+                     [errorStateMatcher]="matcher"/>
+
+        </mat-form-field>
+      </p>
+      <p>
+        <mat-form-field>
+          <input matInput placeholder="Password" id="password" type="password" formControlName="password"
+                 [errorStateMatcher]="matcher"/>
+        </mat-form-field>
+      </p>
+      <div class="button">
+        <app-loader [loadingState]="loading"></app-loader>
+        <button mat-raised-button color="primary" type="submit" [disabled]="loading">Login</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

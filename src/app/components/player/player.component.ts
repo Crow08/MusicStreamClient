@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {environment} from '../../../environments/environment';
 import {RxStompService} from '@stomp/ng2-stompjs';
 import {Subscription} from 'rxjs';
@@ -28,7 +28,7 @@ export class PlayerComponent implements AfterViewInit {
   }
 
   private subscribeControlsTopic(): void {
-    if(this.topic){
+    if (this.topic){
       this.topic.unsubscribe();
     }
     this.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
