@@ -12,13 +12,16 @@ import { HomeComponent } from './components/home/home.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs';
 import {myRxStompConfig} from './my-rx-stomp.config';
+import { PlayerComponent } from './components/player/player.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     HomeComponent,
-    LoaderComponent
+    LoaderComponent,
+    PlayerComponent
   ],
   imports: [
     FormsModule,
@@ -27,7 +30,8 @@ import {myRxStompConfig} from './my-rx-stomp.config';
     HttpClientModule,
     RouterModule.forRoot([{ path: '', component: HomeComponent, canActivate: [AuthGuard] },
       { path: 'login', component: LoginComponent },
-      { path: '**', redirectTo: '' }], { relativeLinkResolution: 'legacy' })
+      { path: '**', redirectTo: '' }], { relativeLinkResolution: 'legacy' }),
+    BrowserAnimationsModule
   ],
   providers: [{
       provide: InjectableRxStompConfig,
