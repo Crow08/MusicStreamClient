@@ -1,0 +1,27 @@
+<mat-card id="login-card">
+  <mat-card-title>Create new Session</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()">
+      <p>
+        <mat-form-field>
+          <mat-label>session name</mat-label>
+          <input matInput placeholder="session name" id="name" type="text" formControlName="name"/>
+        </mat-form-field>
+      </p>
+      <p>
+        <mat-form-field>
+          <mat-label>Playlist</mat-label>
+          <select matNativeControl formControlName="playlist">
+            <option *ngFor="let playlist of playlists" value="{{ playlist.id }}">
+              {{ playlist.name }}
+            </option>
+          </select>
+        </mat-form-field>
+      </p>
+      <div class="button">
+        <app-loader [loadingState]="loading"></app-loader>
+        <button mat-raised-button color="primary" type="submit" [disabled]="loading">create</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

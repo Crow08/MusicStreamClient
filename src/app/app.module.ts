@@ -18,8 +18,13 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input'
+import {MatInputModule} from '@angular/material/input';
 import {MatCardModule} from '@angular/material/card';
+import {MatListModule} from '@angular/material/list';
+import { SessionBrowserComponent } from './components/sessions/browser/session-browser.component';
+import { SessionCreatorComponent } from './components/sessions/session-creator/session-creator.component';
+import {MatOptionModule} from '@angular/material/core';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -27,7 +32,9 @@ import {MatCardModule} from '@angular/material/card';
     LoginComponent,
     HomeComponent,
     LoaderComponent,
-    PlayerComponent
+    PlayerComponent,
+    SessionBrowserComponent,
+    SessionCreatorComponent
   ],
   imports: [
     FormsModule,
@@ -36,6 +43,9 @@ import {MatCardModule} from '@angular/material/card';
     HttpClientModule,
     RouterModule.forRoot([{path: '', component: HomeComponent, canActivate: [AuthGuard]},
       {path: 'login', component: LoginComponent},
+      {path: 'sessions/browse', component: SessionBrowserComponent, canActivate: [AuthGuard]},
+      {path: 'sessions/create', component: SessionCreatorComponent, canActivate: [AuthGuard]},
+      {path: 'sessions/:sessionId/player', component: PlayerComponent, canActivate: [AuthGuard]},
       {path: '**', redirectTo: ''}], {relativeLinkResolution: 'legacy'}),
     BrowserAnimationsModule,
     MatToolbarModule,
@@ -43,7 +53,10 @@ import {MatCardModule} from '@angular/material/card';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatCardModule
+    MatCardModule,
+    MatListModule,
+    MatOptionModule,
+    MatSelectModule
   ],
   providers: [{
       provide: InjectableRxStompConfig,

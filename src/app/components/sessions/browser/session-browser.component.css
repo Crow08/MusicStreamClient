@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  justify-content: center;
+  margin: 10px;
+}
+
+#browser-card {
+  min-width: 400px;
+}
+
+#create-session-btn {
+  float: right;
+  margin-right: 50px;
+}

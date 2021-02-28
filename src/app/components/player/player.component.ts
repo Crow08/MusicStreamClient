@@ -4,6 +4,7 @@ import {RxStompService} from '@stomp/ng2-stompjs';
 import {Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AuthenticationService} from '../../services/authentication.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-player',
@@ -13,26 +14,32 @@ import {AuthenticationService} from '../../services/authentication.service';
 export class PlayerComponent implements AfterViewInit {
   private topic: Subscription;
   $player: HTMLAudioElement;
-  sessionId: string;
+  sessionId: number;
+  latency: number;
 
-  constructor(private http: HttpClient,
+  constructor(private route: ActivatedRoute,
+              private http: HttpClient,
               private rxStompService: RxStompService,
-              private authenticationService: AuthenticationService) { }
+              private authenticationService: AuthenticationService) {
+  }
 
   @ViewChild('audioPlayer') set playerRef(ref: ElementRef<HTMLAudioElement>) {
     this.$player = ref.nativeElement;
   }
 
   ngAfterViewInit(): void {
-    this.$player.volume = 0.2;
+    this.$player.volume = 0.1;
+    const routeParams = this.route.snapshot.paramMap;
+    this.sessionId = Number(routeParams.get('sessionId'));
+    this.subscribeControlsTopic();
   }
 
   private subscribeControlsTopic(): void {
-    if (this.topic){
+    if (this.topic) {
       this.topic.unsubscribe();
     }
     this.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
-      console.log(message.body);
+      this.processCommand(message.body);
     });
   }
 
@@ -76,21 +83,72 @@ export class PlayerComponent implements AfterViewInit {
     }
   }
 
-  loadSong(songId): void {
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text' };
-    this.http.get(`http://${environment.dbServer}/songs/${songId}/data?X-NPE-PSU-Duration=PT1H`, options).subscribe(url => {
-      const startSchedule = (new Date()).getMilliseconds() + 1000;
-
-      console.log(url);
-      this.$player.src = url;
-      this.$player.currentTime = 0;
-      setTimeout(() => {
-        this.$player.play().then(value => {
-            console.log(value);
-          }
-        ).catch(reason => console.error(reason));
-      }, startSchedule - (new Date()).getMilliseconds());
-    });
+  doStartSong(songId: number, startTime: number, offset: number): void {
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
+    this.http.get(`http://${environment.dbServer}/songs/${songId}/data/${offset}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
+      url => this.prepareSongStart(url, startTime, 0),
+      error => {
+        if (error.status === 422) {
+          this.http.get(`http://${environment.dbServer}/songs/${songId}/data?X-NPE-PSU-Duration=PT1H`, options).subscribe(
+            url => this.prepareSongStart(url, startTime, offset),
+            console.error
+          );
+          return;
+        }
+        console.error(error);
+      }
+    );
   }
 
+  private doPauseSong(position: number): void {
+    this.$player.pause();
+    this.$player.currentTime = position / 1000;
+  }
+
+  private doResumeSong(startTime): void {
+    this.schedulePlay(startTime);
+  }
+
+  private doStopSong(): void {
+    this.$player.src = '';
+  }
+
+  private doSkipSong(songId: number, startTime: number): void {
+    this.$player.src = '';
+    this.doStartSong(songId, startTime, 0);
+
+  }
+
+  private prepareSongStart(url: string, startTime: number, offset: number): void {
+    this.$player.src = url;
+    this.$player.currentTime = offset / 1000;
+    this.schedulePlay(startTime);
+  }
+
+  private schedulePlay(startTime: number): void {
+    setTimeout(() => {
+      this.$player.play().catch(reason => console.error(reason));
+    }, startTime - (new Date()).getTime());
+  }
+
+  private processCommand(jsonString: string): void {
+    const commandObject = JSON.parse(jsonString);
+    switch (commandObject.type) {
+      case 'Start':
+        this.doStartSong(commandObject.songId, commandObject.time, commandObject.startOffset);
+        break;
+      case 'Pause':
+        this.doPauseSong(commandObject.position);
+        break;
+      case 'Resume':
+        this.doResumeSong(commandObject.time);
+        break;
+      case 'Stop':
+        this.doStopSong();
+        break;
+      case 'Skip':
+        this.doSkipSong(commandObject.songId, commandObject.time);
+        break;
+    }
+  }
 }

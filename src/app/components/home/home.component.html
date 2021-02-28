@@ -28,24 +28,7 @@
     </p>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-raised-button color="primary">Join Session</button>
-    <button mat-raised-button color="primary">Host Session</button>
+    <button mat-raised-button color="primary" [routerLink]="'sessions/browse'">Join Session</button>
+    <button mat-raised-button color="primary" [routerLink]="'sessions/create'">Host Session</button>
   </mat-card-actions>
 </mat-card>
-
-
-<div class="card mt-4">
-  <div>
-    <input type="button" value="Create session" (click)="createSession()">
-    <input type="button" value="Browse sessions" (click)="browseSessions()">
-
-  </div>
-  <div>
-    <h4>Sessions</h4>
-    <ul>
-      <li *ngFor="let session of sessions">
-        <input type="button" value="{{session.name}}" (click)="joinSession(session.id)">
-      </li>
-    </ul>
-  </div>
-</div>
