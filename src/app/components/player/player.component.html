@@ -1,8 +1,17 @@
-<div>
-  <audio controls preload="auto" #audioPlayer></audio>
-  <input type="button" value="Start Song" (click)="startSong()">
-  <input type="button" value="Pause Song" (click)="pauseSong()">
-  <input type="button" value="Resume Song" (click)="resumeSong()">
-  <input type="button" value="Stop Song" (click)="stopSong()">
-  <input type="button" value="skip Song" (click)="skipSong()">
-</div>
+<mat-card class="example-card">
+  <mat-card-header>
+    <mat-card-title> {{songTitle}}</mat-card-title>
+    <mat-card-subtitle> {{songArtist}}</mat-card-subtitle>
+  </mat-card-header>
+    <audio controls preload="auto" #audioPlayer></audio>
+  <mat-card-content>
+  </mat-card-content>
+    <div id="buttons">
+    <button class = "playerControls" mat-raised-button color="accent"><span class="material-icons">skip_previous</span></button>
+    <button class = "playerControls" mat-raised-button color="accent" (click)="startSong()"><span class="material-icons">restart_alt</span></button>
+    <button class = "playerControls" mat-raised-button color="accent" (click)="resumeSong()"><span class="material-icons">play_arrow</span></button>
+    <button class = "playerControls" mat-raised-button color="accent" (click)="pauseSong()"><span class="material-icons">pause</span></button>
+    <button class = "playerControls" mat-raised-button color="accent" (click)="stopSong()"><span class="material-icons">stop</span></button>
+    <button class = "playerControls" mat-raised-button color="accent" (click)="skipSong()"><span class="material-icons">skip_next</span></button>
+    </div>
+</mat-card>

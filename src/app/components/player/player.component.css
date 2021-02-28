@@ -1,0 +1,29 @@
+:host {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+  }
+
+  #buttons{
+    white-space: nowrap;
+  }
+  
+  mat-card-title,
+  mat-card-content {
+    display: flex;
+    justify-content: left;
+  }
+  
+  mat-card {
+    margin: 10px;
+    max-width: 500px;
+  }
+
+  .playerControls{
+      margin-right: 5px;
+      margin-left: 5px;
+  }
+
+  audio {
+      width: 100%;
+    }

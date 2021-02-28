@@ -2,3 +2,18 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+html, body { height: 100%; }
+/* SPOTIFY
+body { background-color: #121212; margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;}
+.mat-card {
+    background:rgba(24, 24, 24,.5);
+}
+
+*/
+/* PARROT*/
+body { background-image: url('assets/parrot.jpg'); background-color: #121212; margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;}
+
+.mat-card {
+    background:rgba(24, 24, 24,.65);
+}

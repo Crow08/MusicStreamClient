@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AbstractControl, FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {first} from 'rxjs/operators';
@@ -31,6 +31,7 @@ export class LoginComponent implements OnInit {
   returnUrl: string;
   error = '';
   matcher = new LoginComponent.InputErrorStateMatcher();
+  @ViewChild("console") fmDebug;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -78,6 +79,7 @@ export class LoginComponent implements OnInit {
         },
         error => {
           console.error(error);
+          this.fmDebug.html = error;
           this.error = 'Login failed.';
           this.matcher.error = true;
           this.loading = false;

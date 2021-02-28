@@ -5,6 +5,8 @@ import {Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AuthenticationService} from '../../services/authentication.service';
 import {ActivatedRoute} from '@angular/router';
+import { Song } from 'src/app/models/song';
+import { plainToClass } from 'class-transformer';
 
 @Component({
   selector: 'app-player',
@@ -26,6 +28,8 @@ export class PlayerComponent implements AfterViewInit {
   @ViewChild('audioPlayer') set playerRef(ref: ElementRef<HTMLAudioElement>) {
     this.$player = ref.nativeElement;
   }
+  songTitle: string;
+  songArtist: string;
 
   ngAfterViewInit(): void {
     this.$player.volume = 0.1;
@@ -97,6 +101,14 @@ export class PlayerComponent implements AfterViewInit {
         }
         console.error(error);
       }
+    );
+    this.http.get(`http://${environment.dbServer}/songs/${songId}`, options).subscribe(
+      rawSong => {
+        const song = plainToClass(Song, JSON.parse(rawSong));
+        this.songTitle = song.title;
+        this.songArtist = `${song.artist==null?"Unknown Artist":song.artist}`;
+      },
+      console.error
     );
   }
 
