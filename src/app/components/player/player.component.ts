@@ -28,8 +28,8 @@ export class PlayerComponent implements AfterViewInit {
   @ViewChild('audioPlayer') set playerRef(ref: ElementRef<HTMLAudioElement>) {
     this.$player = ref.nativeElement;
   }
-  songTitle: string;
-  songArtist: string;
+  songTitle: string = "Welcome to this kinda good player";
+  songArtist: string = "press Start to start (duh!)";
 
   ngAfterViewInit(): void {
     this.$player.volume = 0.1;
