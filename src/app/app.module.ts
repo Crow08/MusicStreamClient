@@ -25,6 +25,7 @@ import { SessionBrowserComponent } from './components/sessions/browser/session-b
 import { SessionCreatorComponent } from './components/sessions/session-creator/session-creator.component';
 import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import {MatSelectModule} from '@angular/material/select';
     MatCardModule,
     MatListModule,
     MatOptionModule,
-    MatSelectModule
+    MatSelectModule,
+    MatAutocompleteModule
   ],
   providers: [{
       provide: InjectableRxStompConfig,

@@ -3,14 +3,14 @@
   <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
     <mat-icon>menu</mat-icon>
   </button>
-  <div class="spacer"></div>
-  <span><h2>Music Stream Client</h2></span>
-  <div class="spacer"></div>
   <a routerLink="/">
     <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
       <mat-icon>home</mat-icon>
     </button>
   </a>
+  <div class="spacer"></div>
+  <h2>Music Stream Client</h2>
+  <div class="spacer"></div>
   <a (click)="logout()">
     <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
       <mat-icon>logout</mat-icon>
@@ -18,7 +18,7 @@
   </a>
 </mat-toolbar>
 <!-- content -->
-<div class="content" role="main">
+<div id="content" role="main">
   <router-outlet></router-outlet>
 </div>
 

@@ -2,33 +2,3 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-html, body { height: 100%; }
-/* SPOTIFY
-body { background-color: #121212; margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;}
-.mat-card {
-    background:rgba(24, 24, 24,.5);
-}
-
-*/
-/* PARROT*/
-body { background-image: url('assets/parrot.jpg'); background-repeat: no-repeat; background-size:cover; margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;}
-
-.mat-card {
-    background:rgba(24, 24, 24,.65);
-}
-
-/*$focused-label-color*/
-.mat-form-field.mat-focused .mat-form-field-label{
-    color: rgba(255, 255, 255,.7) !important;
-}
-
-/*$underline-color*/
-.mat-form-field-underline{
-    background-color: rgba(255, 255, 255,.7) !important;
-}
-
-/*$underline-focused-color*/
-.mat-form-field.mat-focused .mat-form-field-ripple{
-    background-color: #fca11c !important;
-}

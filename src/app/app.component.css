@@ -1,23 +1,18 @@
-:host {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+#content {
+  background-image: url('../assets/parrot.jpg');
+  background-repeat: no-repeat;
+  background-size:cover;
+  height: calc(100% - 84px);
+  width: calc(100% - 20px);;
+  padding: 10px;
 }
-
 .spacer {
   flex: 1;
 }
 
-a {
+a,a:visited {
   color: white;
   padding: 10px;
   cursor: pointer;
   text-decoration: none;
-}
-
-a:visited {
-  color: white;
 }

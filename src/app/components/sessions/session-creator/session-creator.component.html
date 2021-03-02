@@ -10,12 +10,13 @@
       </p>
       <p>
         <mat-form-field>
-          <mat-label>Playlist</mat-label>
-          <select matNativeControl formControlName="playlist">
-            <option *ngFor="let playlist of playlists" value="{{ playlist.id }}">
-              {{ playlist.name }}
-            </option>
-          </select>
+          <mat-label>Playlist ID</mat-label>
+          <input matInput type="text" formControlName="playlist" [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option  *ngFor="let playlist of playlists" [value]="playlist.id">
+              {{playlist.id != -1 ? playlist.id + " - " : ""}}{{ playlist.name }}
+            </mat-option >
+          </mat-autocomplete>
         </mat-form-field>
       </p>
       <div class="button">

@@ -1,13 +1,6 @@
 :host {
   display: flex;
   justify-content: center;
-  margin: 10px;
-}
-
-mat-card-title,
-mat-card-content {
-  display: flex;
-  justify-content: center;
 }
 
 mat-card {
@@ -18,4 +11,5 @@ mat-card {
 #database-card > mat-card-content > ul > li:first-child{
   list-style-type: none;
   margin-left: -20px;
+  font-weight: bold;
 }
