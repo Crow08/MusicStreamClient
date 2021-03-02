@@ -1,91 +1,69 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
-import {environment} from '../../../environments/environment';
-import {RxStompService} from '@stomp/ng2-stompjs';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {AuthenticationService} from '../../services/authentication.service';
-import {ActivatedRoute} from '@angular/router';
-import {Song} from 'src/app/models/song';
-import {plainToClass} from 'class-transformer';
 import {LatencyComponent} from '../latency/latency.component';
+import {ActivatedRoute} from '@angular/router';
+import {HttpClient} from '@angular/common/http';
+import {RxStompService} from '@stomp/ng2-stompjs';
+import {AuthenticationService} from '../../services/authentication.service';
+import {environment} from '../../../environments/environment';
+import {plainToClass} from 'class-transformer';
+import {Song} from '../../models/song';
+import {AudioService} from '../../services/audio.service';
+
+enum PlayerState {
+  WAITING = 'WAITING',
+  PLAY = 'PLAY',
+  PAUSE = 'PAUSE',
+  STOP = 'STOP'
+}
 
 @Component({
-  selector: 'app-player',
+  selector: 'app-session-lobby',
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.css']
 })
-export class PlayerComponent implements AfterViewInit {
+export class PlayerComponent implements AfterViewInit, OnInit {
 
   private static topic: Subscription;
-  $player: HTMLAudioElement;
+
+  playerState: PlayerState = PlayerState.STOP;
+  shuffle = false;
+  repeat = false;
   sessionId: number;
   songTitle = 'Welcome to this kinda good player';
   songArtist = 'press Start to start (duh!)';
+  progression = 0;
+
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
+
 
   constructor(private route: ActivatedRoute,
               private http: HttpClient,
               private rxStompService: RxStompService,
-              private authenticationService: AuthenticationService) {
+              private authenticationService: AuthenticationService,
+              private audioService: AudioService) {
   }
 
-  @ViewChild('audioPlayer') set playerRef(ref: ElementRef<HTMLAudioElement>) {
-    this.$player = ref.nativeElement;
+  ngOnInit(): void {
+    const routeParams = this.route.snapshot.paramMap;
+    this.sessionId = Number(routeParams.get('sessionId'));
+    this.audioService.addProgressionListener((progression) => this.progression = progression);
   }
 
   ngAfterViewInit(): void {
-    this.$player.volume = 0.1;
-    const routeParams = this.route.snapshot.paramMap;
-    this.sessionId = Number(routeParams.get('sessionId'));
     this.subscribeControlsTopic();
   }
 
-  startSong(): void {
+  publishCommand(name: string): void {
     if (this.sessionId) {
       this.latencyComponent.startLatencyMeasurement();
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/start`, body: 'text'});
+      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/${name}`, body: name});
     } else {
       alert('No active Session!');
     }
   }
 
-  pauseSong(): void {
-    if (this.sessionId) {
-      this.latencyComponent.startLatencyMeasurement();
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/pause`, body: 'text'});
-    } else {
-      alert('No active Session!');
-    }
-  }
-
-  resumeSong(): void {
-    if (this.sessionId) {
-      this.latencyComponent.startLatencyMeasurement();
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/resume`, body: 'text'});
-    } else {
-      alert('No active Session!');
-    }
-  }
-
-  stopSong(): void {
-    if (this.sessionId) {
-      this.latencyComponent.startLatencyMeasurement();
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/stop`, body: 'text'});
-    } else {
-      alert('No active Session!');
-    }
-  }
-
-  skipSong(): void {
-    if (this.sessionId) {
-      this.latencyComponent.startLatencyMeasurement();
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/skip`, body: 'text'});
-    } else {
-      alert('No active Session!');
-    }
-  }
-
-  doStartSong(songId: number, startTime: number, offset: number): void {
+  loadNewSong(songId: number, startTime: number, offset: number): void {
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
     const basePath = `http://${environment.dbServer}/songs/${songId}/data`;
     this.http.get(`${basePath}${(offset === 0 ? '' : `/${offset}`)}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
@@ -120,34 +98,17 @@ export class PlayerComponent implements AfterViewInit {
     });
   }
 
-  private doPauseSong(position: number): void {
-    this.$player.pause();
-    this.$player.currentTime = position / 1000;
-  }
-
-  private doResumeSong(startTime): void {
-    this.schedulePlay(startTime);
-  }
-
-  private doStopSong(): void {
-    this.$player.src = '';
-  }
-
-  private doSkipSong(songId: number, startTime: number): void {
-    this.$player.src = '';
-    this.doStartSong(songId, startTime, 0);
-
-  }
-
   private prepareSongStart(url: string, startTime: number, offset: number): void {
-    this.$player.src = url;
-    this.$player.currentTime = offset / 1000;
+    this.audioService.setSrc(url);
+    this.audioService.setCurrentTime(offset / 1000);
     this.schedulePlay(startTime + this.latencyComponent.serverTimeOffset);
   }
 
   private schedulePlay(startTime: number): void {
+    this.playerState = PlayerState.WAITING;
     setTimeout(() => {
-      this.$player.play().catch(reason => console.error(reason));
+      this.audioService.play().catch(reason => console.error(reason));
+      this.playerState = PlayerState.PLAY;
     }, startTime - (new Date()).getTime());
   }
 
@@ -156,19 +117,23 @@ export class PlayerComponent implements AfterViewInit {
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
-        this.doStartSong(commandObject.songId, commandObject.time, commandObject.startOffset);
+        this.loadNewSong(commandObject.songId, commandObject.time, commandObject.startOffset);
         break;
       case 'Pause':
-        this.doPauseSong(commandObject.position);
+        this.audioService.pauseAtPosition(commandObject.position);
+        this.playerState = PlayerState.PAUSE;
         break;
       case 'Resume':
-        this.doResumeSong(commandObject.time);
+        this.schedulePlay(commandObject.time);
         break;
       case 'Stop':
-        this.doStopSong();
+        this.audioService.stop();
+        this.playerState = PlayerState.STOP;
         break;
       case 'Skip':
-        this.doSkipSong(commandObject.songId, commandObject.time);
+        this.audioService.stop();
+        this.playerState = PlayerState.STOP;
+        this.loadNewSong(commandObject.songId, commandObject.time, 0);
         break;
     }
   }

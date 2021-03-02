@@ -11,7 +11,6 @@ import {HomeComponent} from './components/home/home.component';
 import {LoaderComponent} from './components/loader/loader.component';
 import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs';
 import {myRxStompConfig} from './my-rx-stomp.config';
-import {PlayerComponent} from './components/player/player.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
@@ -26,6 +25,8 @@ import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {LatencyComponent} from './components/latency/latency.component';
+import {PlayerComponent} from './components/player/player.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import {LatencyComponent} from './components/latency/latency.component';
     PlayerComponent,
     SessionBrowserComponent,
     SessionCreatorComponent,
-    LatencyComponent
+    LatencyComponent,
+    PlayerComponent
   ],
   imports: [
     FormsModule,
@@ -47,7 +49,7 @@ import {LatencyComponent} from './components/latency/latency.component';
       {path: 'login', component: LoginComponent},
       {path: 'sessions/browse', component: SessionBrowserComponent, canActivate: [AuthGuard]},
       {path: 'sessions/create', component: SessionCreatorComponent, canActivate: [AuthGuard]},
-      {path: 'sessions/:sessionId/player', component: PlayerComponent, canActivate: [AuthGuard]},
+      {path: 'sessions/:sessionId/lobby', component: PlayerComponent, canActivate: [AuthGuard]},
       {path: '**', redirectTo: ''}], {relativeLinkResolution: 'legacy'}),
     BrowserAnimationsModule,
     MatToolbarModule,
@@ -59,7 +61,8 @@ import {LatencyComponent} from './components/latency/latency.component';
     MatListModule,
     MatOptionModule,
     MatSelectModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressBarModule
   ],
   providers: [{
     provide: InjectableRxStompConfig,

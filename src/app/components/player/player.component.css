@@ -11,6 +11,12 @@ mat-card-header {
   display: block;
 }
 
+mat-progress-bar {
+  margin: 20px 5px;
+  zoom: 1.2;
+  width: auto;
+}
+
 audio {
   width: 100%;
 }

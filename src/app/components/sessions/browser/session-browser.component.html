@@ -4,7 +4,7 @@
   </mat-card-header>
   <mat-card-content>
     <mat-action-list *ngFor="let session of sessions" role="list">
-      <mat-list-item [routerLink]="['/sessions',session.id,'player']" role="listitem">
+      <mat-list-item [routerLink]="['/sessions',session.id,'lobby']" role="listitem">
         {{session.name}} - {{session.host}} - [{{session.id}}]
       </mat-list-item>
     </mat-action-list>

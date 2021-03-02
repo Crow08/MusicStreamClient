@@ -79,6 +79,6 @@ export class SessionCreatorComponent implements OnInit {
   }
 
   private joinSession(sessionId: number): void {
-    this.router.navigateByUrl(`/sessions/${sessionId}/player`).catch(console.error);
+    this.router.navigateByUrl(`/sessions/${sessionId}/lobby`).catch(console.error);
   }
 }
