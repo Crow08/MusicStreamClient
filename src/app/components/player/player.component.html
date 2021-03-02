@@ -3,15 +3,21 @@
     <mat-card-title> {{songTitle}}</mat-card-title>
     <mat-card-subtitle> {{songArtist}}</mat-card-subtitle>
   </mat-card-header>
-    <audio controls preload="auto" #audioPlayer></audio>
+  <audio #audioPlayer controls preload="auto"></audio>
   <mat-card-content>
   </mat-card-content>
-    <div id="buttons">
-    <button class = "playerControls" mat-raised-button color="accent"><span class="material-icons">skip_previous</span></button>
-    <button class = "playerControls" mat-raised-button color="accent" (click)="startSong()"><span class="material-icons">restart_alt</span></button>
-    <button class = "playerControls" mat-raised-button color="accent" (click)="resumeSong()"><span class="material-icons">play_arrow</span></button>
-    <button class = "playerControls" mat-raised-button color="accent" (click)="pauseSong()"><span class="material-icons">pause</span></button>
-    <button class = "playerControls" mat-raised-button color="accent" (click)="stopSong()"><span class="material-icons">stop</span></button>
-    <button class = "playerControls" mat-raised-button color="accent" (click)="skipSong()"><span class="material-icons">skip_next</span></button>
-    </div>
+  <div id="buttons">
+    <button class="playerControls" color="accent" mat-raised-button><span class="material-icons">skip_previous</span>
+    </button>
+    <button (click)="startSong()" class="playerControls" color="accent" mat-raised-button><span class="material-icons">restart_alt</span>
+    </button>
+    <button (click)="resumeSong()" class="playerControls" color="accent" mat-raised-button><span class="material-icons">play_arrow</span>
+    </button>
+    <button (click)="pauseSong()" class="playerControls" color="accent" mat-raised-button><span class="material-icons">pause</span>
+    </button>
+    <button (click)="stopSong()" class="playerControls" color="accent" mat-raised-button><span class="material-icons">stop</span>
+    </button>
+    <button (click)="skipSong()" class="playerControls" color="accent" mat-raised-button><span class="material-icons">skip_next</span>
+    </button>
+  </div>
 </mat-card>

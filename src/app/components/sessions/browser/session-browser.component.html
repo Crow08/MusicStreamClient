@@ -3,15 +3,17 @@
     <mat-card-title>Active Sessions</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <mat-action-list role="list" *ngFor="let session of sessions">
-      <mat-list-item role="listitem" [routerLink]="['/sessions',session.id,'player']">
+    <mat-action-list *ngFor="let session of sessions" role="list">
+      <mat-list-item [routerLink]="['/sessions',session.id,'player']" role="listitem">
         {{session.name}} - {{session.host}} - [{{session.id}}]
       </mat-list-item>
     </mat-action-list>
   </mat-card-content>
   <mat-card-footer>
     <div style="height: 60px;">
-      <button mat-raised-button color="accent" type="button" id="create-session-btn" [routerLink]="'/sessions/create'">Create new session</button>
+      <button [routerLink]="'/sessions/create'" color="accent" id="create-session-btn" mat-raised-button type="button">
+        Create new session
+      </button>
     </div>
   </mat-card-footer>
 </mat-card>

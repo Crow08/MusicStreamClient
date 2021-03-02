@@ -24,7 +24,13 @@ export class SessionCreatorComponent implements OnInit {
   constructor(private router: Router,
               private formBuilder: FormBuilder,
               private http: HttpClient,
-              private authenticationService: AuthenticationService) { }
+              private authenticationService: AuthenticationService) {
+  }
+
+  // convenience getter for easy access to form fields
+  get f(): { [key: string]: AbstractControl } {
+    return this.sessionForm.controls;
+  }
 
   ngOnInit(): void {
     this.sessionForm = this.formBuilder.group({
@@ -33,7 +39,7 @@ export class SessionCreatorComponent implements OnInit {
     });
 
 
-    const options =  {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
     this.http.get(`http://${environment.dbServer}/playlists/all`, options)
       .subscribe(valueArray => {
         const noPlaylist = new Playlist();
@@ -42,11 +48,6 @@ export class SessionCreatorComponent implements OnInit {
         this.playlists = [noPlaylist];
         (valueArray as any[]).forEach((rawSession) => this.playlists.push(plainToClass(Playlist, rawSession)));
       });
-  }
-
-  // convenience getter for easy access to form fields
-  get f(): {[key: string]: AbstractControl} {
-    return this.sessionForm.controls;
   }
 
   onSubmit(): void {
@@ -59,7 +60,7 @@ export class SessionCreatorComponent implements OnInit {
     }
 
     this.loading = true;
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text' };
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
 
     this.http.put(`http://${environment.dbServer}/sessions/`, this.f.name.value, options)
       .subscribe(sessionId => {
@@ -68,7 +69,7 @@ export class SessionCreatorComponent implements OnInit {
   }
 
   private addSongs(sessionId: number): void {
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text' };
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
 
     this.http.put(`http://${environment.dbServer}/sessions/${sessionId}/addpl`, this.f.playlist.value, options)
       .subscribe(response => {

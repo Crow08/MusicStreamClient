@@ -5,8 +5,8 @@ import {Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {AuthenticationService} from '../../services/authentication.service';
 import {ActivatedRoute} from '@angular/router';
-import { Song } from 'src/app/models/song';
-import { plainToClass } from 'class-transformer';
+import {Song} from 'src/app/models/song';
+import {plainToClass} from 'class-transformer';
 
 @Component({
   selector: 'app-player',
@@ -14,10 +14,12 @@ import { plainToClass } from 'class-transformer';
   styleUrls: ['./player.component.css']
 })
 export class PlayerComponent implements AfterViewInit {
-  private topic: Subscription;
   $player: HTMLAudioElement;
   sessionId: number;
   latency: number;
+  songTitle: string = 'Welcome to this kinda good player';
+  songArtist: string = 'press Start to start (duh!)';
+  private topic: Subscription;
 
   constructor(private route: ActivatedRoute,
               private http: HttpClient,
@@ -28,23 +30,12 @@ export class PlayerComponent implements AfterViewInit {
   @ViewChild('audioPlayer') set playerRef(ref: ElementRef<HTMLAudioElement>) {
     this.$player = ref.nativeElement;
   }
-  songTitle: string = "Welcome to this kinda good player";
-  songArtist: string = "press Start to start (duh!)";
 
   ngAfterViewInit(): void {
     this.$player.volume = 0.1;
     const routeParams = this.route.snapshot.paramMap;
     this.sessionId = Number(routeParams.get('sessionId'));
     this.subscribeControlsTopic();
-  }
-
-  private subscribeControlsTopic(): void {
-    if (this.topic) {
-      this.topic.unsubscribe();
-    }
-    this.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
-      this.processCommand(message.body);
-    });
   }
 
   startSong(): void {
@@ -106,10 +97,19 @@ export class PlayerComponent implements AfterViewInit {
       rawSong => {
         const song = plainToClass(Song, JSON.parse(rawSong));
         this.songTitle = song.title;
-        this.songArtist = `${song.artist==null?"Unknown Artist":song.artist}`;
+        this.songArtist = `${song.artist == null ? 'Unknown Artist' : song.artist}`;
       },
       console.error
     );
+  }
+
+  private subscribeControlsTopic(): void {
+    if (this.topic) {
+      this.topic.unsubscribe();
+    }
+    this.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
+      this.processCommand(message.body);
+    });
   }
 
   private doPauseSong(position: number): void {

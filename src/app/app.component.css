@@ -1,16 +1,17 @@
 #content {
   background-image: url('../assets/parrot.jpg');
   background-repeat: no-repeat;
-  background-size:cover;
+  background-size: cover;
   height: calc(100% - 84px);
   width: calc(100% - 20px);;
   padding: 10px;
 }
+
 .spacer {
   flex: 1;
 }
 
-a,a:visited {
+a, a:visited {
   color: white;
   padding: 10px;
   cursor: pointer;

@@ -10,8 +10,8 @@ import {environment} from '../../environments/environment';
   providedIn: 'root'
 })
 export class AuthenticationService {
-  private currentUserSubject: BehaviorSubject<User>;
   public currentUser: Observable<User>;
+  private currentUserSubject: BehaviorSubject<User>;
 
   constructor(private http: HttpClient) {
     this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
@@ -24,10 +24,6 @@ export class AuthenticationService {
 
   public getAuthHeaderForCurrentUser(): HttpHeaders {
     return this.getAuthHeaderForUser(this.currentUserSubject.value);
-  }
-
-  private getAuthHeaderForUser(user: User): HttpHeaders {
-    return  new HttpHeaders({Authorization: `Basic ${user.authdata}`});
   }
 
   login(username: string, password: string): Observable<User> {
@@ -48,5 +44,9 @@ export class AuthenticationService {
     // remove user from local storage to log user out
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
+  }
+
+  private getAuthHeaderForUser(user: User): HttpHeaders {
+    return new HttpHeaders({Authorization: `Basic ${user.authdata}`});
   }
 }

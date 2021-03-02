@@ -1,27 +1,27 @@
 <mat-card id="login-card">
   <mat-card-title>Create new Session</mat-card-title>
   <mat-card-content>
-    <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()">
+    <form (ngSubmit)="onSubmit()" [formGroup]="sessionForm">
       <p>
         <mat-form-field>
           <mat-label>session name</mat-label>
-          <input matInput placeholder="session name" id="name" type="text" formControlName="name"/>
+          <input formControlName="name" id="name" matInput placeholder="session name" type="text"/>
         </mat-form-field>
       </p>
       <p>
         <mat-form-field>
           <mat-label>Playlist ID</mat-label>
-          <input matInput type="text" formControlName="playlist" [matAutocomplete]="auto">
+          <input [matAutocomplete]="auto" formControlName="playlist" matInput type="text">
           <mat-autocomplete #auto="matAutocomplete">
-            <mat-option  *ngFor="let playlist of playlists" [value]="playlist.id">
+            <mat-option *ngFor="let playlist of playlists" [value]="playlist.id">
               {{playlist.id != -1 ? playlist.id + " - " : ""}}{{ playlist.name }}
-            </mat-option >
+            </mat-option>
           </mat-autocomplete>
         </mat-form-field>
       </p>
       <div class="button">
         <app-loader [loadingState]="loading"></app-loader>
-        <button mat-raised-button color="accent" type="submit" [disabled]="loading">create</button>
+        <button [disabled]="loading" color="accent" mat-raised-button type="submit">create</button>
       </div>
     </form>
   </mat-card-content>

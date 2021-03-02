@@ -1,4 +1,4 @@
-import { InjectableRxStompConfig } from '@stomp/ng2-stompjs';
+import {InjectableRxStompConfig} from '@stomp/ng2-stompjs';
 import {environment} from '../environments/environment';
 
 export const myRxStompConfig: InjectableRxStompConfig = {
@@ -7,7 +7,7 @@ export const myRxStompConfig: InjectableRxStompConfig = {
 
   // Headers
   // Typical keys: login, passcode, host
-  connectHeaders: { },
+  connectHeaders: {},
 
   // How often to heartbeat?
   // Interval in milliseconds, set to 0 to disable

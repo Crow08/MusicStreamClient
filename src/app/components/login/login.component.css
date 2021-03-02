@@ -12,7 +12,7 @@
   justify-content: flex-end;
 }
 
-mat-card-title{
+mat-card-title {
   display: flex;
   justify-content: center;
   padding-bottom: 30px;

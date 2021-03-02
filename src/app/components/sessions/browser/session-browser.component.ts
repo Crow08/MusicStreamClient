@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Session} from '../../../models/session';
 import {HttpClient} from '@angular/common/http';
 import {AuthenticationService} from '../../../services/authentication.service';
@@ -20,7 +20,7 @@ export class SessionBrowserComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const options =  {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
     this.http.get(`http://${environment.dbServer}/sessions/all`, options)
       .subscribe(valueArray => {
         this.sessions = [];

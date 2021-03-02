@@ -4,7 +4,6 @@ import {AbstractControl, FormBuilder, FormControl, FormGroup, FormGroupDirective
 import {first} from 'rxjs/operators';
 
 import {AuthenticationService} from '../../services/authentication.service';
-import {ErrorStateMatcher} from '@angular/material/core';
 
 @Component({
   selector: 'app-login',
@@ -31,7 +30,7 @@ export class LoginComponent implements OnInit {
   returnUrl: string;
   error = '';
   matcher = new LoginComponent.InputErrorStateMatcher();
-  @ViewChild("console") fmDebug;
+  @ViewChild('console') fmDebug;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -45,6 +44,11 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  // convenience getter for easy access to form fields
+  get f(): { [key: string]: AbstractControl } {
+    return this.loginForm.controls;
+  }
+
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
@@ -53,11 +57,6 @@ export class LoginComponent implements OnInit {
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams.returnUrl || '/';
-  }
-
-  // convenience getter for easy access to form fields
-  get f(): {[key: string]: AbstractControl} {
-    return this.loginForm.controls;
   }
 
   onSubmit(): void {

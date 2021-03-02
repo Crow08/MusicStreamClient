@@ -1,28 +1,28 @@
 :host {
-    display: flex;
-    justify-content: center;
-  }
+  display: flex;
+  justify-content: center;
+}
 
-  #buttons{
-    white-space: nowrap;
-  }
+#buttons {
+  white-space: nowrap;
+}
 
-  mat-card-title,
-  mat-card-content {
-    display: flex;
-    justify-content: left;
-  }
+mat-card-title,
+mat-card-content {
+  display: flex;
+  justify-content: left;
+}
 
-  mat-card {
-    margin: 10px;
-    max-width: 500px;
-  }
+mat-card {
+  margin: 10px;
+  max-width: 500px;
+}
 
-  .playerControls{
-      margin-right: 5px;
-      margin-left: 5px;
-  }
+.playerControls {
+  margin-right: 5px;
+  margin-left: 5px;
+}
 
-  audio {
-      width: 100%;
-    }
+audio {
+  width: 100%;
+}

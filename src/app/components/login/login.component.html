@@ -1,26 +1,26 @@
 <mat-card id="login-card">
   <mat-card-title>Login</mat-card-title>
   <mat-card-content>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form (ngSubmit)="onSubmit()" [formGroup]="loginForm">
       <p *ngIf="error" class="error-text">
-          {{error}}
+        {{error}}
       </p>
       <p>
         <mat-form-field>
-          <input matInput placeholder="Username" id="username" type="text" formControlName="username"
-                     [errorStateMatcher]="matcher"/>
+          <input [errorStateMatcher]="matcher" formControlName="username" id="username" matInput placeholder="Username"
+                 type="text"/>
 
         </mat-form-field>
       </p>
       <p>
         <mat-form-field>
-          <input matInput placeholder="Password" id="password" type="password" formControlName="password"
-                 [errorStateMatcher]="matcher"/>
+          <input [errorStateMatcher]="matcher" formControlName="password" id="password" matInput placeholder="Password"
+                 type="password"/>
         </mat-form-field>
       </p>
       <div class="button">
         <app-loader [loadingState]="loading"></app-loader>
-        <button mat-raised-button color="accent" type="submit" [disabled]="loading">Login</button>
+        <button [disabled]="loading" color="accent" mat-raised-button type="submit">Login</button>
       </div>
     </form>
     <div #console></div>

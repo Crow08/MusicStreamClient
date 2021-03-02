@@ -1,19 +1,18 @@
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {BrowserModule} from '@angular/platform-browser';
+import {HttpClientModule} from '@angular/common/http';
+import {RouterModule} from '@angular/router';
 
-import { AuthGuard } from './auth.guard';
-import { AppComponent } from './app.component';
-import { LoginComponent } from './components/login/login.component';
-import { HomeComponent } from './components/home/home.component';
-import { LoaderComponent } from './components/loader/loader.component';
+import {AuthGuard} from './auth.guard';
+import {AppComponent} from './app.component';
+import {LoginComponent} from './components/login/login.component';
+import {HomeComponent} from './components/home/home.component';
+import {LoaderComponent} from './components/loader/loader.component';
 import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs';
 import {myRxStompConfig} from './my-rx-stomp.config';
-import { PlayerComponent } from './components/player/player.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {PlayerComponent} from './components/player/player.component';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
@@ -21,8 +20,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatCardModule} from '@angular/material/card';
 import {MatListModule} from '@angular/material/list';
-import { SessionBrowserComponent } from './components/sessions/browser/session-browser.component';
-import { SessionCreatorComponent } from './components/sessions/session-creator/session-creator.component';
+import {SessionBrowserComponent} from './components/sessions/browser/session-browser.component';
+import {SessionCreatorComponent} from './components/sessions/session-creator/session-creator.component';
 import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
@@ -61,9 +60,9 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     MatAutocompleteModule
   ],
   providers: [{
-      provide: InjectableRxStompConfig,
-      useValue: myRxStompConfig,
-    },
+    provide: InjectableRxStompConfig,
+    useValue: myRxStompConfig,
+  },
     {
       provide: RxStompService,
       useFactory: rxStompServiceFactory,

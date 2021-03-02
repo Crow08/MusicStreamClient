@@ -14,6 +14,7 @@
   width: 1em;
   height: 4em;
 }
+
 .loader {
   color: darkblue;
   text-indent: -9999em;
@@ -26,20 +27,24 @@
   -webkit-animation-delay: -0.16s;
   animation-delay: -0.16s;
 }
+
 .loader:before,
 .loader:after {
   position: absolute;
   top: 0;
   content: '';
 }
+
 .loader:before {
   left: -1.5em;
   -webkit-animation-delay: -0.32s;
   animation-delay: -0.32s;
 }
+
 .loader:after {
   left: 1.5em;
 }
+
 @-webkit-keyframes load1 {
   0%,
   80%,
@@ -52,6 +57,7 @@
     height: 5em;
   }
 }
+
 @keyframes load1 {
   0%,
   80%,

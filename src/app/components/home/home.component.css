@@ -8,7 +8,7 @@ mat-card {
   max-width: 300px;
 }
 
-#database-card > mat-card-content > ul > li:first-child{
+#database-card > mat-card-content > ul > li:first-child {
   list-style-type: none;
   margin-left: -20px;
   font-weight: bold;
