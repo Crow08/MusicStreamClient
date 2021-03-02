@@ -1,9 +1,16 @@
+:host {
+  height: 100%;
+  width: 100%;
+  top: 0;
+  position: fixed;
+}
+
 #content {
   background-image: url('../assets/parrot.jpg');
   background-repeat: no-repeat;
   background-size: cover;
-  height: calc(100% - 84px);
-  width: calc(100% - 20px);;
+  height: 100%;
+  width: 100%;
   padding: 10px;
 }
 
