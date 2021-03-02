@@ -1,12 +1,14 @@
 <mat-card class="example-card">
   <mat-card-header>
     <mat-card-title> {{songTitle}}</mat-card-title>
-    <mat-card-subtitle> {{songArtist}}</mat-card-subtitle>
+    <mat-card-subtitle> {{songArtist}}
+      <app-latency #latencyComponent id="latencyComponent"></app-latency>
+    </mat-card-subtitle>
   </mat-card-header>
   <audio #audioPlayer controls preload="auto"></audio>
   <mat-card-content>
   </mat-card-content>
-  <div id="buttons">
+  <div id="controlButtons">
     <button class="playerControls" color="accent" mat-raised-button><span class="material-icons">skip_previous</span>
     </button>
     <button (click)="startSong()" class="playerControls" color="accent" mat-raised-button><span class="material-icons">restart_alt</span>

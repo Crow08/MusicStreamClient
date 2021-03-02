@@ -3,19 +3,16 @@
   justify-content: center;
 }
 
-#buttons {
-  white-space: nowrap;
-}
-
-mat-card-title,
-mat-card-content {
-  display: flex;
-  justify-content: left;
-}
-
 mat-card {
-  margin: 10px;
-  max-width: 500px;
+  padding: 20px;
+}
+
+mat-card-header {
+  display: block;
+}
+
+audio {
+  width: 100%;
 }
 
 .playerControls {
@@ -23,6 +20,10 @@ mat-card {
   margin-left: 5px;
 }
 
-audio {
-  width: 100%;
+#controlButtons {
+  white-space: nowrap;
+}
+
+#latencyComponent {
+  float: right;
 }

@@ -25,6 +25,7 @@ import {SessionCreatorComponent} from './components/sessions/session-creator/ses
 import {MatOptionModule} from '@angular/material/core';
 import {MatSelectModule} from '@angular/material/select';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {LatencyComponent} from './components/latency/latency.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
     LoaderComponent,
     PlayerComponent,
     SessionBrowserComponent,
-    SessionCreatorComponent
+    SessionCreatorComponent,
+    LatencyComponent
   ],
   imports: [
     FormsModule,

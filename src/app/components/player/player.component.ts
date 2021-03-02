@@ -7,6 +7,7 @@ import {AuthenticationService} from '../../services/authentication.service';
 import {ActivatedRoute} from '@angular/router';
 import {Song} from 'src/app/models/song';
 import {plainToClass} from 'class-transformer';
+import {LatencyComponent} from '../latency/latency.component';
 
 @Component({
   selector: 'app-player',
@@ -14,12 +15,13 @@ import {plainToClass} from 'class-transformer';
   styleUrls: ['./player.component.css']
 })
 export class PlayerComponent implements AfterViewInit {
+
+  private static topic: Subscription;
   $player: HTMLAudioElement;
   sessionId: number;
-  latency: number;
-  songTitle: string = 'Welcome to this kinda good player';
-  songArtist: string = 'press Start to start (duh!)';
-  private topic: Subscription;
+  songTitle = 'Welcome to this kinda good player';
+  songArtist = 'press Start to start (duh!)';
+  @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
   constructor(private route: ActivatedRoute,
               private http: HttpClient,
@@ -40,6 +42,7 @@ export class PlayerComponent implements AfterViewInit {
 
   startSong(): void {
     if (this.sessionId) {
+      this.latencyComponent.startLatencyMeasurement();
       this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/start`, body: 'text'});
     } else {
       alert('No active Session!');
@@ -48,6 +51,7 @@ export class PlayerComponent implements AfterViewInit {
 
   pauseSong(): void {
     if (this.sessionId) {
+      this.latencyComponent.startLatencyMeasurement();
       this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/pause`, body: 'text'});
     } else {
       alert('No active Session!');
@@ -56,6 +60,7 @@ export class PlayerComponent implements AfterViewInit {
 
   resumeSong(): void {
     if (this.sessionId) {
+      this.latencyComponent.startLatencyMeasurement();
       this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/resume`, body: 'text'});
     } else {
       alert('No active Session!');
@@ -64,6 +69,7 @@ export class PlayerComponent implements AfterViewInit {
 
   stopSong(): void {
     if (this.sessionId) {
+      this.latencyComponent.startLatencyMeasurement();
       this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/stop`, body: 'text'});
     } else {
       alert('No active Session!');
@@ -72,6 +78,7 @@ export class PlayerComponent implements AfterViewInit {
 
   skipSong(): void {
     if (this.sessionId) {
+      this.latencyComponent.startLatencyMeasurement();
       this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/skip`, body: 'text'});
     } else {
       alert('No active Session!');
@@ -80,11 +87,12 @@ export class PlayerComponent implements AfterViewInit {
 
   doStartSong(songId: number, startTime: number, offset: number): void {
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
-    this.http.get(`http://${environment.dbServer}/songs/${songId}/data/${offset}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
+    const basePath = `http://${environment.dbServer}/songs/${songId}/data`;
+    this.http.get(`${basePath}${(offset === 0 ? '' : `/${offset}`)}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
       url => this.prepareSongStart(url, startTime, 0),
       error => {
         if (error.status === 422) {
-          this.http.get(`http://${environment.dbServer}/songs/${songId}/data?X-NPE-PSU-Duration=PT1H`, options).subscribe(
+          this.http.get(`${basePath}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
             url => this.prepareSongStart(url, startTime, offset),
             console.error
           );
@@ -104,10 +112,10 @@ export class PlayerComponent implements AfterViewInit {
   }
 
   private subscribeControlsTopic(): void {
-    if (this.topic) {
-      this.topic.unsubscribe();
+    if (PlayerComponent.topic) {
+      PlayerComponent.topic.unsubscribe();
     }
-    this.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
+    PlayerComponent.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
       this.processCommand(message.body);
     });
   }
@@ -134,7 +142,7 @@ export class PlayerComponent implements AfterViewInit {
   private prepareSongStart(url: string, startTime: number, offset: number): void {
     this.$player.src = url;
     this.$player.currentTime = offset / 1000;
-    this.schedulePlay(startTime);
+    this.schedulePlay(startTime + this.latencyComponent.serverTimeOffset);
   }
 
   private schedulePlay(startTime: number): void {
@@ -144,6 +152,7 @@ export class PlayerComponent implements AfterViewInit {
   }
 
   private processCommand(jsonString: string): void {
+    this.latencyComponent.endLatencyMeasurement();
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
