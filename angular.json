@@ -24,7 +24,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/parrot.scss",
+              "src/theme.scss",
               "src/styles.css"
             ],
             "scripts": []

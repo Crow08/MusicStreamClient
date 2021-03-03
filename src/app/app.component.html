@@ -1,25 +1,32 @@
 <!-- Toolbar -->
-<mat-toolbar color="primary">
-  <button aria-label="Example icon-button with menu icon" class="example-icon" mat-icon-button>
-    <mat-icon>menu</mat-icon>
-  </button>
-  <a routerLink="/">
-    <button aria-label="Example icon-button with heart icon" class="example-icon favorite-icon" mat-icon-button>
-      <mat-icon>home</mat-icon>
-    </button>
-  </a>
-  <div class="spacer"></div>
-  <h2>Music Stream Client</h2>
-  <div class="spacer"></div>
-  <a (click)="logout()">
-    <button aria-label="Example icon-button with share icon" class="example-icon" mat-icon-button>
-      <mat-icon>logout</mat-icon>
-    </button>
-  </a>
-</mat-toolbar>
-<!-- content -->
-<div id="content" role="main">
-  <router-outlet></router-outlet>
-</div>
+<div [ngClass]="{'spotify-theme': isDarkTheme | async}">
+  <div class="mat-app-background">
+    <mat-toolbar color="primary">
+      <mat-toolbar-row>
+        <button aria-label="Example icon-button with menu icon" class="example-icon" mat-icon-button>
+          <mat-icon>menu</mat-icon>
+        </button>
+        <a routerLink="/">
+          <button aria-label="Example icon-button with heart icon" class="example-icon favorite-icon" mat-icon-button>
+            <mat-icon>home</mat-icon>
+          </button>
+        </a>
+        <mat-slide-toggle [checked]="isDarkTheme | async" (change)="toggleDarkTheme($event.checked)"></mat-slide-toggle>
+        <div class="spacer"></div>
+        <h2>Music Stream Client</h2>
+        <div class="spacer"></div>
+        <a (click)="logout()">
+          <button aria-label="Example icon-button with share icon" class="example-icon" mat-icon-button>
+            <mat-icon>logout</mat-icon>
+          </button>
+        </a>
+      </mat-toolbar-row>
+    </mat-toolbar>
 
+    <!-- content -->
+    <div [ngClass]="{'spotify-theme': isDarkTheme | async}" class="animal_background" role="main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
 

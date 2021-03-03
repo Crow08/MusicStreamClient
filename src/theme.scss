@@ -135,10 +135,48 @@ $parrot-toolbar-theme: mat-dark-theme((
   ))
 );
 
+.animal_background {
+  background-image: url('./assets/parrot.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+}
+
+
 //include
 @include mat-core();
 
 @include angular-material-theme($parrot-theme);
 
-@include mat-toolbar-theme($parrot-toolbar-theme)
+@include mat-toolbar-theme($parrot-toolbar-theme);
 
+// alternative theme
+.spotify-theme {
+
+  .animal_background {
+    background-image: url('./assets/turtle.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+  }
+  color: $light-primary-text;
+  $spotify-primary: mat-palette($mat-green);
+  $spotify-accent: mat-palette($mat-green);
+  $spotify-warn: mat-palette($mat-red);
+  $spotify-theme: mat-dark-theme($spotify-primary, $spotify-accent, $spotify-warn);
+
+  color: $light-primary-text;
+  $dark-primary2: $parrot-toolbar-primary;
+  $dark-accent2: mat-palette($mat-green);
+  $dark-warn2: mat-palette($mat-red);
+  $dark-theme2: mat-dark-theme($dark-primary2, $dark-accent2, $dark-warn2);
+
+
+  
+  @include angular-material-theme($spotify-theme);
+  @include mat-toolbar-theme($dark-theme2);
+}
