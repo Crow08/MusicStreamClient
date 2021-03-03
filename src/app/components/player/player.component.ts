@@ -33,6 +33,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   songTitle = 'Welcome to this kinda good player';
   songArtist = 'press Start to start (duh!)';
   progression = 0;
+  songTimeOffset = 0;
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
@@ -52,6 +53,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.subscribeControlsTopic();
+    setTimeout(() => this.publishCommand(`join/${this.authenticationService.currentUserValue.id}`), 1000 );
+
   }
 
   publishCommand(name: string): void {
@@ -63,20 +66,29 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     }
   }
 
-  loadNewSong(songId: number, startTime: number, offset: number): void {
+  loadNewSong(songId: number, startTime: number, offset: number, directPlay = true): void {
+    if (songId === -1) {
+      this.playerState = PlayerState.STOP;
+      return;
+    }
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
     const basePath = `http://${environment.dbServer}/songs/${songId}/data`;
     this.http.get(`${basePath}${(offset === 0 ? '' : `/${offset}`)}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
-      url => this.prepareSongStart(url, startTime, 0),
+      url => {
+        this.songTimeOffset = offset;
+        this.prepareSongStart(url, startTime, 0, directPlay);
+      },
       error => {
         if (error.status === 422) {
           this.http.get(`${basePath}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
-            url => this.prepareSongStart(url, startTime, offset),
+            url => {
+              this.songTimeOffset = 0;
+              this.prepareSongStart(url, startTime, offset, directPlay);
+            },
             console.error
           );
           return;
         }
-        console.error(error);
       }
     );
     this.http.get(`http://${environment.dbServer}/songs/${songId}`, options).subscribe(
@@ -98,10 +110,12 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     });
   }
 
-  private prepareSongStart(url: string, startTime: number, offset: number): void {
+  private prepareSongStart(url: string, startTime: number, offset: number, directPlay: boolean): void {
     this.audioService.setSrc(url);
     this.audioService.setCurrentTime(offset / 1000);
-    this.schedulePlay(startTime + this.latencyComponent.serverTimeOffset);
+    if(directPlay) {
+      this.schedulePlay(startTime + this.latencyComponent.serverTimeOffset);
+    }
   }
 
   private schedulePlay(startTime: number): void {
@@ -117,10 +131,10 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
-        this.loadNewSong(commandObject.songId, commandObject.time, commandObject.startOffset);
+        this.loadNewSong(commandObject.songId, commandObject.time, 0);
         break;
       case 'Pause':
-        this.audioService.pauseAtPosition(commandObject.position);
+        this.audioService.pauseAtPosition(commandObject.position - this.songTimeOffset);
         this.playerState = PlayerState.PAUSE;
         break;
       case 'Resume':
@@ -132,8 +146,24 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         break;
       case 'Skip':
         this.audioService.stop();
-        this.playerState = PlayerState.STOP;
         this.loadNewSong(commandObject.songId, commandObject.time, 0);
+        break;
+      case 'Join':
+        if (commandObject.userId === this.authenticationService.currentUserValue.id) {
+          switch (commandObject.sessionState) {
+            case 'PLAY':
+              this.loadNewSong(commandObject.songId, commandObject.time, commandObject.startOffset);
+              break;
+            case 'STOP':
+              this.audioService.stop();
+              this.playerState = PlayerState.STOP;
+              break;
+            case 'PAUSE':
+              this.loadNewSong(commandObject.songId, commandObject.time, commandObject.startOffset, false);
+              this.playerState = PlayerState.STOP;
+              break;
+          }
+        }
         break;
     }
   }

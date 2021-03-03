@@ -33,6 +33,7 @@ export class AuthenticationService {
     user.authdata = window.btoa(username + ':' + password);
     return this.http.get<any>(`http://${environment.dbServer}/users/login`, {headers: this.getAuthHeaderForUser(user)})
       .pipe(map(userDTO => {
+        user.id = userDTO.id;
         console.log(`Login: ${JSON.stringify(userDTO)}`);
         localStorage.setItem('currentUser', JSON.stringify(user));
         this.currentUserSubject.next(user);
