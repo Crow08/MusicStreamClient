@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<div [ngClass]="{'spotify-theme': isDarkTheme | async}">
+<div [ngClass]="themeClass">
   <div class="mat-app-background">
     <mat-toolbar color="primary">
       <mat-toolbar-row>
@@ -11,7 +11,11 @@
             <mat-icon>home</mat-icon>
           </button>
         </a>
-        <mat-slide-toggle [checked]="isDarkTheme | async" (change)="toggleDarkTheme($event.checked)"></mat-slide-toggle>
+        <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+          <mat-button-toggle (click)="detectTheme('parrot-theme')">Parrot</mat-button-toggle>
+          <mat-button-toggle (click)="detectTheme('turtle-theme')">Turtle</mat-button-toggle>
+          <mat-button-toggle (click)="detectTheme('shark-theme')">Shark</mat-button-toggle>
+        </mat-button-toggle-group>
         <div class="spacer"></div>
         <h2>Music Stream Client</h2>
         <div class="spacer"></div>
@@ -24,9 +28,8 @@
     </mat-toolbar>
 
     <!-- content -->
-    <div [ngClass]="{'spotify-theme': isDarkTheme | async}" class="animal_background" role="main">
+    <div [ngClass]="themeClass" role="main">
       <router-outlet></router-outlet>
     </div>
   </div>
 </div>
-

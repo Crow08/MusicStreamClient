@@ -118,65 +118,147 @@ $parrot-accent: mat-palette((
   )
 ));
 
-// Themes
-$parrot-theme: mat-dark-theme((
-  color: (
-    primary: $parrot-primary,
-    accent: $parrot-accent,
-    warn: mat-palette($mat-red),
-  ))
-);
+$shark-primary: mat-palette((
+    50 : #e3f1f8,
+    100 : #b8dded,
+    200 : #89c7e1,
+    300 : #59b0d4,
+    400 : #369fcb,
+    500 : #128ec2,
+    600 : #1086bc,
+    700 : #0d7bb4,
+    800 : #0a71ac,
+    900 : #055f9f,
+    A100 : #cae6ff,
+    A200 : #97cfff,
+    A400 : #64b7ff,
+    A700 : #4babff,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+));
 
-$parrot-toolbar-theme: mat-dark-theme((
-  color: (
-    primary: $parrot-toolbar-primary,
-    accent: $parrot-accent,
-    warn: mat-palette($mat-red),
-  ))
-);
+//include
+@include mat-core();
 
-.animal_background {
+.parrot-theme {
+
   background-image: url('./assets/parrot.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   height: 100%;
   width: 100%;
   padding: 10px;
-}
-
-
-//include
-@include mat-core();
-
-@include angular-material-theme($parrot-theme);
-
-@include mat-toolbar-theme($parrot-toolbar-theme);
-
-// alternative theme
-.spotify-theme {
-
-  .animal_background {
-    background-image: url('./assets/turtle.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100%;
-    width: 100%;
-    padding: 10px;
-  }
-  color: $light-primary-text;
-  $spotify-primary: mat-palette($mat-green);
-  $spotify-accent: mat-palette($mat-green);
-  $spotify-warn: mat-palette($mat-red);
-  $spotify-theme: mat-dark-theme($spotify-primary, $spotify-accent, $spotify-warn);
 
   color: $light-primary-text;
-  $dark-primary2: $parrot-toolbar-primary;
-  $dark-accent2: mat-palette($mat-green);
-  $dark-warn2: mat-palette($mat-red);
-  $dark-theme2: mat-dark-theme($dark-primary2, $dark-accent2, $dark-warn2);
+  $parrot-primary : $parrot-primary;
+  $parrot-accent : $parrot-accent;
+  $parrot-warn: mat-palette($mat-red);
+  $parrot-theme: mat-dark-theme($parrot-primary, $parrot-accent, $parrot-warn);
+
+  color: $light-primary-text;
+  $parrot-toolbar-primary : $parrot-toolbar-primary;
+  $parrot-toolbar-accent: $parrot-accent;
+  $parrot-toolbar-warn: mat-palette($mat-red);
+  $parrot-toolbar-theme: mat-dark-theme($parrot-toolbar-primary, $parrot-toolbar-accent, $parrot-toolbar-warn);
 
 
   
-  @include angular-material-theme($spotify-theme);
-  @include mat-toolbar-theme($dark-theme2);
+  @include angular-material-theme($parrot-theme);
+  @include mat-toolbar-theme($parrot-toolbar-theme);
+}
+
+// turtle (greenish) theme
+.turtle-theme {
+
+  background-image: url('./assets/turtle.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+
+  color: $light-primary-text;
+  $turtle-primary: mat-palette($mat-green);
+  $turtle-accent: mat-palette($mat-green);
+  $turtle-warn: mat-palette($mat-red);
+  $turtle-theme: mat-dark-theme($turtle-primary, $turtle-accent, $turtle-warn);
+
+  color: $light-primary-text;
+  $turtle-toolbar-primary: $parrot-toolbar-primary;
+  $turtle-toolbar-accent: mat-palette($mat-green);
+  $turtle-toolbar-warn: mat-palette($mat-red);
+  $turtle-toolbar-theme: mat-dark-theme($turtle-toolbar-primary, $turtle-toolbar-accent, $turtle-toolbar-warn);
+
+
+  
+  @include angular-material-theme($turtle-theme);
+  @include mat-toolbar-theme($turtle-toolbar-theme);
+}
+/*
+nur 500, 200, 900
+
+$mat-accent: mat-palette((
+  main: #f00,
+  lighter: #f00,
+  darker: #f00,
+  contrast : (
+    main: #fff,
+    lighter: #fff,
+    darker: #fff,
+  )
+), main, lighter, darker);
+
+// Themes
+$parrot-theme: mat-dark-theme((
+  color: (
+    primary: $parrot-primary,
+    accent: $mat-accent,
+    warn: mat-palette($mat-red),
+  ))
+);
+.shark-theme{
+  @include angular-material-theme($theme-accent);
+  @include mat-toolbar-theme($theme-accent);
+}
+*/
+
+// shark (blueish) theme
+.shark-theme {
+
+  background-image: url('./assets/shark.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+  
+  color: $light-primary-text;
+  $shark-accent: $shark-primary;
+  $shark-warn: mat-palette($mat-red);
+  $shark-theme: mat-dark-theme($shark-primary, $shark-accent, $shark-warn);
+
+  color: $light-primary-text;
+  $shark-toolbar-primary: $parrot-toolbar-primary;
+  $shark-toolbar-accent: mat-palette($mat-indigo);
+  $shark-toolbar-warn: mat-palette($mat-red);
+  $shark-toolbar-theme: mat-dark-theme($shark-toolbar-primary, $shark-toolbar-accent, $shark-toolbar-warn);
+
+
+  
+  @include angular-material-theme($shark-theme);
+  @include mat-toolbar-theme($shark-toolbar-theme);
 }

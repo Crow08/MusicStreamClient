@@ -27,7 +27,7 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {LatencyComponent} from './components/latency/latency.component';
 import {PlayerComponent} from './components/player/player.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @NgModule({
   declarations: [
@@ -64,7 +64,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     MatSelectModule,
     MatAutocompleteModule,
     MatProgressBarModule,
-    MatSlideToggleModule
+    MatButtonToggleModule
   ],
   providers: [{
     provide: InjectableRxStompConfig,

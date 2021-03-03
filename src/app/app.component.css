@@ -5,15 +5,6 @@
   position: fixed;
 }
 
-#content {
-  background-image: url('../assets/parrot.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: 100%;
-  width: 100%;
-  padding: 10px;
-}
-
 .spacer {
   flex: 1;
 }
