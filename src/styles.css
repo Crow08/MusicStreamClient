@@ -9,9 +9,19 @@ div {
   height: 100%;
 }
 .mat-autocomplete-panel{
-  background-color: white;
+  background-color: rgb(40,40,40);
+  color: white;
   height: 100px;
 }
+
+.mat-autocomplete-panel .mat-option-text{
+  font-size: 12px;
+}
+
+.mat-autocomplete-panel .mat-option:hover:not(.mat-option-disabled){
+  background-color: rgb(80, 80, 80);
+}
+
 
 
 body {
