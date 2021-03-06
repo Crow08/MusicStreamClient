@@ -12,12 +12,12 @@
           </button>
         </a>
         <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
-          <mat-button-toggle (click)="detectTheme('parrot-theme')">Parrot</mat-button-toggle>
-          <mat-button-toggle (click)="detectTheme('turtle-theme')">Turtle</mat-button-toggle>
-          <mat-button-toggle (click)="detectTheme('shark-theme')">Shark</mat-button-toggle>
+          <mat-button-toggle (click)="selectTheme('parrot-theme')">Parrot</mat-button-toggle>
+          <mat-button-toggle (click)="selectTheme('turtle-theme')">Turtle</mat-button-toggle>
+          <mat-button-toggle (click)="selectTheme('shark-theme')">Shark</mat-button-toggle>
         </mat-button-toggle-group>
         <div class="spacer"></div>
-        <h2>Music Stream Client</h2>
+        <h2 id="main-headline">Music Stream Client</h2>
         <div class="spacer"></div>
         <a (click)="logout()">
           <button aria-label="Example icon-button with share icon" class="example-icon" mat-icon-button>

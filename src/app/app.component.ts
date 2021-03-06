@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthenticationService} from './services/authentication.service';
 import {User} from './models/user';
@@ -15,13 +15,11 @@ export class AppComponent {
   constructor(
     private router: Router,
     private authenticationService: AuthenticationService,
-    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
-  detectTheme(theme: string): void {
+  selectTheme(theme: string): void {
     this.themeClass = theme;
-    //this.changeDetectorRef.detectChanges();
   }
   
   logout(): void {
