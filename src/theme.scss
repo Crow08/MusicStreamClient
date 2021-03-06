@@ -34,8 +34,6 @@ $mat-dark-theme-background: (
   color: $light-primary-text;
   $parrot-warn: mat-palette($mat-red);
   $parrot-theme: mat-dark-theme($parrot-primary, $parrot-accent, $parrot-warn);
-
-  color: $light-primary-text;
   $parrot-toolbar-theme: mat-dark-theme($parrot-toolbar-primary, $parrot-accent, $parrot-warn);
 
   @include angular-material-theme($parrot-theme);
@@ -54,9 +52,7 @@ $mat-dark-theme-background: (
   color: $light-primary-text;
   $turtle-warn: mat-palette($mat-red);
   $turtle-theme: mat-dark-theme($turtle-primary, $turtle-accent, $turtle-warn);
-
-  color: $light-primary-text;
-   $turtle-toolbar-theme: mat-dark-theme($turtle-toolbar-primary, $turtle-accent, $turtle-warn);
+  $turtle-toolbar-theme: mat-dark-theme($turtle-toolbar-primary, $turtle-accent, $turtle-warn);
 
   @include angular-material-theme($turtle-theme);
   @include mat-toolbar-theme($turtle-toolbar-theme);
@@ -73,9 +69,7 @@ $mat-dark-theme-background: (
   color: $light-primary-text;
   $shark-warn: mat-palette($mat-red);
   $shark-theme: mat-dark-theme($shark-primary, $shark-accent, $shark-warn);
-
-  color: $light-primary-text;
-   $shark-toolbar-theme: mat-dark-theme($shark-toolbar-primary, $shark-accent, $shark-warn);
+  $shark-toolbar-theme: mat-dark-theme($shark-toolbar-primary, $shark-accent, $shark-warn);
 
   @include angular-material-theme($shark-theme);
   @include mat-toolbar-theme($shark-toolbar-theme);
