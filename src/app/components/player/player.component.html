@@ -2,32 +2,40 @@
   <mat-card-header>
     <mat-card-title>{{songTitle}}</mat-card-title>
     <mat-card-subtitle>{{songArtist}}
-      <app-latency #latencyComponent id="latencyComponent"></app-latency>
+      <app-latency #latencyComponent id="latency-component"></app-latency>
     </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <mat-progress-bar [mode]="playerState == 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
                       color="accent"></mat-progress-bar>
-    <div id="controlButtons">
-      <button class="playerControls" color="accent" mat-raised-button>
+    <div id="control-buttons">
+      <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
         <span class="material-icons">skip_previous</span>
       </button>
       <button (click)="publishCommand(playerState == 'STOP' ? 'start' : playerState == 'PAUSE' ? 'resume' : 'pause')"
-              class="playerControls" color="accent" mat-raised-button>
+              class="player-controls" color="accent" mat-raised-button>
         <span class="material-icons">{{playerState == 'PLAY' ? 'pause' : 'play_arrow'}}</span>
       </button>
-      <button (click)="publishCommand('stop')" class="playerControls" color="accent" mat-raised-button>
+      <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
         <span class="material-icons">stop</span>
       </button>
-      <button (click)="publishCommand('skip')" class="playerControls" color="accent" mat-raised-button>
+      <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
         <span class="material-icons">skip_next</span>
       </button>
-      <button class="playerControls" color="accent" mat-raised-button>
-        <span class="material-icons">{{shuffle ? 'shuffle_on' : 'shuffle'}}</span>
+      <button (click)="publishCommand('shuffle')" class="player-controls" color="accent" mat-raised-button>
+        <span class="material-icons">shuffle</span>
       </button>
-      <button class="playerControls" color="accent" mat-raised-button>
-        <span class="material-icons">{{repeat ? 'repeat_on' : 'repeat'}}</span>
+      <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent" mat-raised-button>
+        <span class="material-icons">{{loopMode ? 'repeat_on' : 'repeat'}}</span>
       </button>
+    </div>
+    <div id="queue-container">
+      <mat-list *ngFor="let song of queue" role="list">
+        <mat-list-item role="listitem">
+          {{song}}
+        </mat-list-item>
+      </mat-list>
+
     </div>
   </mat-card-content>
 </mat-card>

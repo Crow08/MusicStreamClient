@@ -21,15 +21,15 @@ audio {
   width: 100%;
 }
 
-.playerControls {
+.player-controls {
   margin-right: 5px;
   margin-left: 5px;
 }
 
-#controlButtons {
+#control-buttons {
   white-space: nowrap;
 }
 
-#latencyComponent {
+#latency-component {
   float: right;
 }

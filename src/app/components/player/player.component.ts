@@ -27,8 +27,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   private static topic: Subscription;
 
   playerState: PlayerState = PlayerState.STOP;
-  shuffle = false;
-  repeat = false;
+  loopMode = false;
+  queue: string[] = [];
   sessionId: number;
   songTitle = 'Welcome to this kinda good player';
   songArtist = 'press Start to start (duh!)';
@@ -113,7 +113,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   private prepareSongStart(url: string, startTime: number, offset: number, directPlay: boolean): void {
     this.audioService.setSrc(url);
     this.audioService.setCurrentTime(offset / 1000);
-    if(directPlay) {
+    if (directPlay) {
       this.schedulePlay(startTime + this.latencyComponent.serverTimeOffset);
     }
   }
@@ -131,6 +131,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
+        this.audioService.stop();
         this.loadNewSong(commandObject.songId, commandObject.time, 0);
         break;
       case 'Pause':
@@ -144,12 +145,10 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.audioService.stop();
         this.playerState = PlayerState.STOP;
         break;
-      case 'Skip':
-        this.audioService.stop();
-        this.loadNewSong(commandObject.songId, commandObject.time, 0);
-        break;
       case 'Join':
         if (commandObject.userId === this.authenticationService.currentUserValue.id) {
+          this.loopMode = commandObject.loopMode;
+          this.queue = commandObject.queue;
           switch (commandObject.sessionState) {
             case 'PLAY':
               this.loadNewSong(commandObject.songId, commandObject.time, commandObject.startOffset);
@@ -163,6 +162,16 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               this.playerState = PlayerState.STOP;
               break;
           }
+        }
+        break;
+      case 'Update':
+        switch (commandObject.updateType) {
+          case 'LoopMode':
+            this.loopMode = commandObject.loopMode;
+            break;
+          case 'Queue':
+            this.queue = commandObject.queue;
+            break;
         }
         break;
     }
