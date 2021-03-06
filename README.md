@@ -9,3 +9,5 @@
 - Miniatur-Player (während man andere Sachen auf der Seite macht)
 - Möglichkeit neue Tags/Genre/evtl. neue Playlist oder andere Vorgaben zu erstellen
 - Auto-Playlist anhand von Tags
+
+-npm install --save rxjs-compat 

@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectorRef, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthenticationService} from './services/authentication.service';
 import {User} from './models/user';
@@ -10,14 +10,20 @@ import {User} from './models/user';
 })
 export class AppComponent {
   currentUser: User;
-
+  themeClass: string = 'parrot-theme';
+  
   constructor(
     private router: Router,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
-
+  detectTheme(theme: string): void {
+    this.themeClass = theme;
+    //this.changeDetectorRef.detectChanges();
+  }
+  
   logout(): void {
     this.authenticationService.logout();
     this.router.navigate(['/login']);

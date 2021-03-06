@@ -1,25 +1,35 @@
 <!-- Toolbar -->
-<mat-toolbar color="primary">
-  <button aria-label="Example icon-button with menu icon" class="example-icon" mat-icon-button>
-    <mat-icon>menu</mat-icon>
-  </button>
-  <a routerLink="/">
-    <button aria-label="Example icon-button with heart icon" class="example-icon favorite-icon" mat-icon-button>
-      <mat-icon>home</mat-icon>
-    </button>
-  </a>
-  <div class="spacer"></div>
-  <h2>Music Stream Client</h2>
-  <div class="spacer"></div>
-  <a (click)="logout()">
-    <button aria-label="Example icon-button with share icon" class="example-icon" mat-icon-button>
-      <mat-icon>logout</mat-icon>
-    </button>
-  </a>
-</mat-toolbar>
-<!-- content -->
-<div id="content" role="main">
-  <router-outlet></router-outlet>
+<div [ngClass]="themeClass">
+  <div class="mat-app-background">
+    <mat-toolbar color="primary">
+      <mat-toolbar-row>
+        <button aria-label="Example icon-button with menu icon" class="example-icon" mat-icon-button>
+          <mat-icon>menu</mat-icon>
+        </button>
+        <a routerLink="/">
+          <button aria-label="Example icon-button with heart icon" class="example-icon favorite-icon" mat-icon-button>
+            <mat-icon>home</mat-icon>
+          </button>
+        </a>
+        <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+          <mat-button-toggle (click)="detectTheme('parrot-theme')">Parrot</mat-button-toggle>
+          <mat-button-toggle (click)="detectTheme('turtle-theme')">Turtle</mat-button-toggle>
+          <mat-button-toggle (click)="detectTheme('shark-theme')">Shark</mat-button-toggle>
+        </mat-button-toggle-group>
+        <div class="spacer"></div>
+        <h2>Music Stream Client</h2>
+        <div class="spacer"></div>
+        <a (click)="logout()">
+          <button aria-label="Example icon-button with share icon" class="example-icon" mat-icon-button>
+            <mat-icon>logout</mat-icon>
+          </button>
+        </a>
+      </mat-toolbar-row>
+    </mat-toolbar>
+
+    <!-- content -->
+    <div [ngClass]="themeClass" role="main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </div>
-
-
