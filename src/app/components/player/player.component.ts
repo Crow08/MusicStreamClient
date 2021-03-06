@@ -30,8 +30,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   loopMode = false;
   queue: string[] = [];
   sessionId: number;
-  songTitle = 'Welcome to this kinda good player';
-  songArtist = 'press Start to start (duh!)';
+  currentSong: Song;
   progression = 0;
   songTimeOffset = 0;
 
@@ -93,9 +92,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     );
     this.http.get(`http://${environment.dbServer}/songs/${songId}`, options).subscribe(
       rawSong => {
-        const song = plainToClass(Song, JSON.parse(rawSong));
-        this.songTitle = song.title;
-        this.songArtist = `${song.artist == null ? 'Unknown Artist' : song.artist}`;
+        this.currentSong = plainToClass(Song, JSON.parse(rawSong));
       },
       console.error
     );
@@ -143,6 +140,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         break;
       case 'Stop':
         this.audioService.stop();
+        this.currentSong = undefined;
         this.playerState = PlayerState.STOP;
         break;
       case 'Join':
