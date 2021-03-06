@@ -8,7 +8,7 @@ import {plainToClass} from 'class-transformer';
 @Component({
   selector: 'app-browser',
   templateUrl: './session-browser.component.html',
-  styleUrls: ['./session-browser.component.css']
+  styleUrls: ['./session-browser.component.scss']
 })
 export class SessionBrowserComponent implements OnInit {
 

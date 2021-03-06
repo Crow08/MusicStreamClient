@@ -6,7 +6,7 @@ import {RxStompService} from '@stomp/ng2-stompjs';
 @Component({
   selector: 'app-latency',
   templateUrl: './latency.component.html',
-  styleUrls: ['./latency.component.css']
+  styleUrls: ['./latency.component.scss']
 })
 export class LatencyComponent implements AfterViewInit {
 

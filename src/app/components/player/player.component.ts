@@ -20,7 +20,7 @@ enum PlayerState {
 @Component({
   selector: 'app-session-lobby',
   templateUrl: './player.component.html',
-  styleUrls: ['./player.component.css']
+  styleUrls: ['./player.component.scss']
 })
 export class PlayerComponent implements AfterViewInit, OnInit {
 

@@ -10,7 +10,7 @@ import {Router} from '@angular/router';
 @Component({
   selector: 'app-session-creator',
   templateUrl: './session-creator.component.html',
-  styleUrls: ['./session-creator.component.css']
+  styleUrls: ['./session-creator.component.scss']
 })
 export class SessionCreatorComponent implements OnInit {
 
