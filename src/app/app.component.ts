@@ -10,7 +10,7 @@ import {User} from './models/user';
 })
 export class AppComponent {
   currentUser: User;
-  themeClass: string;
+  themeClass: string = 'parrot-theme';
   
   constructor(
     private router: Router,
@@ -19,7 +19,6 @@ export class AppComponent {
   ) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
-
   detectTheme(theme: string): void {
     this.themeClass = theme;
     //this.changeDetectorRef.detectChanges();
