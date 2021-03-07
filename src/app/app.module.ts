@@ -28,6 +28,7 @@ import {LatencyComponent} from './components/latency/latency.component';
 import {PlayerComponent} from './components/player/player.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { ImportComponent } from './components/import/import.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
     SessionBrowserComponent,
     SessionCreatorComponent,
     LatencyComponent,
-    PlayerComponent
+    PlayerComponent,
+    ImportComponent
   ],
   imports: [
     FormsModule,

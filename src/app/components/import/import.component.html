@@ -1,0 +1,13 @@
+<mat-card id="login-card">
+  <mat-card-title>Upload Songs</mat-card-title>
+  <mat-card-content>
+    <p>
+      <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
+      <input hidden (change)="onFileSelected()" #fileInput type="file" id="file" multiple>
+    </p>
+    <div class="button">
+      <app-loader [loadingState]="loading"></app-loader>
+      <button [disabled]="loading" color="accent" mat-raised-button type="button">Upload</button>
+    </div>
+  </mat-card-content>
+</mat-card>
