@@ -1,7 +1,6 @@
 :host {
   height: 100%;
   width: 100%;
-  top: 0;
   position: fixed;
 }
 
@@ -9,12 +8,12 @@
   flex: 1;
 }
 
-#main-headline{
+#main-headline {
   position: fixed;
   left: 50%;
-  top: 30px;
-  /* bring your own prefixes */
+  top: 32px;
   transform: translate(-50%, -50%);
+  font-size: revert;
 }
 
 a, a:visited {

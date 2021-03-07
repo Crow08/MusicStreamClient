@@ -1,37 +1,17 @@
+/* Theme specific styles will take effect across all components but obly if style clsaa is set on #app-theme-container. */
 @import '~@angular/material/theming';
 @import 'src/app/themes/parrot.scss';
 @import 'src/app/themes/turtle.scss';
 @import 'src/app/themes/shark.scss';
 
-$mat-dark-theme-background: (
-  status-bar: black,
-  app-bar: map-get($mat-grey, 900),
-  background: #303030,
-  hover: rgba(white, 0.04),
-  card: rgba(24, 24, 24, .65),
-  dialog: map-get($mat-grey, 800),
-  disabled-button: rgba(white, 0.12),
-  raised-button: map-get($mat-grey, 800),
-  focused-button: $light-focused,
-  selected-button: map-get($mat-grey, 900),
-  selected-disabled-button: map-get($mat-grey, 800),
-  disabled-button-toggle: black,
-  unselected-chip: map-get($mat-grey, 700),
-  disabled-list-option: black,
-  tooltip: map-get($mat-grey, 700)
-);
 //include
 @include mat-core();
 
 .parrot-theme {
+  &#app-theme-container {
+    background-image: url('./assets/parrot.jpg');
+  }
 
-  background-image: url('./assets/parrot.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: 100%;
-  width: 100%;
- 
-  color: $light-primary-text;
   $parrot-warn: mat-palette($mat-red);
   $parrot-theme: mat-dark-theme($parrot-primary, $parrot-accent, $parrot-warn);
   $parrot-toolbar-theme: mat-dark-theme($parrot-toolbar-primary, $parrot-accent, $parrot-warn);
@@ -42,14 +22,10 @@ $mat-dark-theme-background: (
 
 // turtle (greenish) theme
 .turtle-theme {
+  &#app-theme-container {
+    background-image: url('./assets/turtle.jpg');
+  }
 
-  background-image: url('./assets/turtle.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: 100%;
-  width: 100%;
- 
-  color: $light-primary-text;
   $turtle-warn: mat-palette($mat-red);
   $turtle-theme: mat-dark-theme($turtle-primary, $turtle-accent, $turtle-warn);
   $turtle-toolbar-theme: mat-dark-theme($turtle-toolbar-primary, $turtle-accent, $turtle-warn);
@@ -57,16 +33,13 @@ $mat-dark-theme-background: (
   @include angular-material-theme($turtle-theme);
   @include mat-toolbar-theme($turtle-toolbar-theme);
 }
+
 // shark (blueish) theme
 .shark-theme {
+  &#app-theme-container {
+    background-image: url('./assets/shark.jpg');
+  }
 
-  background-image: url('./assets/shark.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: 100%;
-  width: 100%;
- 
-  color: $light-primary-text;
   $shark-warn: mat-palette($mat-red);
   $shark-theme: mat-dark-theme($shark-primary, $shark-accent, $shark-warn);
   $shark-toolbar-theme: mat-dark-theme($shark-toolbar-primary, $shark-accent, $shark-warn);
