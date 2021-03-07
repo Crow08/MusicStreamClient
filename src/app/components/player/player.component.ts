@@ -33,6 +33,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   currentSong: Song;
   progression = 0;
   songTimeOffset = 0;
+  volume: number = 0.05;
+  volumeCheck;
+
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
@@ -96,6 +99,14 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       },
       console.error
     );
+  }
+
+  startVolume(): void{
+    this.volumeCheck = setInterval( ()=>{this.audioService.setVolume(this.volume)},100);
+  }
+
+  endVolume(): void{
+    clearInterval(this.volumeCheck);
   }
 
   private subscribeControlsTopic(): void {

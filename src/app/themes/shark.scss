@@ -1,5 +1,10 @@
 //Colors
+/* For use in src/lib/core/theming/_palette.scss */
 $shark-primary: mat-palette((
+    50 : #f3fbff,
+    100 : #e0f5fe,
+    200 : #cbeffe,
+    300 : #b6e8fd,
     400 : #a7e3fc,
     500 : #97defc,
     600 : #8fdafc,
@@ -29,6 +34,10 @@ $shark-primary: mat-palette((
 ));
 
 $shark-accent: mat-palette((
+    50 : #f3fbff,
+    100 : #e0f5fe,
+    200 : #cbeffe,
+    300 : #b6e8fd,
     400 : #a7e3fc,
     500 : #97defc,
     600 : #8fdafc,

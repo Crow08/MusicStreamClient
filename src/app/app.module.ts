@@ -28,7 +28,8 @@ import {LatencyComponent} from './components/latency/latency.component';
 import {PlayerComponent} from './components/player/player.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import { ImportComponent } from './components/import/import.component';
+import {ImportComponent} from './components/import/import.component';
+import {MatSliderModule} from '@angular/material/slider';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { ImportComponent } from './components/import/import.component';
     MatSelectModule,
     MatAutocompleteModule,
     MatProgressBarModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatSliderModule
   ],
   providers: [{
     provide: InjectableRxStompConfig,
