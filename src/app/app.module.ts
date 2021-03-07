@@ -28,7 +28,9 @@ import {LatencyComponent} from './components/latency/latency.component';
 import {PlayerComponent} from './components/player/player.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import { ImportComponent } from './components/import/import.component';
+import {ImportComponent} from './components/import/import.component';
+import {OverlayContainer} from '@angular/cdk/overlay';
+import {ThemeAwareOverlayContainer} from './ThemeAwareOverlayContainer';
 
 @NgModule({
   declarations: [
@@ -68,10 +70,15 @@ import { ImportComponent } from './components/import/import.component';
     MatProgressBarModule,
     MatButtonToggleModule
   ],
-  providers: [{
-    provide: InjectableRxStompConfig,
-    useValue: myRxStompConfig,
-  },
+  providers: [
+    {
+      provide: InjectableRxStompConfig,
+      useValue: myRxStompConfig,
+    },
+    {
+      provide: OverlayContainer,
+      useClass: ThemeAwareOverlayContainer
+    },
     {
       provide: RxStompService,
       useFactory: rxStompServiceFactory,
