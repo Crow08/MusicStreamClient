@@ -1,7 +1,16 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthenticationService} from './services/authentication.service';
-import {User} from './models/user';
+
+class Theme {
+  className: string;
+  displayName: string;
+
+  constructor(className: string, displayName: string) {
+    this.className = className;
+    this.displayName = displayName;
+  }
+}
 
 @Component({
   selector: 'app-root',
@@ -9,19 +18,24 @@ import {User} from './models/user';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  currentUser: User;
-  themeClass: string = 'parrot-theme';
-  
+  themeClass = 'parrot-theme';
+  availableThemes = [
+    new Theme('parrot-theme', 'Parrot'),
+    new Theme('turtle-theme', 'Turtle'),
+    new Theme('shark-theme', 'Shark')
+  ];
+  currentTheme = this.availableThemes[0];
+
   constructor(
     private router: Router,
-    private authenticationService: AuthenticationService,
+    private authenticationService: AuthenticationService
   ) {
-    this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
-  selectTheme(theme: string): void {
-    this.themeClass = theme;
+
+  selectTheme(theme: Theme): void {
+    this.currentTheme = theme;
   }
-  
+
   logout(): void {
     this.authenticationService.logout();
     this.router.navigate(['/login']);
