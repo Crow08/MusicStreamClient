@@ -5,6 +5,7 @@ import {AuthenticationService} from './services/authentication.service';
 class Theme {
   className: string;
   displayName: string;
+
   constructor(className: string, displayName: string) {
     this.className = className;
     this.displayName = displayName;

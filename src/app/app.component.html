@@ -10,8 +10,9 @@
           <mat-icon>home</mat-icon>
         </button>
       </a>
-      <mat-button-toggle-group name="fontStyle" aria-label="Font Style" value="{{currentTheme.className}}">
-        <mat-button-toggle *ngFor="let theme of availableThemes" value='{{theme.className}}' (click)="selectTheme(theme)">
+      <mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{currentTheme.className}}">
+        <mat-button-toggle (click)="selectTheme(theme)" *ngFor="let theme of availableThemes"
+                           value='{{theme.className}}'>
           {{theme.displayName}}
         </mat-button-toggle>
       </mat-button-toggle-group>

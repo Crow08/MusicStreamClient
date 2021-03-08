@@ -1,13 +1,50 @@
 <mat-card id="login-card">
   <mat-card-title>Upload Songs</mat-card-title>
   <mat-card-content>
-    <p>
-      <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
-      <input hidden (change)="onFileSelected()" #fileInput type="file" id="file" multiple>
-    </p>
-    <div class="button">
-      <app-loader [loadingState]="loading"></app-loader>
-      <button [disabled]="loading" color="accent" mat-raised-button type="button">Upload</button>
-    </div>
+    <form [formGroup]="uploadForm">
+      <p>
+        <button (click)="fileInput.click()" mat-raised-button type="button">Choose File</button>
+        <input #fileInput (change)="onFileSelected()" hidden id="file" multiple type="file">
+        [{{files ? files.length : "no"}} song{{files && files.length == 1 ? "" : "s"}} selected.]
+      </p>
+      <p>
+        <mat-form-field>
+          <mat-label>Artist ID</mat-label>
+          <input [matAutocomplete]="artistId" formControlName="artist" matInput type="text">
+          <mat-autocomplete #artistId="matAutocomplete">
+            <mat-option *ngFor="let artist of artists" [value]="artist.id">
+              {{artist.id}} - {{ artist.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </p>
+      <p>
+        <mat-form-field>
+          <mat-label>Genre ID</mat-label>
+          <input [matAutocomplete]="genreId" formControlName="genre" matInput type="text">
+          <mat-autocomplete #genreId="matAutocomplete">
+            <mat-option *ngFor="let genre of genres " [value]="genre.id">
+              {{genre.id}} - {{genre.name}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+      </p>
+      <p>
+        <mat-form-field>
+          <mat-label>Playlist ID</mat-label>
+          <input [matAutocomplete]="playlistId" formControlName="playlist" matInput type="text">
+          <mat-autocomplete #playlistId="matAutocomplete">
+            <mat-option *ngFor="let playlist of playlists" [value]="playlist.id">
+              {{playlist.id}} - {{ playlist.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </p>
+      <div class="button">
+        <app-loader [loadingState]="loading"></app-loader>
+        <button (click)="upload()" [disabled]="loading" color="accent" mat-raised-button type="button">Upload</button>
+      </div>
+    </form>
   </mat-card-content>
 </mat-card>

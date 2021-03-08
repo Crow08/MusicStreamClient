@@ -42,11 +42,8 @@ export class SessionCreatorComponent implements OnInit {
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
     this.http.get(`http://${environment.dbServer}/playlists/all`, options)
       .subscribe(valueArray => {
-        const noPlaylist = new Playlist();
-        noPlaylist.name = 'none';
-        noPlaylist.id = -1;
-        this.playlists = [noPlaylist];
-        (valueArray as any[]).forEach((rawSession) => this.playlists.push(plainToClass(Playlist, rawSession)));
+        this.playlists = [];
+        (valueArray as any[]).forEach((rawPlaylist) => this.playlists.push(plainToClass(Playlist, rawPlaylist)));
       });
   }
 

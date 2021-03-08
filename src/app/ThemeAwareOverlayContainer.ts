@@ -1,11 +1,11 @@
-import { Inject, Injectable, OnDestroy, InjectionToken } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { OverlayContainer } from '@angular/cdk/overlay';
+import {Inject, Injectable, InjectionToken, OnDestroy} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
+import {OverlayContainer} from '@angular/cdk/overlay';
 import {Platform} from '@angular/cdk/platform';
 
 export const OVERLAY_PARENT_HTML = new InjectionToken<string>('OVERLAY_PARENT_HTML');
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ThemeAwareOverlayContainer extends OverlayContainer implements OnDestroy {
   constructor(@Inject(DOCUMENT) document: any, platform: Platform) {
     super(document, platform);

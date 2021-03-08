@@ -14,7 +14,7 @@
           <input [matAutocomplete]="auto" formControlName="playlist" matInput type="text">
           <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let playlist of playlists" [value]="playlist.id">
-              {{playlist.id != -1 ? playlist.id + " - " : ""}}{{ playlist.name }}
+              {{playlist.id}} - {{ playlist.name }}
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>

@@ -31,6 +31,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {ImportComponent} from './components/import/import.component';
 import {OverlayContainer} from '@angular/cdk/overlay';
 import {ThemeAwareOverlayContainer} from './ThemeAwareOverlayContainer';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import {ThemeAwareOverlayContainer} from './ThemeAwareOverlayContainer';
     MatSelectModule,
     MatAutocompleteModule,
     MatProgressBarModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatSnackBarModule
   ],
   providers: [
     {
