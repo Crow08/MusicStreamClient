@@ -28,7 +28,7 @@
       <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent" mat-raised-button>
         <span class="material-icons">{{loopMode ? 'repeat_on' : 'repeat'}}</span>
       </button>
-      <mat-slider id="volume-slider" min="0" max="0.2" step="0.002" value="0.05" [(ngModel)]="volume" (input)="startVolume()" (change)="endVolume()"></mat-slider>
+      <mat-slider id="volume-slider" min="0" max="0.4" step="0.004" value="0.1" (input)="setVolume($event)"></mat-slider>
     </div>
     <div id="queue-container">
       <mat-list *ngFor="let song of queue" role="list">

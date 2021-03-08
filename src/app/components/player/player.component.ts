@@ -9,6 +9,7 @@ import {environment} from '../../../environments/environment';
 import {plainToClass} from 'class-transformer';
 import {Song} from '../../models/song';
 import {AudioService} from '../../services/audio.service';
+import { MatSliderChange } from '@angular/material/slider';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -33,9 +34,6 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   currentSong: Song;
   progression = 0;
   songTimeOffset = 0;
-  volume: number = 0.05;
-  volumeCheck;
-
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
@@ -101,12 +99,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     );
   }
 
-  startVolume(): void{
-    this.volumeCheck = setInterval( ()=>{this.audioService.setVolume(this.volume)},100);
-  }
-
-  endVolume(): void{
-    clearInterval(this.volumeCheck);
+  setVolume(event: MatSliderChange): void{
+    this.audioService.setVolume(event.value);
   }
 
   private subscribeControlsTopic(): void {
