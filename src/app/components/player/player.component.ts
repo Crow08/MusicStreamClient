@@ -9,7 +9,7 @@ import {environment} from '../../../environments/environment';
 import {plainToClass} from 'class-transformer';
 import {Song} from '../../models/song';
 import {AudioService} from '../../services/audio.service';
-import { MatSliderChange } from '@angular/material/slider';
+import {MatSliderChange} from '@angular/material/slider';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -53,7 +53,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.subscribeControlsTopic();
-    setTimeout(() => this.publishCommand(`join/${this.authenticationService.currentUserValue.id}`), 1000 );
+    setTimeout(() => this.publishCommand(`join/${this.authenticationService.currentUserValue.id}`), 1000);
 
   }
 
@@ -99,7 +99,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     );
   }
 
-  setVolume(event: MatSliderChange): void{
+  setVolume(event: MatSliderChange): void {
     this.audioService.setVolume(event.value);
   }
 

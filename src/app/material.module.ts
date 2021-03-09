@@ -15,6 +15,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatSliderModule} from '@angular/material/slider';
 
 @NgModule({
   declarations: [],
@@ -33,7 +34,8 @@ import {MatDialogModule} from '@angular/material/dialog';
     MatProgressBarModule,
     MatButtonToggleModule,
     MatSnackBarModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSliderModule
   ],
   exports: [
     CommonModule,
@@ -50,7 +52,8 @@ import {MatDialogModule} from '@angular/material/dialog';
     MatProgressBarModule,
     MatButtonToggleModule,
     MatSnackBarModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSliderModule
   ]
 })
 export class MaterialModule {
