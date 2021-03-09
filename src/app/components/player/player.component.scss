@@ -22,12 +22,12 @@ audio {
 }
 
 .player-controls {
-  margin-right: 5px;
-  margin-left: 5px;
+  margin: 6px;
 }
 
 #control-buttons {
   white-space: nowrap;
+  display: flex;
 }
 
 #latency-component {
@@ -37,4 +37,8 @@ audio {
 #volume-slider {
   width: 100px;
   float: right;
+  ::ng-deep .mat-slider-thumb {
+    transform: scale(0.7);
+  }
 }
+

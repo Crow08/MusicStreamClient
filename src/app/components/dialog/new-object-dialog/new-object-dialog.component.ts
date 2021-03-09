@@ -27,7 +27,6 @@ export class NewObjectDialogComponent {
       obj[prop.key] = prop.value;
       return obj;
     }, {});
-    console.log(returnVal);
     return returnVal;
   }
 }

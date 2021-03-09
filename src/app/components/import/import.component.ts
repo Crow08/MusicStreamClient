@@ -84,6 +84,7 @@ export class ImportComponent implements OnInit {
         });
       })
       .catch(error => {
+        this.loading = false;
         this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
           duration: 2000,
         });
