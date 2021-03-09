@@ -17,6 +17,9 @@
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
+        <button (click)="addArtist()" mat-raised-button type="button">
+          <mat-icon>add</mat-icon>
+        </button>
       </p>
       <p>
         <mat-form-field>
@@ -28,7 +31,9 @@
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
-
+        <button (click)="addGenre()" mat-raised-button type="button">
+          <mat-icon>add</mat-icon>
+        </button>
       </p>
       <p>
         <mat-form-field>
@@ -40,6 +45,9 @@
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
+        <button (click)="addPlaylist()" mat-raised-button type="button">
+          <mat-icon>add</mat-icon>
+        </button>
       </p>
       <div class="button">
         <app-loader [loadingState]="loading"></app-loader>
