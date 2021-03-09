@@ -29,9 +29,7 @@ import {PlayerComponent} from './components/player/player.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {ImportComponent} from './components/import/import.component';
-import {OverlayContainer} from '@angular/cdk/overlay';
-import {ThemeAwareOverlayContainer} from './ThemeAwareOverlayContainer';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatSliderModule} from '@angular/material/slider';
 
 @NgModule({
   declarations: [
@@ -70,17 +68,12 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     MatAutocompleteModule,
     MatProgressBarModule,
     MatButtonToggleModule,
-    MatSnackBarModule
+    MatSliderModule
   ],
-  providers: [
-    {
-      provide: InjectableRxStompConfig,
-      useValue: myRxStompConfig,
-    },
-    {
-      provide: OverlayContainer,
-      useClass: ThemeAwareOverlayContainer
-    },
+  providers: [{
+    provide: InjectableRxStompConfig,
+    useValue: myRxStompConfig,
+  },
     {
       provide: RxStompService,
       useFactory: rxStompServiceFactory,

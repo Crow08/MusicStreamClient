@@ -9,6 +9,7 @@ import {environment} from '../../../environments/environment';
 import {plainToClass} from 'class-transformer';
 import {Song} from '../../models/song';
 import {AudioService} from '../../services/audio.service';
+import { MatSliderChange } from '@angular/material/slider';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -96,6 +97,10 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       },
       console.error
     );
+  }
+
+  setVolume(event: MatSliderChange): void{
+    this.audioService.setVolume(event.value);
   }
 
   private subscribeControlsTopic(): void {
