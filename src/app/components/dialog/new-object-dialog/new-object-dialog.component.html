@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>New {{data.displayName}}</h1>
+<div mat-dialog-content>
+  <mat-form-field *ngFor="let prop of data.stringProperties">
+    <mat-label>{{prop.displayName}}:</mat-label>
+    <input [(ngModel)]="prop.value" matInput>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button (click)="onNoClick()" mat-button>Cancel</button>
+  <button [mat-dialog-close]="getData()" mat-button>Create</button>
+</div>
