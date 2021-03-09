@@ -1,9 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Session} from '../../../models/session';
-import {HttpClient} from '@angular/common/http';
-import {AuthenticationService} from '../../../services/authentication.service';
-import {environment} from '../../../../environments/environment';
-import {plainToClass} from 'class-transformer';
+import {HttpHelperService} from '../../../services/http-helper.service';
 
 @Component({
   selector: 'app-browser',
@@ -12,19 +9,14 @@ import {plainToClass} from 'class-transformer';
 })
 export class SessionBrowserComponent implements OnInit {
 
-  sessionId: string;
   sessions: Session[] = [];
 
-  constructor(private http: HttpClient,
-              private authenticationService: AuthenticationService) {
+  constructor(private httpHelperService: HttpHelperService) {
   }
 
   ngOnInit(): void {
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
-    this.http.get(`http://${environment.dbServer}/sessions/all`, options)
-      .subscribe(valueArray => {
-        this.sessions = [];
-        (valueArray as any[]).forEach((rawSession) => this.sessions.push(plainToClass(Session, rawSession)));
-      });
+    this.httpHelperService.getArray('/sessions/all', Session)
+      .then(value => this.sessions = value)
+      .catch(console.error);
   }
 }

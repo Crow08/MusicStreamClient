@@ -1,11 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {environment} from '../../../../environments/environment';
-import {HttpClient} from '@angular/common/http';
-import {AuthenticationService} from '../../../services/authentication.service';
 import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {plainToClass} from 'class-transformer';
 import {Playlist} from '../../../models/playlist';
 import {Router} from '@angular/router';
+import {HttpHelperService} from '../../../services/http-helper.service';
 
 @Component({
   selector: 'app-session-creator',
@@ -23,8 +20,8 @@ export class SessionCreatorComponent implements OnInit {
 
   constructor(private router: Router,
               private formBuilder: FormBuilder,
-              private http: HttpClient,
-              private authenticationService: AuthenticationService) {
+              private httpHelperService: HttpHelperService,
+  ) {
   }
 
   // convenience getter for easy access to form fields
@@ -38,13 +35,9 @@ export class SessionCreatorComponent implements OnInit {
       playlist: ['', Validators.required]
     });
 
-
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
-    this.http.get(`http://${environment.dbServer}/playlists/all`, options)
-      .subscribe(valueArray => {
-        this.playlists = [];
-        (valueArray as any[]).forEach((rawPlaylist) => this.playlists.push(plainToClass(Playlist, rawPlaylist)));
-      });
+    this.httpHelperService.getArray('/playlists/all', Playlist)
+      .then(value => this.playlists = value)
+      .catch(console.error);
   }
 
   onSubmit(): void {
@@ -57,21 +50,16 @@ export class SessionCreatorComponent implements OnInit {
     }
 
     this.loading = true;
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
 
-    this.http.put(`http://${environment.dbServer}/sessions/`, this.f.name.value, options)
-      .subscribe(sessionId => {
-        this.addSongs(Number(sessionId));
-      });
+    this.httpHelperService.post('/sessions/', this.f.name.value)
+      .then(sessionId => this.addSongs(Number(sessionId)))
+      .catch(console.error);
   }
 
   private addSongs(sessionId: number): void {
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
-
-    this.http.put(`http://${environment.dbServer}/sessions/${sessionId}/addpl`, this.f.playlist.value, options)
-      .subscribe(response => {
-        this.joinSession(sessionId);
-      });
+    this.httpHelperService.put(`/sessions/${sessionId}/addpl`, this.f.playlist.value)
+      .then(() => this.joinSession(sessionId))
+      .catch(console.error);
 
   }
 
