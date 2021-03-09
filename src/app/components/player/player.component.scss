@@ -31,7 +31,13 @@ audio {
 }
 
 #latency-component {
-  float: right;
+  right: 25px;
+  position: absolute;
+  white-space: nowrap;
+}
+
+#rating-latency-wrapper{
+  display: flex;
 }
 
 #volume-slider {
@@ -41,4 +47,3 @@ audio {
     transform: scale(0.7);
   }
 }
-

@@ -1,0 +1,3 @@
+    <mat-icon (click)="toggleRating(s)" class="icon disable-select" *ngFor="let s of maxItem" color="accent">
+      {{'star' + (s <= this.ratedCount ? '' :'_outline')}}
+    </mat-icon>

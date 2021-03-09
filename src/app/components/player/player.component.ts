@@ -103,6 +103,10 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.audioService.setVolume(event.value);
   }
 
+  onRating(rating : number): void {
+    console.log(rating);
+  }
+
   private subscribeControlsTopic(): void {
     if (PlayerComponent.topic) {
       PlayerComponent.topic.unsubscribe();

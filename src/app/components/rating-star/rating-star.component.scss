@@ -1,0 +1,16 @@
+:host{
+    display: flex;
+    align-items: center;
+    margin-left: -3px;
+}
+.icon{
+    display:inline-block;
+    margin-right:3px;
+    cursor:pointer;
+    vertical-align: middle;
+    user-select: none;
+
+}
+.icon:hover{
+    color:white;
+}

@@ -23,6 +23,7 @@ import {ServerResultSuccessSnackBarComponent} from './components/messages/server
 import {ServerResultErrorSnackBarComponent} from './components/messages/server-result-error-snack-bar.component';
 import {MaterialModule} from './material.module';
 import {NewObjectDialogComponent} from './components/dialog/new-object-dialog/new-object-dialog.component';
+import {RatingStarComponent} from './components/rating-star/rating-star.component';
 
 
 @NgModule({
@@ -39,7 +40,8 @@ import {NewObjectDialogComponent} from './components/dialog/new-object-dialog/ne
     ImportComponent,
     ServerResultSuccessSnackBarComponent,
     ServerResultErrorSnackBarComponent,
-    NewObjectDialogComponent
+    NewObjectDialogComponent,
+    RatingStarComponent
   ],
   imports: [
     FormsModule,
