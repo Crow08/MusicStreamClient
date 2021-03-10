@@ -7,26 +7,37 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 })
 export class RatingStarComponent implements OnInit {
 
-  @Input() max: number;
-  @Output() onRating = new EventEmitter<number>();
+  @Input() currentRating;
+  @Output() rating = new EventEmitter<number>();
 
-  public maxItem: any[];
-  public ratedCount: number;
+  maxRating = 5;
+  colors: string[] = [];
 
-  constructor() {
-    this.ratedCount = 0;
+  ngOnInit(): void {
+    this.resetColors();
   }
 
-  ngOnInit() {
-    this.maxItem = [];
-    for (let i = 0; i < this.max; i++) {
-      this.maxItem.push(i + 1);
+  public setRatingValue(newRating: number): void {
+    this.currentRating = newRating;
+    this.rating.emit(this.currentRating);
+  }
+
+  startHover(value: number): void {
+    this.resetColors();
+    for (let i = 0; i <= value; i++) {
+      this.colors[i] = 'primary';
     }
   }
 
-  public toggleRating(s: number): void {
-    this.ratedCount = s;
-    this.onRating.emit(this.ratedCount);
+  endHover(e): void {
+    if (!!e && e.relatedTarget.localName !== 'mat-icon') {
+      this.resetColors();
+    }
   }
 
+  private resetColors(): void {
+    for (let i = 0; i < Number(this.maxRating); i++) {
+      this.colors[i] = 'accent';
+    }
+  }
 }

@@ -1,3 +1,4 @@
-    <mat-icon (click)="toggleRating(s)" class="icon disable-select" *ngFor="let s of maxItem" color="accent">
-      {{'star' + (s <= this.ratedCount ? '' :'_outline')}}
-    </mat-icon>
+<mat-icon (click)="setRatingValue(i + 1)" (mouseout)="endHover($event)" (mouseover)="startHover(i)"
+          *ngFor="let color of colors; let i = index" [color]="color" class="icon disable-select">
+  {{'star' + ((i + 1) <= this.currentRating ? '' : '_outline')}}
+</mat-icon>
