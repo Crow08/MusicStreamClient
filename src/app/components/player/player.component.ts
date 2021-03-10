@@ -2,14 +2,12 @@ import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {LatencyComponent} from '../latency/latency.component';
 import {ActivatedRoute} from '@angular/router';
-import {HttpClient} from '@angular/common/http';
 import {RxStompService} from '@stomp/ng2-stompjs';
 import {AuthenticationService} from '../../services/authentication.service';
-import {environment} from '../../../environments/environment';
-import {plainToClass} from 'class-transformer';
 import {Song} from '../../models/song';
 import {AudioService} from '../../services/audio.service';
 import {MatSliderChange} from '@angular/material/slider';
+import {HttpHelperService} from '../../services/http-helper.service';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -39,7 +37,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
 
   constructor(private route: ActivatedRoute,
-              private http: HttpClient,
+              private httpHelperService: HttpHelperService,
               private rxStompService: RxStompService,
               private authenticationService: AuthenticationService,
               private audioService: AudioService) {
@@ -71,39 +69,34 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       this.playerState = PlayerState.STOP;
       return;
     }
-    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
-    const basePath = `http://${environment.dbServer}/songs/${songId}/data`;
-    this.http.get(`${basePath}${(offset === 0 ? '' : `/${offset}`)}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
-      url => {
+    const basePath = `/songs/${songId}/data`;
+    this.httpHelperService.getPlain(`${basePath}${(offset === 0 ? '' : `/${offset}`)}?X-NPE-PSU-Duration=PT1H`)
+      .then(url => {
         this.songTimeOffset = offset;
         this.prepareSongStart(url, startTime, 0, directPlay);
-      },
-      error => {
+      })
+      .catch(error => {
         if (error.status === 422) {
-          this.http.get(`${basePath}?X-NPE-PSU-Duration=PT1H`, options).subscribe(
-            url => {
-              this.songTimeOffset = 0;
-              this.prepareSongStart(url, startTime, offset, directPlay);
-            },
-            console.error
-          );
+          this.httpHelperService.getPlain(`${basePath}?X-NPE-PSU-Duration=PT1H`)
+            .then(url => {
+                this.songTimeOffset = 0;
+                this.prepareSongStart(url, startTime, offset, directPlay);
+              },
+              console.error
+            );
           return;
         }
-      }
-    );
-    this.http.get(`http://${environment.dbServer}/songs/${songId}`, options).subscribe(
-      rawSong => {
-        this.currentSong = plainToClass(Song, JSON.parse(rawSong));
-      },
-      console.error
-    );
+      });
+    this.httpHelperService.get(`/songs/${songId}`, Song)
+      .then(song => this.currentSong = song)
+      .catch(console.error);
   }
 
   setVolume(event: MatSliderChange): void {
     this.audioService.setVolume(event.value);
   }
 
-  onRating(rating : number): void {
+  onRating(rating: number): void {
     console.log(rating);
   }
 

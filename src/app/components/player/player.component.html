@@ -1,11 +1,11 @@
 <mat-card class="example-card">
   <mat-card-header>
     <mat-card-title>{{currentSong?.title || 'No current song'}}</mat-card-title>
-    <mat-card-subtitle>{{currentSong?.artist.name || 'Unknown Artist'}}
-      <div id="rating-latency-wrapper">
-        <app-rating-star max = "5" (onRating) = "onRating($event)"></app-rating-star>
-        <app-latency #latencyComponent id="latency-component"></app-latency>
-      </div>
+    <mat-card-subtitle>
+      {{currentSong?.artist.name || 'Unknown Artist'}}<br/>
+      <app-rating-star (rating)="onRating($event)" currentRating="0"></app-rating-star>
+      <app-latency #latencyComponent id="latency-component"></app-latency>
+
 
     </mat-card-subtitle>
   </mat-card-header>

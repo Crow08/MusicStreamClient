@@ -26,6 +26,14 @@ export class HttpHelperService {
     });
   }
 
+  public getPlain(path: string): Promise<string> {
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
+    return new Promise<string>((resolve, reject) => {
+      this.http.get(`http://${environment.dbServer}${path}`, options)
+        .subscribe(resolve, reject);
+    });
+  }
+
   public getArray<T>(path: string, clazz: ClassConstructor<T>): Promise<T[]> {
     const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser()};
     return new Promise<T[]>((resolve, reject) => {

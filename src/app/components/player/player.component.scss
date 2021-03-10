@@ -36,13 +36,14 @@ audio {
   white-space: nowrap;
 }
 
-#rating-latency-wrapper{
+#rating-latency-wrapper {
   display: flex;
 }
 
 #volume-slider {
   width: 100px;
   float: right;
+
   ::ng-deep .mat-slider-thumb {
     transform: scale(0.7);
   }
