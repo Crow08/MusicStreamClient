@@ -10,6 +10,8 @@ import {HttpHelperService} from '../../services/http-helper.service';
 import {MatDialog} from '@angular/material/dialog';
 import {CreationDialogInputData, NewObjectDialogComponent} from '../dialog/new-object-dialog/new-object-dialog.component';
 import {AuthenticationService} from '../../services/authentication.service';
+import {Album} from '../../models/album';
+import {Tag} from '../../models/tag';
 
 @Component({
   selector: 'app-import',
@@ -24,6 +26,8 @@ export class ImportComponent implements OnInit {
   genres: Genre[] = [];
   uploadForm: FormGroup;
   artists: Artist[] = [];
+  albums: Album[] = [];
+  tags: Tag[] = [];
 
   constructor(private httpHelperService: HttpHelperService,
               private authenticationService: AuthenticationService,
@@ -40,16 +44,18 @@ export class ImportComponent implements OnInit {
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
       artist: [undefined],
-      genre: [undefined],
+      album: [undefined],
       playlist: [undefined],
+      genre: [undefined],
+      tag: [undefined],
       files: [undefined, Validators.required]
     });
 
-    this.getGenres();
-
-    this.getPlaylists();
-
     this.getArtists();
+    this.getAlbum();
+    this.getPlaylists();
+    this.getGenres();
+    this.getTags();
   }
 
   onFileSelected(): void {
@@ -67,11 +73,15 @@ export class ImportComponent implements OnInit {
     const formData: FormData = new FormData();
     for (let i = 0; i < this.files.length; i++) {
       const file = this.files.item(i);
-      formData.append('file', file, file.name);
+      formData.append('files', file, file.name);
     }
-    formData.append('artistId', this.f.artist.value);
-    formData.append('genre', this.f.genre.value);
-    formData.append('playlistId', this.f.playlist.value);
+    formData.append('data', JSON.stringify({
+      artistId: this.f.artist.value,
+      albumId: this.f.album.value,
+      playlistId: this.f.playlist.value,
+      genres: [this.f.genre.value],
+      tags: [this.f.tag.value]
+    }));
 
     this.httpHelperService.post('/songs/', formData)
       .then(() => {
@@ -98,8 +108,15 @@ export class ImportComponent implements OnInit {
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
     }, value => {
       this.httpHelperService.post('/artists/', value.name)
-        .then(() => this.getArtists())
-        .catch(console.error);
+        .then(() => {
+          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+            duration: 2000,
+          });
+          this.getArtists();
+        })
+        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+          duration: 2000,
+        }));
     });
   }
 
@@ -109,8 +126,15 @@ export class ImportComponent implements OnInit {
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
     }, value => {
       this.httpHelperService.post('/genres/', value.name)
-        .then(() => this.getGenres())
-        .catch(console.error);
+        .then(() => {
+          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+            duration: 2000,
+          });
+          this.getGenres();
+        })
+        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+          duration: 2000,
+        }));
     });
   }
 
@@ -121,14 +145,63 @@ export class ImportComponent implements OnInit {
     }, value => {
       value.author_id = this.authenticationService.currentUserValue.id;
       this.httpHelperService.post('/playlists/', value)
-        .then(() => this.getPlaylists())
-        .catch(console.error);
+        .then(() => {
+          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+            duration: 2000,
+          });
+          this.getPlaylists();
+        })
+        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+          duration: 2000,
+        }));
+    });
+  }
+
+  addAlbum(): void {
+    this.createNowObjectDialog({
+      displayName: 'Album',
+      stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
+    }, value => {
+      this.httpHelperService.post('/albums/', value.name)
+        .then(() => {
+          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+            duration: 2000,
+          });
+          this.getAlbum();
+        })
+        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+          duration: 2000,
+        }));
+    });
+  }
+
+  addTag(): void {
+    this.createNowObjectDialog({
+      displayName: 'Tag',
+      stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
+    }, value => {
+      this.httpHelperService.post('/tags/', value.name)
+        .then(() => {
+          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+            duration: 2000,
+          });
+          this.getTags();
+        })
+        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+          duration: 2000,
+        }));
     });
   }
 
   private getArtists(): void {
     this.httpHelperService.getArray('/artists/all', Artist)
       .then(value => this.artists = value)
+      .catch(console.error);
+  }
+
+  private getAlbum(): void {
+    this.httpHelperService.getArray('/albums/all', Album)
+      .then(value => this.albums = value)
       .catch(console.error);
   }
 
@@ -141,6 +214,12 @@ export class ImportComponent implements OnInit {
   private getGenres(): void {
     this.httpHelperService.getArray('/genres/all', Genre)
       .then(value => this.genres = value)
+      .catch(console.error);
+  }
+
+  private getTags(): void {
+    this.httpHelperService.getArray('/tags/all', Tag)
+      .then(value => this.tags = value)
       .catch(console.error);
   }
 

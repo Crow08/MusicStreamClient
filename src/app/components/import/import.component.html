@@ -23,6 +23,20 @@
       </p>
       <p>
         <mat-form-field>
+          <mat-label>Album ID</mat-label>
+          <input [matAutocomplete]="albumId" formControlName="album" matInput type="text">
+          <mat-autocomplete #albumId="matAutocomplete">
+            <mat-option *ngFor="let album of albums" [value]="album.id">
+              {{album.id}} - {{ album.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <button (click)="addAlbum()" mat-raised-button type="button">
+          <mat-icon>add</mat-icon>
+        </button>
+      </p>
+      <p>
+        <mat-form-field>
           <mat-label>Genre ID</mat-label>
           <input [matAutocomplete]="genreId" formControlName="genre" matInput type="text">
           <mat-autocomplete #genreId="matAutocomplete">
@@ -32,6 +46,20 @@
           </mat-autocomplete>
         </mat-form-field>
         <button (click)="addGenre()" mat-raised-button type="button">
+          <mat-icon>add</mat-icon>
+        </button>
+      </p>
+      <p>
+        <mat-form-field>
+          <mat-label>Tag ID</mat-label>
+          <input [matAutocomplete]="tagId" formControlName="tag" matInput type="text">
+          <mat-autocomplete #tagId="matAutocomplete">
+            <mat-option *ngFor="let tag of tags " [value]="tag.id">
+              {{tag.id}} - {{tag.name}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <button (click)="addTag()" mat-raised-button type="button">
           <mat-icon>add</mat-icon>
         </button>
       </p>
