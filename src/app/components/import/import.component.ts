@@ -178,7 +178,7 @@ export class ImportComponent implements OnInit {
     this.getNewObjectData('/tags/all', Tag, this.tagsControl, (value => this.tags = value));
   }
 
-  private getNewObjectData(path: string, clazz: ClassConstructor<any> = Tag, control: FormControl, setValueCB: (value: any[]) => void):
+  private getNewObjectData(path: string, clazz: ClassConstructor<any>, control: FormControl, setValueCB: (value: any[]) => void):
     void {
     this.httpHelperService.getArray(path, clazz)
       .then(value => {
