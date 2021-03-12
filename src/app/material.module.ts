@@ -16,6 +16,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSliderModule} from '@angular/material/slider';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [],
@@ -35,7 +36,8 @@ import {MatSliderModule} from '@angular/material/slider';
     MatButtonToggleModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatSliderModule
+    MatSliderModule,
+    MatCheckboxModule
   ],
   exports: [
     CommonModule,
@@ -53,7 +55,8 @@ import {MatSliderModule} from '@angular/material/slider';
     MatButtonToggleModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatSliderModule
+    MatSliderModule,
+    MatCheckboxModule
   ]
 })
 export class MaterialModule {

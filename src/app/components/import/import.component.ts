@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Playlist} from '../../models/playlist';
 import {Genre} from '../../models/genre';
-import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {Artist} from '../../models/artist';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultSuccessSnackBarComponent} from '../messages/server-result-success-snack-bar.component';
@@ -12,6 +12,9 @@ import {CreationDialogInputData, NewObjectDialogComponent} from '../dialog/new-o
 import {AuthenticationService} from '../../services/authentication.service';
 import {Album} from '../../models/album';
 import {Tag} from '../../models/tag';
+import {Observable} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
+import {ClassConstructor} from 'class-transformer/types/interfaces';
 
 @Component({
   selector: 'app-import',
@@ -22,12 +25,24 @@ export class ImportComponent implements OnInit {
   loading = false;
   files: FileList;
 
+  uploadForm: FormGroup;
   playlists: Playlist[] = [];
   genres: Genre[] = [];
-  uploadForm: FormGroup;
   artists: Artist[] = [];
   albums: Album[] = [];
   tags: Tag[] = [];
+
+  filteredPlaylists: Observable<Playlist[]>;
+  filteredGenres: Observable<Genre[]>;
+  filteredArtists: Observable<Artist[]>;
+  filteredAlbums: Observable<Album[]>;
+  filteredTags: Observable<Tag[]>;
+
+  artistsControl = new FormControl();
+  albumsControl = new FormControl();
+  playlistsControl = new FormControl();
+  genresControl = new FormControl();
+  tagsControl = new FormControl();
 
   constructor(private httpHelperService: HttpHelperService,
               private authenticationService: AuthenticationService,
@@ -56,9 +71,15 @@ export class ImportComponent implements OnInit {
     this.getPlaylists();
     this.getGenres();
     this.getTags();
+
+    this.filteredArtists = this.setUpFilter(this.artistsControl, () => this.artists);
+    this.filteredAlbums = this.setUpFilter(this.albumsControl, () => this.albums);
+    this.filteredPlaylists = this.setUpFilter(this.playlistsControl, () => this.playlists);
+    this.filteredGenres = this.setUpFilter(this.genresControl, () => this.genres);
+    this.filteredTags = this.setUpFilter(this.tagsControl, () => this.tags);
   }
 
-  onFileSelected(): void {
+  onFilesSelected(): void {
     const inputNode: HTMLInputElement = document.querySelector('#file');
     this.files = inputNode.files;
   }
@@ -103,136 +124,107 @@ export class ImportComponent implements OnInit {
   }
 
   addArtist(): void {
-    this.createNowObjectDialog({
+    this.createNewObjectDialog({
       displayName: 'Artist',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, value => {
-      this.httpHelperService.post('/artists/', value.name)
-        .then(() => {
-          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-            duration: 2000,
-          });
-          this.getArtists();
-        })
-        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-          duration: 2000,
-        }));
-    });
+    }, '/artists/');
   }
 
   addGenre(): void {
-    this.createNowObjectDialog({
+    this.createNewObjectDialog({
       displayName: 'Genre',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, value => {
-      this.httpHelperService.post('/genres/', value.name)
-        .then(() => {
-          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-            duration: 2000,
-          });
-          this.getGenres();
-        })
-        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-          duration: 2000,
-        }));
-    });
+    }, '/genres/');
   }
 
   addPlaylist(): void {
-    this.createNowObjectDialog({
+    this.createNewObjectDialog({
       displayName: 'Playlist',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, value => {
-      value.author_id = this.authenticationService.currentUserValue.id;
-      this.httpHelperService.post('/playlists/', value)
-        .then(() => {
-          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-            duration: 2000,
-          });
-          this.getPlaylists();
-        })
-        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-          duration: 2000,
-        }));
-    });
+    }, '/playlists/');
   }
 
   addAlbum(): void {
-    this.createNowObjectDialog({
+    this.createNewObjectDialog({
       displayName: 'Album',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, value => {
-      this.httpHelperService.post('/albums/', value.name)
-        .then(() => {
-          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-            duration: 2000,
-          });
-          this.getAlbum();
-        })
-        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-          duration: 2000,
-        }));
-    });
+    }, '/albums/');
   }
 
   addTag(): void {
-    this.createNowObjectDialog({
+    this.createNewObjectDialog({
       displayName: 'Tag',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, value => {
-      this.httpHelperService.post('/tags/', value.name)
-        .then(() => {
-          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-            duration: 2000,
-          });
-          this.getTags();
-        })
-        .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-          duration: 2000,
-        }));
-    });
+    }, '/tags/');
   }
 
   private getArtists(): void {
-    this.httpHelperService.getArray('/artists/all', Artist)
-      .then(value => this.artists = value)
-      .catch(console.error);
+    this.getNewObjectData('/artists/all', Artist, this.artistsControl, (value => this.artists = value));
   }
 
   private getAlbum(): void {
-    this.httpHelperService.getArray('/albums/all', Album)
-      .then(value => this.albums = value)
-      .catch(console.error);
+    this.getNewObjectData('/albums/all', Album, this.albumsControl, (value => this.albums = value));
   }
 
   private getPlaylists(): void {
-    this.httpHelperService.getArray('/playlists/all', Playlist)
-      .then(value => this.playlists = value)
-      .catch(console.error);
+    this.getNewObjectData('/playlists/all', Playlist, this.playlistsControl, (value => this.playlists = value));
   }
 
   private getGenres(): void {
-    this.httpHelperService.getArray('/genres/all', Genre)
-      .then(value => this.genres = value)
-      .catch(console.error);
+    this.getNewObjectData('/genres/all', Genre, this.genresControl, (value => this.genres = value));
   }
 
   private getTags(): void {
-    this.httpHelperService.getArray('/tags/all', Tag)
-      .then(value => this.tags = value)
-      .catch(console.error);
+    this.getNewObjectData('/tags/all', Tag, this.tagsControl, (value => this.tags = value));
   }
 
-  private createNowObjectDialog(data: CreationDialogInputData, dialogResultCB: (value: any) => void): void {
+  private getNewObjectData(path: string, clazz: ClassConstructor<any> = Tag, control: FormControl, setValueCB: (value: any[]) => void):
+    void {
+    this.httpHelperService.getArray(path, clazz)
+      .then(value => {
+        setValueCB(value);
+        control.reset();
+      })
+      .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+        duration: 2000,
+      }));
+  }
+
+  private createNewObjectDialog(data: CreationDialogInputData, postPath: string): void {
     const dialogRef = this.dialog.open(NewObjectDialogComponent, {
       width: '250px',
       data
     });
     dialogRef.afterClosed().subscribe(result => {
       if (!!result) {
-        dialogResultCB(result);
+        this.httpHelperService.post(postPath, result.name)
+          .then(() => {
+            this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+              duration: 2000,
+            });
+            this.getArtists();
+          })
+          .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+            duration: 2000,
+          }));
       }
     });
   }
-}
 
+  private setUpFilter(formControl: FormControl, getValuesCB: () => any[]): Observable<any> {
+    return formControl.valueChanges.pipe(
+      startWith(''),
+      map(filter => this.objectFilter(filter, getValuesCB()))
+    );
+  }
+
+  private objectFilter(filter: string, array: any[]): any[] {
+    if (!filter) {
+      return array;
+    }
+    return array.filter(option => {
+      return option.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0
+        || option.id.toString().indexOf(filter.toLowerCase()) >= 0;
+    });
+  }
+}

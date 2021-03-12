@@ -4,7 +4,7 @@
     <form [formGroup]="uploadForm">
       <p>
         <button (click)="fileInput.click()" mat-raised-button type="button">Choose File</button>
-        <input #fileInput (change)="onFileSelected()" hidden id="file" multiple type="file">
+        <input #fileInput (change)="onFilesSelected()" hidden id="file" multiple type="file">
         [{{files ? files.length : "no"}} song{{files && files.length == 1 ? "" : "s"}} selected.]
       </p>
       <p>
@@ -12,7 +12,7 @@
           <mat-label>Artist ID</mat-label>
           <input [matAutocomplete]="artistId" formControlName="artist" matInput type="text">
           <mat-autocomplete #artistId="matAutocomplete">
-            <mat-option *ngFor="let artist of artists" [value]="artist.id">
+            <mat-option *ngFor="let artist of filteredArtists | async" [value]="artist.id">
               {{artist.id}} - {{ artist.name }}
             </mat-option>
           </mat-autocomplete>
@@ -26,7 +26,7 @@
           <mat-label>Album ID</mat-label>
           <input [matAutocomplete]="albumId" formControlName="album" matInput type="text">
           <mat-autocomplete #albumId="matAutocomplete">
-            <mat-option *ngFor="let album of albums" [value]="album.id">
+            <mat-option *ngFor="let album of filteredAlbums | async" [value]="album.id">
               {{album.id}} - {{ album.name }}
             </mat-option>
           </mat-autocomplete>
@@ -40,7 +40,7 @@
           <mat-label>Genre ID</mat-label>
           <input [matAutocomplete]="genreId" formControlName="genre" matInput type="text">
           <mat-autocomplete #genreId="matAutocomplete">
-            <mat-option *ngFor="let genre of genres " [value]="genre.id">
+            <mat-option *ngFor="let genre of filteredGenres | async " [value]="genre.id">
               {{genre.id}} - {{genre.name}}
             </mat-option>
           </mat-autocomplete>
@@ -52,9 +52,9 @@
       <p>
         <mat-form-field>
           <mat-label>Tag ID</mat-label>
-          <input [matAutocomplete]="tagId" formControlName="tag" matInput type="text">
+          <input [matAutocomplete]="tagId" formControlName="tags" matInput type="text">
           <mat-autocomplete #tagId="matAutocomplete">
-            <mat-option *ngFor="let tag of tags " [value]="tag.id">
+            <mat-option *ngFor="let tag of filteredTags | async" [value]="tag.id">
               {{tag.id}} - {{tag.name}}
             </mat-option>
           </mat-autocomplete>
@@ -68,7 +68,7 @@
           <mat-label>Playlist ID</mat-label>
           <input [matAutocomplete]="playlistId" formControlName="playlist" matInput type="text">
           <mat-autocomplete #playlistId="matAutocomplete">
-            <mat-option *ngFor="let playlist of playlists" [value]="playlist.id">
+            <mat-option *ngFor="let playlist of filteredPlaylists | async" [value]="playlist.id">
               {{playlist.id}} - {{ playlist.name }}
             </mat-option>
           </mat-autocomplete>
