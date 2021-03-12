@@ -127,35 +127,35 @@ export class ImportComponent implements OnInit {
     this.createNewObjectDialog({
       displayName: 'Artist',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, '/artists/');
-  }
-
-  addGenre(): void {
-    this.createNewObjectDialog({
-      displayName: 'Genre',
-      stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, '/genres/');
-  }
-
-  addPlaylist(): void {
-    this.createNewObjectDialog({
-      displayName: 'Playlist',
-      stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, '/playlists/');
+    }, '/artists/', () => this.getArtists());
   }
 
   addAlbum(): void {
     this.createNewObjectDialog({
       displayName: 'Album',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, '/albums/');
+    }, '/albums/', () => this.getAlbum());
+  }
+
+  addGenre(): void {
+    this.createNewObjectDialog({
+      displayName: 'Genre',
+      stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
+    }, '/genres/', () => this.getGenres());
+  }
+
+  addPlaylist(): void {
+    this.createNewObjectDialog({
+      displayName: 'Playlist',
+      stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
+    }, '/playlists/', () => this.getPlaylists());
   }
 
   addTag(): void {
     this.createNewObjectDialog({
       displayName: 'Tag',
       stringProperties: [{displayName: 'Name', key: 'name', value: ''}]
-    }, '/tags/');
+    }, '/tags/', () => this.getTags());
   }
 
   private getArtists(): void {
@@ -190,7 +190,7 @@ export class ImportComponent implements OnInit {
       }));
   }
 
-  private createNewObjectDialog(data: CreationDialogInputData, postPath: string): void {
+  private createNewObjectDialog(data: CreationDialogInputData, postPath: string, fetchCallback: () => void): void {
     const dialogRef = this.dialog.open(NewObjectDialogComponent, {
       width: '250px',
       data
@@ -202,7 +202,7 @@ export class ImportComponent implements OnInit {
             this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
               duration: 2000,
             });
-            this.getArtists();
+            fetchCallback();
           })
           .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
             duration: 2000,
