@@ -10,4 +10,4 @@
 - Möglichkeit neue Tags/Genre/evtl. neue Playlist oder andere Vorgaben zu erstellen
 - Auto-Playlist anhand von Tags
 
--npm install --save rxjs-compat 
+- all Player-Button should update queue

@@ -32,6 +32,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   currentSong: Song;
   progression = 0;
   songTimeOffset = 0;
+  songRating: number = 0;
+  userSongRating: number = 0;
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
@@ -88,16 +90,43 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         }
       });
     this.httpHelperService.get(`/songs/${songId}`, Song)
-      .then(song => this.currentSong = song)
+      .then(song => {
+        this.currentSong = song;
+        this.getRating();
+        this.getUserRating();
+      })
       .catch(console.error);
   }
 
   setVolume(event: MatSliderChange): void {
     this.audioService.setVolume(event.value);
   }
-
   onRating(rating: number): void {
+      this.httpHelperService.put(`/ratings/${this.currentSong.id}/addUserRating/${rating}`, null)
+        .then(() => {
+          console.log("song rated!");
+          this.getRating();
+      })
+        .catch(console.error);
     console.log(rating);
+  }
+
+  getRating(): void {
+    this.httpHelperService.getPlain(`/ratings/getSongRating/${this.currentSong.id}`)
+      .then((rating) => {
+        this.songRating = Number(rating);
+        console.log(`The rating is: ${this.songRating}`);
+      })
+      .catch(console.error);
+  }
+
+  getUserRating(): void {
+    this.httpHelperService.getPlain(`/ratings/getUserRating/${this.currentSong.id}`)
+      .then((rating) => {
+        console.log(`The user rating is: ${rating}`);
+        this.userSongRating = Number(rating);
+      })
+      .catch(console.error);
   }
 
   private subscribeControlsTopic(): void {

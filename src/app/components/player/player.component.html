@@ -3,7 +3,7 @@
     <mat-card-title>{{currentSong?.title || 'No current song'}}</mat-card-title>
     <mat-card-subtitle>
       {{currentSong?.artist.name || 'Unknown Artist'}}<br/>
-      <app-rating-star (rating)="onRating($event)" currentRating="0"></app-rating-star>
+      <app-rating-star (rating)="onRating($event)" [(currentRating)]="userSongRating" [(songRating)]="songRating"></app-rating-star>
       <app-latency #latencyComponent id="latency-component"></app-latency>
 
 

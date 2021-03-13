@@ -2,3 +2,4 @@
           *ngFor="let color of colors; let i = index" [color]="color" class="icon disable-select">
   {{'star' + ((i + 1) <= this.currentRating ? '' : '_outline')}}
 </mat-icon>
+<span>({{songRating}})</span>
