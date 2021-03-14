@@ -51,11 +51,6 @@ export class ImportComponent implements OnInit {
               public dialog: MatDialog) {
   }
 
-  // convenience getter for easy access to form fields
-  get f(): { [key: string]: AbstractControl } {
-    return this.uploadForm.controls;
-  }
-
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
       artist: [undefined],
@@ -97,11 +92,11 @@ export class ImportComponent implements OnInit {
       formData.append('files', file, file.name);
     }
     formData.append('data', JSON.stringify({
-      artistId: this.f.artist.value,
-      albumId: this.f.album.value,
-      playlistId: this.f.playlist.value,
-      genres: [this.f.genre.value],
-      tags: [this.f.tag.value]
+      artistId: this.artistsControl.value,
+      albumId: this.albumsControl.value,
+      playlistId: this.playlistsControl.value,
+      genres: [this.genresControl.value],
+      tags: [this.tagsControl.value]
     }));
 
     this.httpHelperService.post('/songs/', formData)
