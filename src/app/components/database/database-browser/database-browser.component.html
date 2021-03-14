@@ -17,8 +17,8 @@
             <mat-form-field appearance="fill">
                 <mat-label>Which...</mat-label>
                 <mat-select matInput formControlName="searchOperator" placeholder="Which...">
-                    <mat-option value="contains">Contains</mat-option>
-                    <mat-option value="WIP">???</mat-option>
+                    <mat-option value="contains">contains</mat-option>
+                    <mat-option value="matches">matches</mat-option>
                 </mat-select>
                 <mat-error *ngIf="!searchQuery.get('searchOperator').hasError('required')">
                     Can´t be empty!

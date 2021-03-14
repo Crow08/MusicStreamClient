@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormGroup, Validators, FormBuilder} from '@angular/forms';
+import {Song} from 'src/app/models/song';
 import {HttpHelperService} from '../../../services/http-helper.service';
 
 @Component({
@@ -24,15 +25,15 @@ export class DatabaseBrowserComponent implements OnInit {
 //maybe new method in song class for filtered search?
 //artist needs to be imnplemented
   submitSearch(): void {
-    console.log(this.searchQuery.value["searchObject"]);
+    console.log(this.searchQuery.value["searchKeyword"]);
     if (this.searchQuery.value["searchObject"] == "song"){
-      this.httpHelperService.getPlain(`/songs/all`)
+      this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value["searchKeyword"]}`, Song)
       .then((songs) => {
-        console.log(`Songs: ${songs}`);
+        console.log(`Songs: ${songs[0].title}`);
       })
       .catch(console.error);
     }else{
-      console.log("Just artist")
+      console.log("Just artist");
     }
   }
 }

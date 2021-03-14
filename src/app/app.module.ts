@@ -24,8 +24,8 @@ import {ServerResultErrorSnackBarComponent} from './components/messages/server-r
 import {MaterialModule} from './material.module';
 import {NewObjectDialogComponent} from './components/dialog/new-object-dialog/new-object-dialog.component';
 import {RatingStarComponent} from './components/rating-star/rating-star.component';
-import { ObjectMultiSelectComponent } from './components/util/object-multi-select/object-multi-select.component';
-import { ObjectSelectComponent } from './components/util/object-select/object-select.component';
+import {ObjectMultiSelectComponent} from './components/util/object-multi-select/object-multi-select.component';
+import {ObjectSelectComponent} from './components/util/object-select/object-select.component';
 import {DatabaseBrowserComponent} from './components/database/database-browser/database-browser.component';
 
 
