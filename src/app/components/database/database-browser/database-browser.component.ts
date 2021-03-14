@@ -21,9 +21,9 @@ export class DatabaseBrowserComponent implements OnInit {
   }
 
   searchQuery: FormGroup = this.formBuilder.group({
-    searchObject: [, { validators: [Validators.required], updateOn: "change" }],
-    searchKeyword: [, { validators: [Validators.required], updateOn: "change" }],
-    searchTerm: [, { validators: [Validators.required], updateOn: "change" }],
+    searchObject: [, { updateOn: "change" }],
+    searchKeyword: [, { updateOn: "change" }],
+    searchTerm: [, {  updateOn: "change" }],
     });
 //artist needs to be imnplemented (autocomplete)
   submitSearch(): void {
