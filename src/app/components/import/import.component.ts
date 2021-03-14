@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Playlist} from '../../models/playlist';
 import {Genre} from '../../models/genre';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {Artist} from '../../models/artist';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultSuccessSnackBarComponent} from '../messages/server-result-success-snack-bar.component';
@@ -12,9 +12,8 @@ import {CreationDialogInputData, NewObjectDialogComponent} from '../dialog/new-o
 import {AuthenticationService} from '../../services/authentication.service';
 import {Album} from '../../models/album';
 import {Tag} from '../../models/tag';
-import {Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
 import {ClassConstructor} from 'class-transformer/types/interfaces';
+import {SelectObject, ObjectMultiSelectInputData} from '../util/object-select/object-select.component';
 
 @Component({
   selector: 'app-import',
@@ -26,23 +25,19 @@ export class ImportComponent implements OnInit {
   files: FileList;
 
   uploadForm: FormGroup;
-  playlists: Playlist[] = [];
-  genres: Genre[] = [];
-  artists: Artist[] = [];
-  albums: Album[] = [];
-  tags: Tag[] = [];
 
-  filteredPlaylists: Observable<Playlist[]>;
-  filteredGenres: Observable<Genre[]>;
-  filteredArtists: Observable<Artist[]>;
-  filteredAlbums: Observable<Album[]>;
-  filteredTags: Observable<Tag[]>;
+  artistSelectData: ObjectMultiSelectInputData;
+  albumSelectData: ObjectMultiSelectInputData;
+  tagSelectData: ObjectMultiSelectInputData;
+  genreSelectData: ObjectMultiSelectInputData;
+  playlistSelectData: ObjectMultiSelectInputData;
 
-  artistsControl = new FormControl();
-  albumsControl = new FormControl();
-  playlistsControl = new FormControl();
-  genresControl = new FormControl();
-  tagsControl = new FormControl();
+  selectedArtist: SelectObject[] = [];
+  selectedAlbum: SelectObject[] = [];
+  selectedGenres: SelectObject[] = [];
+  selectedTags: SelectObject[] = [];
+  selectedPlaylists: SelectObject[] = [];
+
 
   constructor(private httpHelperService: HttpHelperService,
               private authenticationService: AuthenticationService,
@@ -53,12 +48,7 @@ export class ImportComponent implements OnInit {
 
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
-      artist: [undefined],
-      album: [undefined],
-      playlist: [undefined],
-      genre: [undefined],
-      tag: [undefined],
-      files: [undefined, Validators.required]
+      files: [undefined]
     });
 
     this.getArtists();
@@ -66,12 +56,6 @@ export class ImportComponent implements OnInit {
     this.getPlaylists();
     this.getGenres();
     this.getTags();
-
-    this.filteredArtists = this.setUpFilter(this.artistsControl, () => this.artists);
-    this.filteredAlbums = this.setUpFilter(this.albumsControl, () => this.albums);
-    this.filteredPlaylists = this.setUpFilter(this.playlistsControl, () => this.playlists);
-    this.filteredGenres = this.setUpFilter(this.genresControl, () => this.genres);
-    this.filteredTags = this.setUpFilter(this.tagsControl, () => this.tags);
   }
 
   onFilesSelected(): void {
@@ -92,11 +76,11 @@ export class ImportComponent implements OnInit {
       formData.append('files', file, file.name);
     }
     formData.append('data', JSON.stringify({
-      artistId: this.artistsControl.value,
-      albumId: this.albumsControl.value,
-      playlistId: this.playlistsControl.value,
-      genres: [this.genresControl.value],
-      tags: [this.tagsControl.value]
+      artistId: this.selectedArtist.map(value => value.id)[0],
+      albumId: this.selectedAlbum.map(value => value.id)[0],
+      playlists: this.selectedPlaylists.map(value => value.id),
+      genres: this.selectedGenres.map(value => value.id),
+      tags: this.selectedTags.map(value => value.id)
     }));
 
     this.httpHelperService.post('/songs/', formData)
@@ -154,32 +138,31 @@ export class ImportComponent implements OnInit {
   }
 
   private getArtists(): void {
-    this.getNewObjectData('/artists/all', Artist, this.artistsControl, (value => this.artists = value));
+    this.getDataForSelect('/artists/all', Artist,  (value => this.artistSelectData = value));
   }
 
   private getAlbum(): void {
-    this.getNewObjectData('/albums/all', Album, this.albumsControl, (value => this.albums = value));
+    this.getDataForSelect('/albums/all', Album, (value => this.albumSelectData = value));
   }
 
   private getPlaylists(): void {
-    this.getNewObjectData('/playlists/all', Playlist, this.playlistsControl, (value => this.playlists = value));
+    this.getDataForSelect('/playlists/all', Playlist, (value => this.playlistSelectData = value));
   }
 
   private getGenres(): void {
-    this.getNewObjectData('/genres/all', Genre, this.genresControl, (value => this.genres = value));
+    this.getDataForSelect('/genres/all', Genre, (value => this.genreSelectData = value));
   }
 
   private getTags(): void {
-    this.getNewObjectData('/tags/all', Tag, this.tagsControl, (value => this.tags = value));
+    this.getDataForSelect('/tags/all', Tag, (value => this.tagSelectData = value));
   }
 
-  private getNewObjectData(path: string, clazz: ClassConstructor<any>, control: FormControl, setValueCB: (value: any[]) => void):
+  private getDataForSelect(path: string, clazz: ClassConstructor<any>, setValueCB: (value: ObjectMultiSelectInputData) => void):
     void {
     this.httpHelperService.getArray(path, clazz)
-      .then(value => {
-        setValueCB(value);
-        control.reset();
-      })
+      .then(value =>
+        setValueCB(new ObjectMultiSelectInputData(clazz.name, value.map(object => new SelectObject(object.id, object.name))))
+      )
       .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
         duration: 2000,
       }));
@@ -203,23 +186,6 @@ export class ImportComponent implements OnInit {
             duration: 2000,
           }));
       }
-    });
-  }
-
-  private setUpFilter(formControl: FormControl, getValuesCB: () => any[]): Observable<any> {
-    return formControl.valueChanges.pipe(
-      startWith(''),
-      map(filter => this.objectFilter(filter, getValuesCB()))
-    );
-  }
-
-  private objectFilter(filter: string, array: any[]): any[] {
-    if (!filter) {
-      return array;
-    }
-    return array.filter(option => {
-      return option.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0
-        || option.id.toString().indexOf(filter.toLowerCase()) >= 0;
     });
   }
 }

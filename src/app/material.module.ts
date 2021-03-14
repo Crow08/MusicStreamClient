@@ -17,7 +17,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import {FormsModule} from "@angular/forms";
+import {MatChipsModule} from '@angular/material/chips';
+import {MatDividerModule} from '@angular/material/divider';
 
 @NgModule({
   declarations: [],
@@ -39,7 +40,8 @@ import {FormsModule} from "@angular/forms";
     MatDialogModule,
     MatSliderModule,
     MatCheckboxModule,
-    FormsModule
+    MatChipsModule,
+    MatDividerModule
   ],
   exports: [
     CommonModule,
@@ -59,7 +61,8 @@ import {FormsModule} from "@angular/forms";
     MatDialogModule,
     MatSliderModule,
     MatCheckboxModule,
-    FormsModule
+    MatChipsModule,
+    MatDividerModule
   ]
 })
 export class MaterialModule {
