@@ -1,9 +1,11 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AudioService {
+  songEndedSubject = new EventEmitter<void>();
   private audio = new Audio();
   private progressionListeners: ((p: number) => void)[] = [];
 
@@ -11,6 +13,9 @@ export class AudioService {
     this.setVolume(0.1);
     this.audio.addEventListener('timeupdate', () => {
       this.progressionListeners.forEach(value => value((this.audio.currentTime / this.audio.duration) * 100));
+    });
+    this.audio.addEventListener('ended', () => {
+      this.songEndedSubject.emit();
     });
   }
 

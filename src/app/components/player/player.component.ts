@@ -49,6 +49,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     const routeParams = this.route.snapshot.paramMap;
     this.sessionId = Number(routeParams.get('sessionId'));
     this.audioService.addProgressionListener((progression) => this.progression = progression);
+    this.audioService.songEndedSubject.subscribe(() => {
+      this.publishCommand(`end/${this.currentSong.id}`);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -101,21 +104,19 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   setVolume(event: MatSliderChange): void {
     this.audioService.setVolume(event.value);
   }
+
   onRating(rating: number): void {
-      this.httpHelperService.put(`/ratings/${this.currentSong.id}/addUserRating/${rating}`, null)
-        .then(() => {
-          console.log("song rated!");
-          this.getRating();
+    this.httpHelperService.put(`/ratings/${this.currentSong.id}/addUserRating/${rating}`, null)
+      .then(() => {
+        this.getRating();
       })
-        .catch(console.error);
-    console.log(rating);
+      .catch(console.error);
   }
 
   getRating(): void {
     this.httpHelperService.getPlain(`/ratings/getSongRating/${this.currentSong.id}`)
       .then((rating) => {
         this.songRating = Number(rating);
-        console.log(`The rating is: ${this.songRating}`);
       })
       .catch(console.error);
   }
