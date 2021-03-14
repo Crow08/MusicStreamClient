@@ -24,6 +24,7 @@ import {ServerResultErrorSnackBarComponent} from './components/messages/server-r
 import {MaterialModule} from './material.module';
 import {NewObjectDialogComponent} from './components/dialog/new-object-dialog/new-object-dialog.component';
 import {RatingStarComponent} from './components/rating-star/rating-star.component';
+import {DatabaseBrowserComponent} from './components/database/database-browser/database-browser.component';
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import {RatingStarComponent} from './components/rating-star/rating-star.componen
     ServerResultSuccessSnackBarComponent,
     ServerResultErrorSnackBarComponent,
     NewObjectDialogComponent,
-    RatingStarComponent
+    RatingStarComponent,
+    DatabaseBrowserComponent
   ],
   imports: [
     FormsModule,
@@ -51,6 +53,7 @@ import {RatingStarComponent} from './components/rating-star/rating-star.componen
     RouterModule.forRoot([{path: '', component: HomeComponent, canActivate: [AuthGuard]},
       {path: 'login', component: LoginComponent},
       {path: 'sessions/browse', component: SessionBrowserComponent, canActivate: [AuthGuard]},
+      {path: 'database/browse', component: DatabaseBrowserComponent, canActivate: [AuthGuard]},
       {path: 'sessions/create', component: SessionCreatorComponent, canActivate: [AuthGuard]},
       {path: 'sessions/:sessionId/lobby', component: PlayerComponent, canActivate: [AuthGuard]},
       {path: '**', redirectTo: ''}], {relativeLinkResolution: 'legacy'}),

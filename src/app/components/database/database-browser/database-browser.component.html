@@ -1,0 +1,39 @@
+<mat-card id="database-browser-card">
+    <mat-card-header>
+        <mat-card-title>Browse Database</mat-card-title>
+    </mat-card-header>
+    <form [formGroup]="searchQuery" (ngSubmit)="submitSearch()">
+        <mat-card-content>
+            <mat-form-field appearance="fill">
+                <mat-label>Search for...</mat-label>
+                <mat-select matInput formControlName="searchObject" placeholder="Seach for...">
+                    <mat-option value="song">Song</mat-option>
+                    <mat-option value="artist">Artist</mat-option>
+                </mat-select>
+                <mat-error *ngIf="!searchQuery.get('searchObject').hasError('required')">
+                    Can´t be empty!
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+                <mat-label>Which...</mat-label>
+                <mat-select matInput formControlName="searchOperator" placeholder="Which...">
+                    <mat-option value="contains">Contains</mat-option>
+                    <mat-option value="WIP">???</mat-option>
+                </mat-select>
+                <mat-error *ngIf="!searchQuery.get('searchOperator').hasError('required')">
+                    Can´t be empty!
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+                <mat-label>Keyword...</mat-label>
+                <input matInput formControlName="searchKeyword" placeholder="Keyword..."/>
+                <mat-error *ngIf="!searchQuery.get('searchKeyword').hasError('required')">
+                    Can´t be empty!
+                </mat-error>
+            </mat-form-field>
+        </mat-card-content>
+        <mat-card-footer>
+            <button [disabled]="!searchQuery.valid" id="start-search-btn" color="accent" mat-raised-button type="submit">Search</button>
+        </mat-card-footer>
+    </form>
+</mat-card>
