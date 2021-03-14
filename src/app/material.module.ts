@@ -19,6 +19,10 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatDividerModule} from '@angular/material/divider';
+import {MatTableModule} from '@angular/material/table';
+import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatSortModule} from '@angular/material/sort';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [],
@@ -41,7 +45,11 @@ import {MatDividerModule} from '@angular/material/divider';
     MatSliderModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     CommonModule,
@@ -62,7 +70,11 @@ import {MatDividerModule} from '@angular/material/divider';
     MatSliderModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatProgressSpinnerModule
   ]
 })
 export class MaterialModule {

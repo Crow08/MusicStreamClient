@@ -10,6 +10,10 @@ import {HttpHelperService} from '../../../services/http-helper.service';
 })
 export class DatabaseBrowserComponent implements OnInit {
 
+  dataSource;
+  displayedColumns: string[] = ['path', 'title', 'album_id', 'artist_id'];
+  public modeselect = 'song';
+
   constructor(private formBuilder: FormBuilder,
               private httpHelperService: HttpHelperService) { }
 
@@ -18,22 +22,26 @@ export class DatabaseBrowserComponent implements OnInit {
 
   searchQuery: FormGroup = this.formBuilder.group({
     searchObject: [, { validators: [Validators.required], updateOn: "change" }],
-    searchOperator: [,{validators: [Validators.required], updateOn: "change",}],
     searchKeyword: [, { validators: [Validators.required], updateOn: "change" }],
+    searchTerm: [, { validators: [Validators.required], updateOn: "change" }],
     });
-//search has yet to be filtered
-//maybe new method in song class for filtered search?
-//artist needs to be imnplemented
+//artist needs to be imnplemented (autocomplete)
   submitSearch(): void {
     console.log(this.searchQuery.value["searchKeyword"]);
-    if (this.searchQuery.value["searchObject"] == "song"){
-      this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value["searchKeyword"]}`, Song)
-      .then((songs) => {
-        console.log(`Songs: ${songs[0].title}`);
-      })
-      .catch(console.error);
-    }else{
-      console.log("Just artist");
-    }
+    switch (this.searchQuery.value["searchObject"]) {
+      case "song":
+        this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value["searchKeyword"]}`, Song)
+        .then((songs) => {
+          this.dataSource = songs;
+        })
+        .catch(console.error);
+          break;
+      case "artist":
+        console.log("Just an artist");
+          break;
+      default: 
+      console.log("Just nothing");
+          break;
+   }
   }
 }
