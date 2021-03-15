@@ -27,13 +27,14 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   playerState: PlayerState = PlayerState.STOP;
   loopMode = false;
-  queue: string[] = [];
+  queue: { id: number, title: string }[] = [];
+  history: { id: number, title: string }[] = [];
   sessionId: number;
   currentSong: Song;
   progression = 0;
   songTimeOffset = 0;
-  songRating: number = 0;
-  userSongRating: number = 0;
+  songRating = 0;
+  userSongRating = 0;
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
@@ -70,6 +71,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   loadNewSong(songId: number, startTime: number, offset: number, directPlay = true): void {
+    this.updateQueueAndHistory(songId);
     if (songId === -1) {
       this.playerState = PlayerState.STOP;
       return;
@@ -130,6 +132,14 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       .catch(console.error);
   }
 
+  getDisplayHistoryLength(): number {
+    return Math.max(5, 10 - this.queue.length);
+  }
+
+  getDisplayQueueLength(): number {
+    return Math.max(5, 10 - this.history.length);
+  }
+
   private subscribeControlsTopic(): void {
     if (PlayerComponent.topic) {
       PlayerComponent.topic.unsubscribe();
@@ -177,18 +187,19 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         break;
       case 'Join':
         if (commandObject.userId === this.authenticationService.currentUserValue.id) {
-          this.loopMode = commandObject.loopMode;
           this.queue = commandObject.queue;
+          this.history = commandObject.history;
+          this.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
-              this.loadNewSong(commandObject.songId, commandObject.time, commandObject.startOffset);
+              this.loadNewSong(commandObject.currentSong.id, commandObject.time, commandObject.startOffset);
               break;
             case 'STOP':
               this.audioService.stop();
               this.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
-              this.loadNewSong(commandObject.songId, commandObject.time, commandObject.startOffset, false);
+              this.loadNewSong(commandObject.currentSong.id, commandObject.time, commandObject.startOffset, false);
               this.playerState = PlayerState.STOP;
               break;
           }
@@ -204,6 +215,26 @@ export class PlayerComponent implements AfterViewInit, OnInit {
             break;
         }
         break;
+    }
+  }
+
+  private updateQueueAndHistory(songId: number): void {
+    const queueIndex = this.queue.findIndex(value => value.id === songId);
+    if (queueIndex !== -1) {
+      // forward
+      if (this.currentSong) {
+        this.history.push({id: this.currentSong.id, title: this.currentSong.title});
+      }
+      this.currentSong.title = this.queue.splice(queueIndex, 1)[0].title;
+    } else {
+      // backwards
+      const historyIndex = this.history.findIndex(value => value.id === songId);
+      if (historyIndex !== -1) {
+        if (this.currentSong) {
+          this.queue.unshift({id: this.currentSong.id, title: this.currentSong.title});
+        }
+        this.currentSong.title = this.history.splice(historyIndex, 1)[0].title;
+      }
     }
   }
 }

@@ -2,8 +2,9 @@
   <mat-card-header>
     <mat-card-title>{{currentSong?.title || 'No current song'}}</mat-card-title>
     <mat-card-subtitle>
-      {{currentSong?.artist.name || 'Unknown Artist'}}<br/>
-      <app-rating-star (rating)="onRating($event)" [(currentRating)]="userSongRating" [(songRating)]="songRating"></app-rating-star>
+      {{currentSong?.artist?.name || 'Unknown Artist'}}<br/>
+      <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
+                       [songRating]="songRating"></app-rating-star>
       <app-latency #latencyComponent id="latency-component"></app-latency>
 
 
@@ -36,9 +37,19 @@
                   value="0.1"></mat-slider>
     </div>
     <div id="queue-container">
-      <mat-list *ngFor="let song of queue" role="list">
-        <mat-list-item role="listitem">
-          {{song}}
+
+      <mat-list role="list">
+        <mat-list-item *ngFor="let song of history.slice(history.length - getDisplayHistoryLength(), history.length)"
+                       role="listitem">
+          {{song.title}}
+        </mat-list-item>
+        <mat-list-item>
+          <mat-chip-list>
+            <mat-chip color="primary" selected>{{currentSong?.title}}</mat-chip>
+          </mat-chip-list>
+        </mat-list-item>
+        <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength())" role="listitem">
+          {{song.title}}
         </mat-list-item>
       </mat-list>
 
