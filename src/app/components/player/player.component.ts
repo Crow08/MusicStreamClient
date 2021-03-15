@@ -126,7 +126,6 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   getUserRating(): void {
     this.httpHelperService.getPlain(`/ratings/getUserRating/${this.currentSong.id}`)
       .then((rating) => {
-        console.log(`The user rating is: ${rating}`);
         this.userSongRating = Number(rating);
       })
       .catch(console.error);
@@ -182,7 +181,6 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         break;
       case 'Stop':
         this.audioService.stop();
-        this.currentSong = undefined;
         this.playerState = PlayerState.STOP;
         break;
       case 'Join':
@@ -196,6 +194,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               break;
             case 'STOP':
               this.audioService.stop();
+              this.currentSong = new Song();
+              this.currentSong.id = commandObject.currentSong.id;
+              this.currentSong.title = commandObject.currentSong.title;
               this.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
@@ -226,14 +227,24 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.history.push({id: this.currentSong.id, title: this.currentSong.title});
       }
       this.currentSong.title = this.queue.splice(queueIndex, 1)[0].title;
+      if (queueIndex !== 0) {
+        // was actually backwards loop
+        this.history = this.history.concat(this.queue);
+        this.queue = [];
+      }
     } else {
-      // backwards
       const historyIndex = this.history.findIndex(value => value.id === songId);
       if (historyIndex !== -1) {
+        // backwards
         if (this.currentSong) {
           this.queue.unshift({id: this.currentSong.id, title: this.currentSong.title});
         }
         this.currentSong.title = this.history.splice(historyIndex, 1)[0].title;
+        if (historyIndex === 0) {
+          // was actually forwards loop
+          this.queue = this.history.concat(this.queue);
+          this.history = [];
+        }
       }
     }
   }
