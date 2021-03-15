@@ -54,7 +54,7 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
       case "artist":
         console.log("Just an artist");
           break;
-      default: 
+      default:
       console.log("Just nothing");
           break;
    }
