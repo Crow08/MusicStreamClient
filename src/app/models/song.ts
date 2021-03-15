@@ -1,3 +1,4 @@
+import { Album } from './album';
 import {Artist} from './artist';
 
 export class Song {
@@ -5,4 +6,5 @@ export class Song {
   title: string;
   artist: Artist;
   path: string;
+  album: Album;
 }
