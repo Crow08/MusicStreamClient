@@ -12,12 +12,34 @@
     margin-right: 50px;
   }
 
-  table {
+  #search-results-table {
     width: 100%;
-    opacity: 0.65;
+    background: rgba(255,255,255,0.025);
+  }
+  #search-results-table td{
+    padding: 0 10px;
+  }
+
+  #search-results-table th {
+    padding: 0 10px;
+    font-size: 20px;
+  }
+
+  mat-paginator {
+    background: rgb(255,255,255,0.025);
   }
 
   mat-form-field{
     margin-left: 10px;
     margin-right: 10px;
+  }
+
+  mat-spinner{
+    float: right;
+    margin-top: 5px;
+    margin-right: 10px;
+  }
+
+  .hidden{
+    display: none;
   }

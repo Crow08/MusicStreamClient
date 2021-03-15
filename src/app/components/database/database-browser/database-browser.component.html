@@ -13,44 +13,36 @@
             </mat-form-field>
             <mat-form-field appearance="fill" *ngIf="(searchQuery.get('searchObject').value == 'song')">
                 <mat-label>Keyword...</mat-label>
-                <input matInput formControlName="searchKeyword" placeholder="Keyword..."/>
+                <input matInput formControlName="searchKeyword" placeholder="Keyword..." />
             </mat-form-field>
             <mat-form-field appearance="fill" *ngIf="!(searchQuery.get('searchObject').value == 'song')">
                 <mat-label>Choose...</mat-label>
-                <input matInput formControlName="searchTerm" placeholder="Choose..."/>
+                <input matInput formControlName="searchTerm" placeholder="Choose..." />
             </mat-form-field>
         </mat-card-content>
         <mat-card-footer>
             <button id="start-search-btn" color="accent" mat-raised-button type="submit">Search</button>
+            <mat-spinner *ngIf="loading" [diameter]="25"></mat-spinner>
             <br><br><br>
-            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-
-                <ng-container matColumnDef="path">
-                  <th mat-header-cell *matHeaderCellDef> Path </th>
-                  <td mat-cell *matCellDef="let element"> {{element.path}} </td>
-                </ng-container>
-              
-                <!-- Weight Column -->
+            <div [ngClass]="dataSource.data.length == 0 ? 'hidden':''">
+            <table id="search-results-table" mat-table [dataSource]="dataSource" class="mat-elevation-z8">
                 <ng-container matColumnDef="title">
-                  <th mat-header-cell *matHeaderCellDef> Title </th>
-                  <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                    <th mat-header-cell *matHeaderCellDef> Title </th>
+                    <td mat-cell *matCellDef="let element"> {{element.title}} </td>
                 </ng-container>
-              
-                <!-- Symbol Column -->
-                <ng-container matColumnDef="album_id">
-                  <th mat-header-cell *matHeaderCellDef> Album-ID </th>
-                <td mat-cell *matCellDef="let element"> {{element.album.id}} </td>
+                <ng-container matColumnDef="album">
+                    <th mat-header-cell *matHeaderCellDef> Album</th>
+                    <td mat-cell *matCellDef="let element"> {{element.album.name}} </td>
                 </ng-container>
-                
-                <!-- Name Column -->
-                <ng-container matColumnDef="artist_id">
-                    <th mat-header-cell *matHeaderCellDef> Artist-ID </th>
-                    <td mat-cell *matCellDef="let element"> {{element.artist.id}} </td>
+                <ng-container matColumnDef="artist">
+                    <th mat-header-cell *matHeaderCellDef> Artist</th>
+                    <td mat-cell *matCellDef="let element"> {{element.artist.name}} </td>
                 </ng-container>
-                
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-              </table>
+            </table>
+            <mat-paginator [pageSizeOptions]="[10, 20, 30]"></mat-paginator>
+        </div>
         </mat-card-footer>
     </form>
 </mat-card>
