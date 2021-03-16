@@ -36,7 +36,7 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
     });
 
     
-//artist needs to be imnplemented (autocomplete)
+//other search terms needs to be imnplemented (autocomplete)
   submitSearch(): void {
     this.loading = true;
     switch (this.searchQuery.value["searchObject"]) {
@@ -52,7 +52,16 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
         });
           break;
       case "artist":
-        console.log("Just an artist");
+        console.log(this.searchQuery.value["searchTerm"]);
+        this.httpHelperService.getArray(`/songs/getSongsByArtist/${this.searchQuery.value["searchTerm"]}`, Song)
+        .then((songs) => {
+          this.dataSource.data = songs;
+          this.loading = false;
+        })
+        .catch((error) => {
+          console.error(error);
+          this.loading = false;
+        });
           break;
       default:
       console.log("Just nothing");
