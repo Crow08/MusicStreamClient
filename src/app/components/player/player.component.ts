@@ -8,6 +8,8 @@ import {Song} from '../../models/song';
 import {AudioService} from '../../services/audio.service';
 import {MatSliderChange} from '@angular/material/slider';
 import {HttpHelperService} from '../../services/http-helper.service';
+import {WsConfigService} from '../../services/ws-config.service';
+import {User} from '../../models/user';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -30,6 +32,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   queue: { id: number, title: string }[] = [];
   history: { id: number, title: string }[] = [];
   sessionId: number;
+  sessionUsers: User[] = [];
   currentSong: Song;
   progression = 0;
   songTimeOffset = 0;
@@ -43,12 +46,17 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               private httpHelperService: HttpHelperService,
               private rxStompService: RxStompService,
               private authenticationService: AuthenticationService,
-              private audioService: AudioService) {
+              private audioService: AudioService,
+              private wsConfigService: WsConfigService) {
+    const routeParams = this.route.snapshot.paramMap;
+    this.sessionId = Number(routeParams.get('sessionId'));
+    this.wsConfigService.updateWsConfig({
+      session: this.sessionId,
+    });
+    this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
   }
 
   ngOnInit(): void {
-    const routeParams = this.route.snapshot.paramMap;
-    this.sessionId = Number(routeParams.get('sessionId'));
     this.audioService.addProgressionListener((progression) => this.progression = progression);
     this.audioService.songEndedSubject.subscribe(() => {
       this.publishCommand(`end/${this.currentSong.id}`);
@@ -183,7 +191,11 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.audioService.stop();
         this.playerState = PlayerState.STOP;
         break;
+      case 'Leave':
+        this.sessionUsers.splice(this.sessionUsers.findIndex(value => value.id === commandObject.userId), 1);
+        break;
       case 'Join':
+        this.sessionUsers = commandObject.sessionUsers;
         if (commandObject.userId === this.authenticationService.currentUserValue.id) {
           this.queue = commandObject.queue;
           this.history = commandObject.history;
