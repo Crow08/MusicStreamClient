@@ -9,8 +9,7 @@ import {AppComponent} from './app.component';
 import {LoginComponent} from './components/login/login.component';
 import {HomeComponent} from './components/home/home.component';
 import {LoaderComponent} from './components/loader/loader.component';
-import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs';
-import {myRxStompConfig} from './my-rx-stomp.config';
+import {RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {SessionBrowserComponent} from './components/sessions/browser/session-browser.component';
 import {SessionCreatorComponent} from './components/sessions/session-creator/session-creator.component';
@@ -66,17 +65,12 @@ import {DatabaseBrowserComponent} from './components/database/database-browser/d
   ],
   providers: [
     {
-      provide: InjectableRxStompConfig,
-      useValue: myRxStompConfig,
-    },
-    {
       provide: OverlayContainer,
       useClass: ThemeAwareOverlayContainer
     },
     {
       provide: RxStompService,
-      useFactory: rxStompServiceFactory,
-      deps: [InjectableRxStompConfig],
+      useFactory: rxStompServiceFactory
     }],
   bootstrap: [AppComponent]
 })
