@@ -15,13 +15,13 @@ export class SelectObject {
 }
 
 export class ObjectMultiSelectInputData {
+  displayName: string;
+  options: SelectObject[];
+
   constructor(displayName: string, options: SelectObject[]) {
     this.displayName = displayName;
     this.options = options;
   }
-
-  displayName: string;
-  options: SelectObject[];
 }
 
 @Component({
@@ -51,6 +51,18 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
     }
   }
 
+  setOptionsSelected(value: SelectObject[]): void {
+    this.selectedOptions = value;
+    this.selectedOptionsChange.emit(this.selectedOptions);
+  }
+
+  selectionChanged(): void {
+    const hit = this.selectObjectData.options.find(value => value.id === Number(this.objectControl.value));
+    if (hit) {
+      this.setOptionsSelected([hit]);
+    }
+  }
+
   private setUpFilter(): void {
     this.filteredOptions = this.objectControl.valueChanges.pipe(
       startWith(''),
@@ -67,17 +79,5 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
       return option.name.toLowerCase().indexOf(filterInput) >= 0
         || option.id.toString().indexOf(filterInput) >= 0;
     });
-  }
-
-  setOptionsSelected(value: SelectObject[]): void {
-    this.selectedOptions = value;
-    this.selectedOptionsChange.emit(this.selectedOptions);
-  }
-
-  selectionChanged(): void {
-    const hit = this.selectObjectData.options.find(value => value.id === Number(this.objectControl.value));
-    if (hit) {
-      this.setOptionsSelected([hit]);
-    }
   }
 }

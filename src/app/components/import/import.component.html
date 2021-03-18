@@ -8,36 +8,44 @@
         [{{files ? files.length : "no"}} song{{files && files.length == 1 ? "" : "s"}} selected.]
       </p>
       <p class="form_line">
-        <app-object-select [selectObjectData]="artistSelectData" [(selectedOptions)]="selectedArtist"></app-object-select>
-        <button (click)="addArtist()" mat-raised-button type="button" class="add_btn">
+        <app-object-select [(selectedOptions)]="selectedArtist"
+                           [selectObjectData]="artistSelectData"></app-object-select>
+        <button (click)="addArtist()" class="add_btn" mat-raised-button type="button">
           <mat-icon>add</mat-icon>
         </button>
       </p>
-      <mat-divider></mat-divider><br/>
+      <mat-divider></mat-divider>
+      <br/>
       <p class="form_line">
-        <app-object-select [selectObjectData]="albumSelectData" [(selectedOptions)]="selectedAlbum"></app-object-select>
-        <button (click)="addAlbum()" mat-raised-button type="button" class="add_btn">
+        <app-object-select [(selectedOptions)]="selectedAlbum" [selectObjectData]="albumSelectData"></app-object-select>
+        <button (click)="addAlbum()" class="add_btn" mat-raised-button type="button">
           <mat-icon>add</mat-icon>
         </button>
       </p>
-      <mat-divider></mat-divider><br/>
+      <mat-divider></mat-divider>
+      <br/>
       <p class="form_line">
-        <app-object-multi-select [selectObjectData]="genreSelectData" [(selectedOptions)]="selectedGenres"></app-object-multi-select>
-        <button (click)="addGenre()" mat-raised-button type="button" class="add_btn">
+        <app-object-multi-select [(selectedOptions)]="selectedGenres"
+                                 [selectObjectData]="genreSelectData"></app-object-multi-select>
+        <button (click)="addGenre()" class="add_btn" mat-raised-button type="button">
           <mat-icon>add</mat-icon>
         </button>
       </p>
-      <mat-divider></mat-divider><br/>
+      <mat-divider></mat-divider>
+      <br/>
       <p class="form_line">
-        <app-object-multi-select [selectObjectData]="tagSelectData" [(selectedOptions)]="selectedTags"></app-object-multi-select>
-        <button (click)="addTag()" mat-raised-button type="button" class="add_btn">
+        <app-object-multi-select [(selectedOptions)]="selectedTags"
+                                 [selectObjectData]="tagSelectData"></app-object-multi-select>
+        <button (click)="addTag()" class="add_btn" mat-raised-button type="button">
           <mat-icon>add</mat-icon>
         </button>
       </p>
-      <mat-divider></mat-divider><br/>
+      <mat-divider></mat-divider>
+      <br/>
       <p class="form_line">
-        <app-object-multi-select [selectObjectData]="playlistSelectData" [(selectedOptions)]="selectedPlaylists"></app-object-multi-select>
-        <button (click)="addPlaylist()" mat-raised-button type="button" class="add_btn">
+        <app-object-multi-select [(selectedOptions)]="selectedPlaylists"
+                                 [selectObjectData]="playlistSelectData"></app-object-multi-select>
+        <button (click)="addPlaylist()" class="add_btn" mat-raised-button type="button">
           <mat-icon>add</mat-icon>
         </button>
       </p>

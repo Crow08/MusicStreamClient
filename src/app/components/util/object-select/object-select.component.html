@@ -1,7 +1,8 @@
 <div *ngIf="selectObjectData">
   <mat-form-field>
     <mat-label>{{selectObjectData.displayName}}:</mat-label>
-    <input [formControl]="objectControl" [matAutocomplete]="objectAC" matInput type="text" (change)="selectionChanged()">
+    <input (change)="selectionChanged()" [formControl]="objectControl" [matAutocomplete]="objectAC" matInput
+           type="text">
     <mat-autocomplete #objectAC="matAutocomplete" (optionSelected)="selectionChanged()">
       <mat-option *ngFor="let option of filteredOptions | async " [value]="option.id">
         {{option.id}} - {{option.name}}

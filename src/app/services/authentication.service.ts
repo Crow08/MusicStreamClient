@@ -12,6 +12,8 @@ import {WsConfigService} from './ws-config.service';
 })
 export class AuthenticationService {
 
+  private currentUserSubject: BehaviorSubject<User>;
+
   constructor(private http: HttpClient,
               private wsConfigService: WsConfigService) {
     this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
@@ -26,7 +28,6 @@ export class AuthenticationService {
   public get currentUserValue(): User {
     return this.currentUserSubject.value;
   }
-  private currentUserSubject: BehaviorSubject<User>;
 
   private static getAuthHeaderForUser(user: User): HttpHeaders {
     return new HttpHeaders({Authorization: `Basic ${user.authdata}`});

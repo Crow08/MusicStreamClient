@@ -13,7 +13,7 @@ import {AuthenticationService} from '../../services/authentication.service';
 import {Album} from '../../models/album';
 import {Tag} from '../../models/tag';
 import {ClassConstructor} from 'class-transformer/types/interfaces';
-import {SelectObject, ObjectMultiSelectInputData} from '../util/object-select/object-select.component';
+import {ObjectMultiSelectInputData, SelectObject} from '../util/object-select/object-select.component';
 
 @Component({
   selector: 'app-import',
@@ -138,7 +138,7 @@ export class ImportComponent implements OnInit {
   }
 
   private getArtists(): void {
-    this.getDataForSelect('/artists/all', Artist,  (value => this.artistSelectData = value));
+    this.getDataForSelect('/artists/all', Artist, (value => this.artistSelectData = value));
   }
 
   private getAlbum(): void {

@@ -1,4 +1,4 @@
-import { Album } from './album';
+import {Album} from './album';
 import {Artist} from './artist';
 
 export class Song {
