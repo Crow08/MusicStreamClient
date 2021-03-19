@@ -19,10 +19,10 @@
           </mat-autocomplete>
         </mat-form-field>
       </p>
-      <div class="button">
-        <app-loader [loadingState]="loading"></app-loader>
-        <button [disabled]="loading" color="accent" mat-raised-button type="submit">create</button>
-      </div>
+      <p>
+        <mat-spinner *ngIf="loading" diameter="35"></mat-spinner>
+        <button [disabled]="loading" color="accent" id="submit-button" mat-raised-button type="submit">create</button>
+      </p>
     </form>
   </mat-card-content>
 </mat-card>

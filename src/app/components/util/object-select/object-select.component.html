@@ -3,7 +3,7 @@
     <mat-label>{{selectObjectData.displayName}}:</mat-label>
     <input (change)="selectionChanged()" [formControl]="objectControl" [matAutocomplete]="objectAC" matInput
            type="text">
-    <mat-autocomplete #objectAC="matAutocomplete" (optionSelected)="selectionChanged()">
+    <mat-autocomplete #objectAC="matAutocomplete" (optionSelected)="selectionChanged()" [displayWith]="display">
       <mat-option *ngFor="let option of filteredOptions | async " [value]="option.id">
         {{option.id}} - {{option.name}}
       </mat-option>

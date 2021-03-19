@@ -9,6 +9,12 @@
   flex: 1;
 }
 
+#toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 #main-headline {
   position: fixed;
   left: 50%;

@@ -18,10 +18,8 @@
                  type="password"/>
         </mat-form-field>
       </p>
-      <div class="button">
-        <app-loader [loadingState]="loading"></app-loader>
-        <button [disabled]="loading" color="accent" mat-raised-button type="submit">Login</button>
-      </div>
+      <button [disabled]="loading" color="accent" id="submit-button" mat-raised-button type="submit">Login</button>
+      <mat-spinner *ngIf="loading" diameter="35"></mat-spinner>
     </form>
     <div #console></div>
   </mat-card-content>

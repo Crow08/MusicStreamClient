@@ -63,6 +63,10 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
     }
   }
 
+  display = (id: number): string | undefined => {
+    return this.selectObjectData.options.find(value => value.id === id)?.name;
+  };
+
   private setUpFilter(): void {
     this.filteredOptions = this.objectControl.valueChanges.pipe(
       startWith(''),

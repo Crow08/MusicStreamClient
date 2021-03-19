@@ -17,10 +17,10 @@ import {ObjectMultiSelectInputData, SelectObject} from '../util/object-select/ob
 
 @Component({
   selector: 'app-import',
-  templateUrl: './import.component.html',
-  styleUrls: ['./import.component.scss']
+  templateUrl: './upload.component.html',
+  styleUrls: ['./upload.component.scss']
 })
-export class ImportComponent implements OnInit {
+export class UploadComponent implements OnInit {
   loading = false;
   files: FileList;
 

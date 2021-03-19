@@ -30,7 +30,5 @@ export class ObjectMultiSelectComponent extends ObjectSelectComponent {
     this.objectControl.reset();
   }
 
-  display(): string | undefined {
-    return '';
-  }
+  display = (): string | undefined => '';
 }
