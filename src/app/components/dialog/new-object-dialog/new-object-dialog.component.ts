@@ -4,6 +4,11 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 export class CreationDialogInputData {
   displayName: string;
   stringProperties: { displayName: string, key: string, value: string }[];
+
+  constructor(displayName: string, stringProperties: { displayName: string; key: string; value: string }[]) {
+    this.displayName = displayName;
+    this.stringProperties = stringProperties;
+  }
 }
 
 @Component({

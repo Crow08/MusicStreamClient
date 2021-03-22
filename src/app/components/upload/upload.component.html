@@ -8,49 +8,15 @@
         [{{files ? files.length : "no"}} song{{files && files.length == 1 ? "" : "s"}} selected.]
       </p>
       <mat-divider></mat-divider>
-      <br/>
-      <p class="form_line">
-        <app-object-select [(selectedOptions)]="selectedArtist"
-                           [selectObjectData]="artistSelectData"></app-object-select>
-        <button (click)="addArtist()" class="add_btn" mat-raised-button type="button">
-          <mat-icon>add</mat-icon>
-        </button>
-      </p>
+      <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>
       <mat-divider></mat-divider>
-      <br/>
-      <p class="form_line">
-        <app-object-select [(selectedOptions)]="selectedAlbum" [selectObjectData]="albumSelectData"></app-object-select>
-        <button (click)="addAlbum()" class="add_btn" mat-raised-button type="button">
-          <mat-icon>add</mat-icon>
-        </button>
-      </p>
+      <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
       <mat-divider></mat-divider>
-      <br/>
-      <p class="form_line">
-        <app-object-multi-select [(selectedOptions)]="selectedGenres"
-                                 [selectObjectData]="genreSelectData"></app-object-multi-select>
-        <button (click)="addGenre()" class="add_btn" mat-raised-button type="button">
-          <mat-icon>add</mat-icon>
-        </button>
-      </p>
+      <app-input-genre [(selectedOptions)]="selectedGenres" [multiMode]="true"></app-input-genre>
       <mat-divider></mat-divider>
-      <br/>
-      <p class="form_line">
-        <app-object-multi-select [(selectedOptions)]="selectedTags"
-                                 [selectObjectData]="tagSelectData"></app-object-multi-select>
-        <button (click)="addTag()" class="add_btn" mat-raised-button type="button">
-          <mat-icon>add</mat-icon>
-        </button>
-      </p>
+      <app-input-tag [(selectedOptions)]="selectedTags" [multiMode]="true"></app-input-tag>
       <mat-divider></mat-divider>
-      <br/>
-      <p class="form_line">
-        <app-object-multi-select [(selectedOptions)]="selectedPlaylists"
-                                 [selectObjectData]="playlistSelectData"></app-object-multi-select>
-        <button (click)="addPlaylist()" class="add_btn" mat-raised-button type="button">
-          <mat-icon>add</mat-icon>
-        </button>
-      </p>
+      <app-input-playlist [(selectedOptions)]="selectedPlaylists" [multiMode]="true"></app-input-playlist>
       <button (click)="upload()" [disabled]="loading" color="accent" id="submit-button" mat-raised-button type="button">
         Upload
       </button>

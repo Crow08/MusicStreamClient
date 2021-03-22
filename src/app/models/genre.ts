@@ -1,4 +1,4 @@
-export class Genre {
-  id: number;
-  name: string;
+import {GenericDataObject} from './genericDataObject';
+
+export class Genre extends GenericDataObject{
 }

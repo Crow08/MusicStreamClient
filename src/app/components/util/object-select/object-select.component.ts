@@ -2,19 +2,17 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import {GenericDataObject} from '../../../models/genericDataObject';
 
-export class SelectObject {
-  id: number;
-  name: string;
+export class SelectObject extends GenericDataObject{
   selected = false;
 
   constructor(id: number, name: string) {
-    this.id = id;
-    this.name = name;
+    super(id, name);
   }
 }
 
-export class ObjectMultiSelectInputData {
+export class ObjectSelectInputData {
   displayName: string;
   options: SelectObject[];
 
@@ -31,7 +29,7 @@ export class ObjectMultiSelectInputData {
 })
 export class ObjectSelectComponent implements OnInit, OnChanges {
 
-  @Input() selectObjectData: ObjectMultiSelectInputData;
+  @Input() selectObjectData: ObjectSelectInputData;
   @Input() selectedOptions: SelectObject[];
   @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
   objectControl = new FormControl();
@@ -65,7 +63,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
 
   display = (id: number): string | undefined => {
     return this.selectObjectData.options.find(value => value.id === id)?.name;
-  };
+  }
 
   private setUpFilter(): void {
     this.filteredOptions = this.objectControl.valueChanges.pipe(

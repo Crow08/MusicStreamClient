@@ -1,4 +1,4 @@
-export class Tag {
-  id: number;
-  name: string;
+import {GenericDataObject} from './genericDataObject';
+
+export class Tag extends GenericDataObject{
 }
