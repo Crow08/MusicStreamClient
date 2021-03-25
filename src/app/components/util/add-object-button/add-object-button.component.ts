@@ -21,13 +21,13 @@ export class AddObjectInputData extends CreationDialogInputData {
   styleUrls: ['./add-object-button.component.scss']
 })
 export class AddObjectButtonComponent {
-  @Input() private objectInputData: AddObjectInputData;
-
   @Output() objectAdded = new EventEmitter<any>();
+  @Input() private objectInputData: AddObjectInputData;
 
   constructor(private httpHelperService: HttpHelperService,
               private snackBar: MatSnackBar,
-              public dialog: MatDialog) { }
+              public dialog: MatDialog) {
+  }
 
   addObject(): void {
     this.createNewObjectDialog();

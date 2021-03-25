@@ -24,6 +24,10 @@ export class ArtistComponent extends InputObjectDirective implements OnInit {
     this.getData();
   }
 
+  objectAdded(): void {
+    this.getData();
+  }
+
   private getData(): void {
     super.getDataForSelect('/artists/all', Artist)
       .then(value => {
@@ -32,9 +36,5 @@ export class ArtistComponent extends InputObjectDirective implements OnInit {
       .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
         duration: 2000,
       }));
-  }
-
-  objectAdded(): void {
-    this.getData();
   }
 }

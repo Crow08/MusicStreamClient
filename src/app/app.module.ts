@@ -24,12 +24,12 @@ import {RatingStarComponent} from './components/rating-star/rating-star.componen
 import {ObjectMultiSelectComponent} from './components/util/object-multi-select/object-multi-select.component';
 import {ObjectSelectComponent} from './components/util/object-select/object-select.component';
 import {DatabaseBrowserComponent} from './components/database/database-browser/database-browser.component';
-import { ArtistComponent } from './components/input/artist/artist.component';
-import { AlbumComponent } from './components/input/album/album.component';
-import { TagComponent } from './components/input/tag/tag.component';
-import { GenreComponent } from './components/input/genre/genre.component';
-import { PlaylistComponent } from './components/input/playlist/playlist.component';
-import { AddObjectButtonComponent } from './components/util/add-object-button/add-object-button.component';
+import {ArtistComponent} from './components/input/artist/artist.component';
+import {AlbumComponent} from './components/input/album/album.component';
+import {TagComponent} from './components/input/tag/tag.component';
+import {GenreComponent} from './components/input/genre/genre.component';
+import {PlaylistComponent} from './components/input/playlist/playlist.component';
+import {AddObjectButtonComponent} from './components/util/add-object-button/add-object-button.component';
 
 
 @NgModule({
