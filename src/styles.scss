@@ -9,7 +9,8 @@ body {
   width: 100%;
   display: table;
 
-  .mat-card {
+  .mat-card,
+  .mat-drawer {
     background: rgba(24, 24, 24, .65);
   }
 }

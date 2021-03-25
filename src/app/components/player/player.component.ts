@@ -20,7 +20,7 @@ enum PlayerState {
 }
 
 @Component({
-  selector: 'app-session-lobby',
+  selector: 'app-player',
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.scss']
 })

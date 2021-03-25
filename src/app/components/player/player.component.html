@@ -1,7 +1,6 @@
-<mat-drawer-container autosize class="example-container">
-  <mat-drawer #drawer class="example-sidenav" mode="side">
-
-    <mat-card>
+<mat-drawer-container autosize id="drawer-wrapper">
+  <mat-drawer #drawerLeft mode="side">
+    <mat-card class="drawer-card">
       <mat-card-header>
         <mat-card-title>Listeners:</mat-card-title>
       </mat-card-header>
@@ -13,14 +12,16 @@
     </mat-card>
   </mat-drawer>
 
-  <div class="example-sidenav-content">
-    <button (click)="drawer.toggle()" mat-button type="button">
-      Toggle sidenav
-    </button>
-    <button (click)="drawer2.toggle()" mat-button type="button">
-      Toggle sidenav
-    </button>
+  <div>
     <mat-card>
+      <button (click)="drawerLeft.toggle()" id="toggle-left-btn" mat-icon-button>
+        <mat-icon *ngIf="drawerLeft.opened">chevron_right</mat-icon>
+        <mat-icon *ngIf="!drawerLeft.opened">chevron_left</mat-icon>
+      </button>
+      <button (click)="drawerRight.toggle()" id="toggle-right-btn" mat-icon-button>
+        <mat-icon *ngIf="drawerRight.opened">chevron_left</mat-icon>
+        <mat-icon *ngIf="!drawerRight.opened">chevron_right</mat-icon>
+      </button>
       <mat-card-header>
         <mat-card-title>{{currentSong?.title || 'No current song'}}</mat-card-title>
         <mat-card-subtitle>
@@ -28,8 +29,6 @@
           <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
                            [songRating]="songRating"></app-rating-star>
           <app-latency #latencyComponent id="latency-component"></app-latency>
-
-
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
@@ -37,31 +36,30 @@
                           color="accent"></mat-progress-bar>
         <div id="control-buttons">
           <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
-            <span class="material-icons">skip_previous</span>
+            <mat-icon>skip_previous</mat-icon>
           </button>
           <button
             (click)="publishCommand(playerState == 'STOP' ? 'start' : playerState == 'PAUSE' ? 'resume' : 'pause')"
             class="player-controls" color="accent" mat-raised-button>
-            <span class="material-icons">{{playerState == 'PLAY' ? 'pause' : 'play_arrow'}}</span>
+            <mat-icon>{{playerState == 'PLAY' ? 'pause' : 'play_arrow'}}</mat-icon>
           </button>
           <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
-            <span class="material-icons">stop</span>
+            <mat-icon>stop</mat-icon>
           </button>
           <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
-            <span class="material-icons">skip_next</span>
+            <mat-icon>skip_next</mat-icon>
           </button>
           <button (click)="publishCommand('shuffle')" class="player-controls" color="accent" mat-raised-button>
-            <span class="material-icons">shuffle</span>
+            <mat-icon>shuffle</mat-icon>
           </button>
           <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent"
                   mat-raised-button>
-            <span class="material-icons">{{loopMode ? 'repeat_on' : 'repeat'}}</span>
+            <mat-icon>{{loopMode ? 'repeat_on' : 'repeat'}}</mat-icon>
           </button>
           <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
                       value="0.1"></mat-slider>
         </div>
         <div id="queue-container">
-
           <mat-list role="list">
             <mat-list-item
               *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length)" role="listitem">
@@ -76,15 +74,13 @@
               {{song.title}}
             </mat-list-item>
           </mat-list>
-
         </div>
       </mat-card-content>
     </mat-card>
   </div>
 
-  <mat-drawer #drawer2 class="example-sidenav" mode="side" position="end">
-
-    <mat-card>
+  <mat-drawer #drawerRight mode="side" position="end">
+    <mat-card class="drawer-card">
       <mat-card-header>
         <mat-card-title>Details:</mat-card-title>
       </mat-card-header>
