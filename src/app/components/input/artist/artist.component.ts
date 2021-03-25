@@ -1,11 +1,12 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ObjectSelectInputData, SelectObject} from '../../util/object-select/object-select.component';
+import {Component, OnInit} from '@angular/core';
+import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
 import {AddObjectInputData} from '../../util/add-object-button/add-object-button.component';
 import {InputObjectDirective} from '../input-object.directive';
 import {HttpHelperService} from '../../../services/http-helper.service';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
 import {Artist} from '../../../models/artist';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {GenericDataObject} from '../../../models/genericDataObject';
 
 @Component({
   selector: 'app-input-artist',
@@ -26,7 +27,7 @@ export class ArtistComponent extends InputObjectDirective implements OnInit {
   private getData(): void {
     super.getDataForSelect('/artists/all', Artist)
       .then(value => {
-        this.selectObjectData = new ObjectSelectInputData('Artist', value.map(object => new SelectObject(object.id, object.name)));
+        this.selectObjectData = new ObjectSelectInputData('Artist', value.map(object => new GenericDataObject(object.id, object.name)));
       })
       .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
         duration: 2000,

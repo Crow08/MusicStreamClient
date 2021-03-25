@@ -1,22 +1,15 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import {GenericDataObject} from '../../../models/genericDataObject';
-
-export class SelectObject extends GenericDataObject{
-  selected = false;
-
-  constructor(id: number, name: string) {
-    super(id, name);
-  }
-}
+import {MatAutocomplete} from '@angular/material/autocomplete';
 
 export class ObjectSelectInputData {
   displayName: string;
-  options: SelectObject[];
+  options: GenericDataObject[];
 
-  constructor(displayName: string, options: SelectObject[]) {
+  constructor(displayName: string, options: GenericDataObject[]) {
     this.displayName = displayName;
     this.options = options;
   }
@@ -30,10 +23,12 @@ export class ObjectSelectInputData {
 export class ObjectSelectComponent implements OnInit, OnChanges {
 
   @Input() selectObjectData: ObjectSelectInputData;
-  @Input() selectedOptions: SelectObject[];
-  @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
+  @Input() selectedOptions: GenericDataObject[];
+  @Output() selectedOptionsChange = new EventEmitter<GenericDataObject[]>();
   objectControl = new FormControl();
-  filteredOptions: Observable<SelectObject[]>;
+  filteredOptions: Observable<GenericDataObject[]>;
+
+  @ViewChild('objectAC') objectAC: MatAutocomplete;
 
   constructor() {
   }
@@ -43,13 +38,18 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.hasOwnProperty('selectedOptions')) {
+      if (this.objectAC && changes.selectedOptions.currentValue[0]) {
+        const hit = this.objectAC.options.find(item => item.value === changes.selectedOptions.currentValue[0].id);
+        this.objectControl.setValue(hit.value);
+      }
+    }
     if (changes.hasOwnProperty('selectObjectData')) {
       this.objectControl.reset();
-
     }
   }
 
-  setOptionsSelected(value: SelectObject[]): void {
+  setOptionsSelected(value: GenericDataObject[]): void {
     this.selectedOptions = value;
     this.selectedOptionsChange.emit(this.selectedOptions);
   }
@@ -63,7 +63,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
 
   display = (id: number): string | undefined => {
     return this.selectObjectData.options.find(value => value.id === id)?.name;
-  }
+  };
 
   private setUpFilter(): void {
     this.filteredOptions = this.objectControl.valueChanges.pipe(
@@ -72,7 +72,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
     );
   }
 
-  private objectFilter(filter: any, array: SelectObject[]): any[] {
+  private objectFilter(filter: any, array: GenericDataObject[]): any[] {
     if (!(typeof filter === 'string')) {
       return array;
     }

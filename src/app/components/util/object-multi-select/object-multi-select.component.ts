@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
-import {ObjectSelectComponent, SelectObject} from '../object-select/object-select.component';
+import {ObjectSelectComponent} from '../object-select/object-select.component';
+import {GenericDataObject} from '../../../models/genericDataObject';
 
 
 @Component({
@@ -14,21 +15,24 @@ export class ObjectMultiSelectComponent extends ObjectSelectComponent {
     super();
   }
 
-  optionClicked(event: MouseEvent, option: SelectObject): void {
+  optionClicked(event: MouseEvent, option: GenericDataObject): void {
     event.stopPropagation();
     this.toggleSelection(option);
   }
 
-  toggleSelection(option: SelectObject): void {
-    option.selected = !option.selected;
-    if (option.selected) {
-      this.selectedOptions.push(option);
-    } else {
+  toggleSelection(option: GenericDataObject): void {
+    if (this.isSelected(option)) {
       this.selectedOptions.splice(this.selectedOptions.findIndex(value => value.id === option.id), 1);
+    } else {
+      this.selectedOptions.push(option);
     }
     this.setOptionsSelected(this.selectedOptions);
     this.objectControl.reset();
   }
 
   display = (): string | undefined => '';
+
+  isSelected(option: GenericDataObject): boolean {
+    return this.selectedOptions.findIndex(value => value.id === option.id) !== -1;
+  }
 }

@@ -6,7 +6,7 @@
       <mat-option *ngFor="let option of filteredOptions | async " [value]="option.id">
         <div (click)="optionClicked($event, option)">
           <mat-checkbox (change)="toggleSelection(option)" (click)="$event.stopPropagation()"
-                        [checked]="option.selected">
+                        [checked]="isSelected(option)">
             {{option.id}} - {{option.name}}
           </mat-checkbox>
         </div>

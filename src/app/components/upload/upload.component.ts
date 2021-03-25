@@ -6,7 +6,7 @@ import {ServerResultErrorSnackBarComponent} from '../messages/server-result-erro
 import {HttpHelperService} from '../../services/http-helper.service';
 import {MatDialog} from '@angular/material/dialog';
 import {AuthenticationService} from '../../services/authentication.service';
-import {SelectObject} from '../util/object-select/object-select.component';
+import {GenericDataObject} from '../../models/genericDataObject';
 
 @Component({
   selector: 'app-import',
@@ -19,11 +19,11 @@ export class UploadComponent implements OnInit {
 
   uploadForm: FormGroup;
 
-  selectedArtist: SelectObject[] = [];
-  selectedAlbum: SelectObject[] = [];
-  selectedGenres: SelectObject[] = [];
-  selectedTags: SelectObject[] = [];
-  selectedPlaylists: SelectObject[] = [];
+  selectedArtist: GenericDataObject[] = [];
+  selectedAlbum: GenericDataObject[] = [];
+  selectedGenres: GenericDataObject[] = [];
+  selectedTags: GenericDataObject[] = [];
+  selectedPlaylists: GenericDataObject[] = [];
 
 
   constructor(private httpHelperService: HttpHelperService,
