@@ -10,6 +10,7 @@ import {MatSliderChange} from '@angular/material/slider';
 import {HttpHelperService} from '../../services/http-helper.service';
 import {WsConfigService} from '../../services/ws-config.service';
 import {User} from '../../models/user';
+import {GenericDataObject} from '../../models/genericDataObject';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -38,6 +39,11 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   songTimeOffset = 0;
   songRating = 0;
   userSongRating = 0;
+
+  selectedArtist: GenericDataObject[] = [];
+  selectedAlbum: GenericDataObject[] = [];
+  selectedGenres: GenericDataObject[] = [];
+  selectedTags: GenericDataObject[] = [];
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
@@ -104,9 +110,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       });
     this.httpHelperService.get(`/songs/${songId}`, Song)
       .then(song => {
-        this.currentSong = song;
-        this.getRating();
-        this.getUserRating();
+        this.setNewSong(song);
       })
       .catch(console.error);
   }
@@ -139,8 +143,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       .catch(console.error);
   }
 
-  getDisplayHistoryLength(): number {
-    return Math.max(5, 10 - this.queue.length);
+  getDisplayHistoryStartIndex(): number {
+
+    return Math.max(0, this.history.length - Math.max(5, 10 - this.queue.length));
   }
 
   getDisplayQueueLength(): number {
@@ -259,5 +264,16 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         }
       }
     }
+  }
+
+  private setNewSong(song: Song): void {
+    this.currentSong = song;
+    this.selectedAlbum = [new GenericDataObject(song.album.id, song.album.name)];
+    this.selectedArtist = [new GenericDataObject(song.artist.id, song.artist.name)];
+    this.selectedGenres = song.genres.map(value => new GenericDataObject(value.id, value.name));
+    this.selectedTags = song.tags.map(value => new GenericDataObject(value.id, value.name));
+
+    this.getRating();
+    this.getUserRating();
   }
 }
