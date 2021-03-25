@@ -14,14 +14,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 })
 export class ArtistComponent extends InputObjectDirective implements OnInit {
 
-  @Input() selectedOptions: SelectObject[];
-  @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
-
-  addObjectInputData: AddObjectInputData;
-  selectObjectData: ObjectSelectInputData;
-
   constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
-    super(httpHelperService);
+    super(httpHelperService, false);
   }
 
   ngOnInit(): void {

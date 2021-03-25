@@ -12,11 +12,11 @@
       <mat-divider></mat-divider>
       <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
       <mat-divider></mat-divider>
-      <app-input-genre [(selectedOptions)]="selectedGenres" [multiMode]="true"></app-input-genre>
+      <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>
       <mat-divider></mat-divider>
-      <app-input-tag [(selectedOptions)]="selectedTags" [multiMode]="true"></app-input-tag>
+      <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
       <mat-divider></mat-divider>
-      <app-input-playlist [(selectedOptions)]="selectedPlaylists" [multiMode]="true"></app-input-playlist>
+      <app-input-playlist [(selectedOptions)]="selectedPlaylists"></app-input-playlist>
       <button (click)="upload()" [disabled]="loading" color="accent" id="submit-button" mat-raised-button type="button">
         Upload
       </button>

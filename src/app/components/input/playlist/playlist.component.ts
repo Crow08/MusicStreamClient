@@ -15,14 +15,8 @@ import {Playlist} from '../../../models/playlist';
 })
 export class PlaylistComponent extends InputObjectDirective implements OnInit {
 
-  @Input() selectedOptions: SelectObject[];
-  @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
-
-  addObjectInputData: AddObjectInputData;
-  selectObjectData: ObjectSelectInputData;
-
   constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
-    super(httpHelperService);
+    super(httpHelperService, true);
   }
 
   ngOnInit(): void {

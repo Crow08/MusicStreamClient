@@ -14,14 +14,8 @@ import {Album} from '../../../models/album';
 })
 export class AlbumComponent extends InputObjectDirective implements OnInit {
 
-  @Input() selectedOptions: SelectObject[];
-  @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
-
-  addObjectInputData: AddObjectInputData;
-  selectObjectData: ObjectSelectInputData;
-
   constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
-    super(httpHelperService);
+    super(httpHelperService, false);
   }
 
   ngOnInit(): void {

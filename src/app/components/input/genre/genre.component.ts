@@ -14,14 +14,8 @@ import {Genre} from '../../../models/genre';
 })
 export class GenreComponent extends InputObjectDirective implements OnInit {
 
-  @Input() selectedOptions: SelectObject[];
-  @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
-
-  addObjectInputData: AddObjectInputData;
-  selectObjectData: ObjectSelectInputData;
-
   constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
-    super(httpHelperService);
+    super(httpHelperService, true);
   }
 
   ngOnInit(): void {

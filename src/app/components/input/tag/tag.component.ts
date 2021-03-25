@@ -14,14 +14,8 @@ import {Tag} from '../../../models/tag';
 })
 export class TagComponent extends InputObjectDirective implements OnInit {
 
-  @Input() selectedOptions: SelectObject[];
-  @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
-
-  addObjectInputData: AddObjectInputData;
-  selectObjectData: ObjectSelectInputData;
-
   constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
-    super(httpHelperService);
+    super(httpHelperService, true);
   }
 
   ngOnInit(): void {
