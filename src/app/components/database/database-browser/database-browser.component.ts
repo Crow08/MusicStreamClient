@@ -4,6 +4,8 @@ import {Song} from 'src/app/models/song';
 import {HttpHelperService} from '../../../services/http-helper.service';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
+import {ObjectMultiSelectInputData, SelectObject} from '../../util/object-select/object-select.component';
+import { Artist } from 'src/app/models/artist';
 
 @Component({
   selector: 'app-database-browser',
@@ -14,13 +16,26 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
 
   dataSource = new MatTableDataSource<Song>();
   displayedColumns: string[] = ['title', 'album', 'artist'];
-  public modeselect = 'song';
+  modeselect = 'song';
   loading: boolean = false;
+  dataBaseData: ObjectMultiSelectInputData;
 
   constructor(private formBuilder: FormBuilder,
               private httpHelperService: HttpHelperService) { }
 
   ngOnInit(): void {
+  }
+
+  getSelectionData(): void{
+    switch (this.modeselect){
+      case "artist":
+        this.httpHelperService.getArray('/artists/all', Artist)
+        .then((artists) => {
+          this.dataBaseData = new ObjectMultiSelectInputData("Artist", artists.map(artist => new SelectObject(artist.id, artist.name)));
+        });
+        break;
+      default:
+    }
   }
 
   ngAfterViewInit() {
@@ -65,7 +80,6 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
           break;
       default:
       console.log("Just nothing");
-          break;
    }
   }
 }
