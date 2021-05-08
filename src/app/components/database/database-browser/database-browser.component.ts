@@ -4,8 +4,9 @@ import {Song} from 'src/app/models/song';
 import {HttpHelperService} from '../../../services/http-helper.service';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
-import {ObjectMultiSelectInputData, SelectObject} from '../../util/object-select/object-select.component';
+import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
 import { Artist } from 'src/app/models/artist';
+import { GenericDataObject } from 'src/app/models/genericDataObject';
 
 @Component({
   selector: 'app-database-browser',
@@ -19,8 +20,8 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
   modeselect = 'song';
   noresult = false;
   loading: boolean = false;
-  dataBaseData: ObjectMultiSelectInputData;
-  selectedOptions: SelectObject[] = [];
+  dataBaseData: ObjectSelectInputData;
+  selectedOptions: GenericDataObject[] = [];
 
   constructor(private formBuilder: FormBuilder,
               private httpHelperService: HttpHelperService) { }
@@ -34,7 +35,7 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
       case "artist":
         this.httpHelperService.getArray('/artists/all', Artist)
         .then((artists) => {
-          this.dataBaseData = new ObjectMultiSelectInputData("Artist", artists.map(artist => new SelectObject(artist.id, artist.name)));
+          this.dataBaseData = new ObjectSelectInputData("Artist", artists.map(artist => new GenericDataObject(artist.id, artist.name)));
         });
         break;
       default:
@@ -70,21 +71,15 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
         searchQuery =  this.httpHelperService.getArray(`/songs/getSongsByArtist/${searchArray}`, Song)
           break;
       default:
-      console.log("Just nothing");
    }
    searchQuery.then((songs) => {
     this.dataSource.data = songs;
     this.loading = false;
-    console.log("before");
-    console.log(this.noresult);
-
     if (!this.dataSource.data || this.dataSource.data.length == 0){
       this.noresult = true;
     }else{
       this.noresult = false;
     }
-    console.log("after");
-    console.log(this.noresult);
   })
   .catch((error) => {
     console.error(error);
