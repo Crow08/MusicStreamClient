@@ -33,6 +33,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
 
   @Input() selectObjectData: ObjectMultiSelectInputData;
   @Input() selectedOptions: SelectObject[];
+  @Input() appearance: string;
   @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
   objectControl = new FormControl();
   filteredOptions: Observable<SelectObject[]>;
