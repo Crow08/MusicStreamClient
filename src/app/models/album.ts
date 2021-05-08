@@ -1,4 +1,4 @@
-export class Album {
-  id: number;
-  name: string;
+import {GenericDataObject} from './genericDataObject';
+
+export class Album extends GenericDataObject {
 }

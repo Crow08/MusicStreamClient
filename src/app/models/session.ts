@@ -1,6 +1,5 @@
-export class Session {
-  id: number;
-  host: string;
-  name: string;
+import {GenericDataObject} from './genericDataObject';
+
+export class Session extends GenericDataObject {
 }
 

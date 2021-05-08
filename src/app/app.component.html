@@ -1,12 +1,12 @@
 <div [ngClass]="currentTheme.className" id="app-theme-container">
   <!-- Toolbar -->
-  <mat-toolbar color="primary">
+  <mat-toolbar color="primary" id="toolbar">
     <mat-toolbar-row>
-      <button aria-label="Example icon-button with menu icon" class="example-icon" mat-icon-button>
+      <button mat-icon-button>
         <mat-icon>menu</mat-icon>
       </button>
       <a routerLink="/">
-        <button aria-label="Example icon-button with heart icon" class="example-icon favorite-icon" mat-icon-button>
+        <button mat-icon-button>
           <mat-icon>home</mat-icon>
         </button>
       </a>
@@ -20,7 +20,7 @@
       <h2 id="main-headline">Music Stream Client</h2>
       <div class="spacer"></div>
       <a (click)="logout()">
-        <button aria-label="Example icon-button with share icon" class="example-icon" mat-icon-button>
+        <button mat-icon-button>
           <mat-icon>logout</mat-icon>
         </button>
       </a>

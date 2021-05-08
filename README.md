@@ -1,7 +1,9 @@
 # ToDo
 
 ## Features
-- Browse-Funktion (Songs könnnen getaggt und zu Playlist hinzugefügt werden, viele Quick-Optionen, Details-Button  - DetailsSeite -  für erweiterte Features)
+
+- Browse-Funktion (Songs könnnen getaggt und zu Playlist hinzugefügt werden, viele Quick-Optionen, Details-Button -
+  DetailsSeite - für erweiterte Features)
 - Songs-Details-Seite
 - Upload-Funktion (Bulk und Einzel, evtl Zip?)
 - Player-Anzeige (Quickoptionen zum Bearbeiten)

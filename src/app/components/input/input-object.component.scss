@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+app-object-multi-select,
+app-object-select {
+  display: inline-block;
+}
+
+app-add-object-button {
+  vertical-align: top;
+  padding: 10px 0 0 10px;
+  display: inline-block;
+}

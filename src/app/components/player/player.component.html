@@ -1,58 +1,98 @@
-<mat-card class="example-card">
-  <mat-card-header>
-    <mat-card-title>{{currentSong?.title || 'No current song'}}</mat-card-title>
-    <mat-card-subtitle>
-      {{currentSong?.artist?.name || 'Unknown Artist'}}<br/>
-      <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
-                       [songRating]="songRating"></app-rating-star>
-      <app-latency #latencyComponent id="latency-component"></app-latency>
+<mat-drawer-container autosize id="drawer-wrapper">
+  <mat-drawer #drawerLeft mode="side">
+    <mat-card class="drawer-card">
+      <mat-card-header>
+        <mat-card-title>Listeners:</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-chip-list>
+          <mat-chip *ngFor="let user of sessionUsers">{{user.username}}</mat-chip>
+        </mat-chip-list>
+      </mat-card-content>
+    </mat-card>
+  </mat-drawer>
 
+  <div>
+    <mat-card>
+      <button (click)="drawerLeft.toggle()" id="toggle-left-btn" mat-icon-button>
+        <mat-icon *ngIf="drawerLeft.opened">chevron_right</mat-icon>
+        <mat-icon *ngIf="!drawerLeft.opened">chevron_left</mat-icon>
+      </button>
+      <button (click)="drawerRight.toggle()" id="toggle-right-btn" mat-icon-button>
+        <mat-icon *ngIf="drawerRight.opened">chevron_left</mat-icon>
+        <mat-icon *ngIf="!drawerRight.opened">chevron_right</mat-icon>
+      </button>
+      <mat-card-header>
+        <mat-card-title>{{currentSong?.title || 'No current song'}}</mat-card-title>
+        <mat-card-subtitle>
+          {{currentSong?.artist?.name || 'Unknown Artist'}}<br/>
+          <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
+                           [songRating]="songRating"></app-rating-star>
+          <app-latency #latencyComponent id="latency-component"></app-latency>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-progress-bar [mode]="playerState == 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
+                          color="accent"></mat-progress-bar>
+        <div id="control-buttons">
+          <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
+            <mat-icon>skip_previous</mat-icon>
+          </button>
+          <button
+            (click)="publishCommand(playerState == 'STOP' ? 'start' : playerState == 'PAUSE' ? 'resume' : 'pause')"
+            class="player-controls" color="accent" mat-raised-button>
+            <mat-icon>{{playerState == 'PLAY' ? 'pause' : 'play_arrow'}}</mat-icon>
+          </button>
+          <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
+            <mat-icon>stop</mat-icon>
+          </button>
+          <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
+            <mat-icon>skip_next</mat-icon>
+          </button>
+          <button (click)="publishCommand('shuffle')" class="player-controls" color="accent" mat-raised-button>
+            <mat-icon>shuffle</mat-icon>
+          </button>
+          <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent"
+                  mat-raised-button>
+            <mat-icon>{{loopMode ? 'repeat_on' : 'repeat'}}</mat-icon>
+          </button>
+          <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
+                      value="0.1"></mat-slider>
+        </div>
+        <div id="queue-container">
+          <mat-list role="list">
+            <mat-list-item
+              *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length)" role="listitem">
+              {{song.title}}
+            </mat-list-item>
+            <mat-list-item>
+              <mat-chip-list>
+                <mat-chip color="primary" selected>{{currentSong?.title}}</mat-chip>
+              </mat-chip-list>
+            </mat-list-item>
+            <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength())" role="listitem">
+              {{song.title}}
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-    </mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content>
-    <mat-progress-bar [mode]="playerState == 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
-                      color="accent"></mat-progress-bar>
-    <div id="control-buttons">
-      <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
-        <span class="material-icons">skip_previous</span>
-      </button>
-      <button (click)="publishCommand(playerState == 'STOP' ? 'start' : playerState == 'PAUSE' ? 'resume' : 'pause')"
-              class="player-controls" color="accent" mat-raised-button>
-        <span class="material-icons">{{playerState == 'PLAY' ? 'pause' : 'play_arrow'}}</span>
-      </button>
-      <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
-        <span class="material-icons">stop</span>
-      </button>
-      <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
-        <span class="material-icons">skip_next</span>
-      </button>
-      <button (click)="publishCommand('shuffle')" class="player-controls" color="accent" mat-raised-button>
-        <span class="material-icons">shuffle</span>
-      </button>
-      <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent" mat-raised-button>
-        <span class="material-icons">{{loopMode ? 'repeat_on' : 'repeat'}}</span>
-      </button>
-      <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
-                  value="0.1"></mat-slider>
-    </div>
-    <div id="queue-container">
-
-      <mat-list role="list">
-        <mat-list-item *ngFor="let song of history.slice(history.length - getDisplayHistoryLength(), history.length)"
-                       role="listitem">
-          {{song.title}}
-        </mat-list-item>
-        <mat-list-item>
-          <mat-chip-list>
-            <mat-chip color="primary" selected>{{currentSong?.title}}</mat-chip>
-          </mat-chip-list>
-        </mat-list-item>
-        <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength())" role="listitem">
-          {{song.title}}
-        </mat-list-item>
-      </mat-list>
-
-    </div>
-  </mat-card-content>
-</mat-card>
+  <mat-drawer #drawerRight mode="side" position="end">
+    <mat-card class="drawer-card">
+      <mat-card-header>
+        <mat-card-title>Details:</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>
+        <mat-divider></mat-divider>
+        <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
+        <mat-divider></mat-divider>
+        <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>
+        <mat-divider></mat-divider>
+        <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
+      </mat-card-content>
+    </mat-card>
+  </mat-drawer>
+</mat-drawer-container>

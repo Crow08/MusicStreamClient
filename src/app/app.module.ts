@@ -3,20 +3,17 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
-
 import {AuthGuard} from './auth.guard';
 import {AppComponent} from './app.component';
 import {LoginComponent} from './components/login/login.component';
 import {HomeComponent} from './components/home/home.component';
-import {LoaderComponent} from './components/loader/loader.component';
-import {InjectableRxStompConfig, RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs';
-import {myRxStompConfig} from './my-rx-stomp.config';
+import {RxStompService, rxStompServiceFactory} from '@stomp/ng2-stompjs';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {SessionBrowserComponent} from './components/sessions/browser/session-browser.component';
 import {SessionCreatorComponent} from './components/sessions/session-creator/session-creator.component';
 import {LatencyComponent} from './components/latency/latency.component';
 import {PlayerComponent} from './components/player/player.component';
-import {ImportComponent} from './components/import/import.component';
+import {UploadComponent} from './components/upload/upload.component';
 import {OverlayContainer} from '@angular/cdk/overlay';
 import {ThemeAwareOverlayContainer} from './ThemeAwareOverlayContainer';
 import {ServerResultSuccessSnackBarComponent} from './components/messages/server-result-success-snack-bar.component';
@@ -27,6 +24,12 @@ import {RatingStarComponent} from './components/rating-star/rating-star.componen
 import {ObjectMultiSelectComponent} from './components/util/object-multi-select/object-multi-select.component';
 import {ObjectSelectComponent} from './components/util/object-select/object-select.component';
 import {DatabaseBrowserComponent} from './components/database/database-browser/database-browser.component';
+import {ArtistComponent} from './components/input/artist/artist.component';
+import {AlbumComponent} from './components/input/album/album.component';
+import {TagComponent} from './components/input/tag/tag.component';
+import {GenreComponent} from './components/input/genre/genre.component';
+import {PlaylistComponent} from './components/input/playlist/playlist.component';
+import {AddObjectButtonComponent} from './components/util/add-object-button/add-object-button.component';
 
 
 @NgModule({
@@ -34,20 +37,25 @@ import {DatabaseBrowserComponent} from './components/database/database-browser/d
     AppComponent,
     LoginComponent,
     HomeComponent,
-    LoaderComponent,
     PlayerComponent,
     SessionBrowserComponent,
     SessionCreatorComponent,
     LatencyComponent,
     PlayerComponent,
-    ImportComponent,
+    UploadComponent,
     ServerResultSuccessSnackBarComponent,
     ServerResultErrorSnackBarComponent,
     NewObjectDialogComponent,
     RatingStarComponent,
     ObjectMultiSelectComponent,
     ObjectSelectComponent,
-    DatabaseBrowserComponent
+    DatabaseBrowserComponent,
+    ArtistComponent,
+    AlbumComponent,
+    TagComponent,
+    GenreComponent,
+    PlaylistComponent,
+    AddObjectButtonComponent
   ],
   imports: [
     FormsModule,
@@ -66,17 +74,12 @@ import {DatabaseBrowserComponent} from './components/database/database-browser/d
   ],
   providers: [
     {
-      provide: InjectableRxStompConfig,
-      useValue: myRxStompConfig,
-    },
-    {
       provide: OverlayContainer,
       useClass: ThemeAwareOverlayContainer
     },
     {
       provide: RxStompService,
-      useFactory: rxStompServiceFactory,
-      deps: [InjectableRxStompConfig],
+      useFactory: rxStompServiceFactory
     }],
   bootstrap: [AppComponent]
 })

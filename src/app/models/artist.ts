@@ -1,4 +1,4 @@
-export class Artist {
-  id: number;
-  name: string;
+import {GenericDataObject} from './genericDataObject';
+
+export class Artist extends GenericDataObject {
 }

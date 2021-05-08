@@ -1,27 +1,18 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import {GenericDataObject} from '../../../models/genericDataObject';
+import {MatAutocomplete} from '@angular/material/autocomplete';
 
-export class SelectObject {
-  id: number;
-  name: string;
-  selected = false;
+export class ObjectSelectInputData {
+  displayName: string;
+  options: GenericDataObject[];
 
-  constructor(id: number, name: string) {
-    this.id = id;
-    this.name = name;
-  }
-}
-
-export class ObjectMultiSelectInputData {
-  constructor(displayName: string, options: SelectObject[]) {
+  constructor(displayName: string, options: GenericDataObject[]) {
     this.displayName = displayName;
     this.options = options;
   }
-
-  displayName: string;
-  options: SelectObject[];
 }
 
 @Component({
@@ -31,12 +22,14 @@ export class ObjectMultiSelectInputData {
 })
 export class ObjectSelectComponent implements OnInit, OnChanges {
 
-  @Input() selectObjectData: ObjectMultiSelectInputData;
-  @Input() selectedOptions: SelectObject[];
+  @Input() selectObjectData: ObjectSelectInputData;
+  @Input() selectedOptions: GenericDataObject[];
+  @Output() selectedOptionsChange = new EventEmitter<GenericDataObject[]>();
   @Input() appearance: string;
-  @Output() selectedOptionsChange = new EventEmitter<SelectObject[]>();
   objectControl = new FormControl();
-  filteredOptions: Observable<SelectObject[]>;
+  filteredOptions: Observable<GenericDataObject[]>;
+
+  @ViewChild('objectAC') objectAC: MatAutocomplete;
 
   constructor() {
   }
@@ -46,31 +39,18 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.hasOwnProperty('selectedOptions')) {
+      if (this.objectAC && changes.selectedOptions.currentValue[0]) {
+        const hit = this.objectAC.options.find(item => item.value === changes.selectedOptions.currentValue[0].id);
+        this.objectControl.setValue(hit.value);
+      }
+    }
     if (changes.hasOwnProperty('selectObjectData')) {
       this.objectControl.reset();
-
     }
   }
 
-  private setUpFilter(): void {
-    this.filteredOptions = this.objectControl.valueChanges.pipe(
-      startWith(''),
-      map(filter => this.objectFilter(filter, this.selectObjectData.options))
-    );
-  }
-
-  private objectFilter(filter: any, array: SelectObject[]): any[] {
-    if (!(typeof filter === 'string')) {
-      return array;
-    }
-    const filterInput = filter.toLowerCase();
-    return array.filter(option => {
-      return option.name.toLowerCase().indexOf(filterInput) >= 0
-        || option.id.toString().indexOf(filterInput) >= 0;
-    });
-  }
-
-  setOptionsSelected(value: SelectObject[]): void {
+  setOptionsSelected(value: GenericDataObject[]): void {
     this.selectedOptions = value;
     this.selectedOptionsChange.emit(this.selectedOptions);
   }
@@ -80,5 +60,27 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
     if (hit) {
       this.setOptionsSelected([hit]);
     }
+  }
+
+  display = (id: number): string | undefined => {
+    return this.selectObjectData.options.find(value => value.id === id)?.name;
+  };
+
+  private setUpFilter(): void {
+    this.filteredOptions = this.objectControl.valueChanges.pipe(
+      startWith(''),
+      map(filter => this.objectFilter(filter, this.selectObjectData.options))
+    );
+  }
+
+  private objectFilter(filter: any, array: GenericDataObject[]): any[] {
+    if (!(typeof filter === 'string')) {
+      return array;
+    }
+    const filterInput = filter.toLowerCase();
+    return array.filter(option => {
+      return option.name.toLowerCase().indexOf(filterInput) >= 0
+        || option.id.toString().indexOf(filterInput) >= 0;
+    });
   }
 }

@@ -1,0 +1,5 @@
+<app-object-multi-select *ngIf="multiMode" [(selectedOptions)]="selectedOptions"
+                         [selectObjectData]="selectObjectData"></app-object-multi-select>
+<app-object-select *ngIf="!multiMode" [(selectedOptions)]="selectedOptions"
+                   [selectObjectData]="selectObjectData"></app-object-select>
+<app-add-object-button (objectAdded)="objectAdded()" [objectInputData]="addObjectInputData"></app-add-object-button>

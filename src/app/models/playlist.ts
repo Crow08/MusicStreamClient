@@ -1,5 +1,5 @@
-export class Playlist {
-  id: number;
-  name: string;
+import {GenericDataObject} from './genericDataObject';
+
+export class Playlist extends GenericDataObject {
   author: string;
 }

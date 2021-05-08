@@ -1,10 +1,10 @@
-:host {
-  display: flex;
-  justify-content: center;
-}
-
 mat-spinner,
 #submit-button {
   float: right;
   margin-right: 20px;
+}
+
+#upload-form {
+  display: inline-block;
+  padding-top: 20px;
 }

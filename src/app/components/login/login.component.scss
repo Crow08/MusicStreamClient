@@ -7,9 +7,10 @@
   color: red
 }
 
-.button {
-  display: flex;
-  justify-content: flex-end;
+mat-spinner,
+#submit-button {
+  float: right;
+  margin-right: 20px;
 }
 
 mat-card-title {

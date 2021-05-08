@@ -8,6 +8,9 @@ import {Song} from '../../models/song';
 import {AudioService} from '../../services/audio.service';
 import {MatSliderChange} from '@angular/material/slider';
 import {HttpHelperService} from '../../services/http-helper.service';
+import {WsConfigService} from '../../services/ws-config.service';
+import {User} from '../../models/user';
+import {GenericDataObject} from '../../models/genericDataObject';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -17,7 +20,7 @@ enum PlayerState {
 }
 
 @Component({
-  selector: 'app-session-lobby',
+  selector: 'app-player',
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.scss']
 })
@@ -30,11 +33,17 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   queue: { id: number, title: string }[] = [];
   history: { id: number, title: string }[] = [];
   sessionId: number;
+  sessionUsers: User[] = [];
   currentSong: Song;
   progression = 0;
   songTimeOffset = 0;
   songRating = 0;
   userSongRating = 0;
+
+  selectedArtist: GenericDataObject[] = [];
+  selectedAlbum: GenericDataObject[] = [];
+  selectedGenres: GenericDataObject[] = [];
+  selectedTags: GenericDataObject[] = [];
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
@@ -43,12 +52,17 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               private httpHelperService: HttpHelperService,
               private rxStompService: RxStompService,
               private authenticationService: AuthenticationService,
-              private audioService: AudioService) {
+              private audioService: AudioService,
+              private wsConfigService: WsConfigService) {
+    const routeParams = this.route.snapshot.paramMap;
+    this.sessionId = Number(routeParams.get('sessionId'));
+    this.wsConfigService.updateWsConfig({
+      session: this.sessionId,
+    });
+    this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
   }
 
   ngOnInit(): void {
-    const routeParams = this.route.snapshot.paramMap;
-    this.sessionId = Number(routeParams.get('sessionId'));
     this.audioService.addProgressionListener((progression) => this.progression = progression);
     this.audioService.songEndedSubject.subscribe(() => {
       this.publishCommand(`end/${this.currentSong.id}`);
@@ -96,9 +110,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       });
     this.httpHelperService.get(`/songs/${songId}`, Song)
       .then(song => {
-        this.currentSong = song;
-        this.getRating();
-        this.getUserRating();
+        this.setNewSong(song);
       })
       .catch(console.error);
   }
@@ -131,8 +143,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       .catch(console.error);
   }
 
-  getDisplayHistoryLength(): number {
-    return Math.max(5, 10 - this.queue.length);
+  getDisplayHistoryStartIndex(): number {
+
+    return Math.max(0, this.history.length - Math.max(5, 10 - this.queue.length));
   }
 
   getDisplayQueueLength(): number {
@@ -183,7 +196,11 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.audioService.stop();
         this.playerState = PlayerState.STOP;
         break;
+      case 'Leave':
+        this.sessionUsers.splice(this.sessionUsers.findIndex(value => value.id === commandObject.userId), 1);
+        break;
       case 'Join':
+        this.sessionUsers = commandObject.sessionUsers;
         if (commandObject.userId === this.authenticationService.currentUserValue.id) {
           this.queue = commandObject.queue;
           this.history = commandObject.history;
@@ -247,5 +264,16 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         }
       }
     }
+  }
+
+  private setNewSong(song: Song): void {
+    this.currentSong = song;
+    this.selectedAlbum = [new GenericDataObject(song.album.id, song.album.name)];
+    this.selectedArtist = [new GenericDataObject(song.artist.id, song.artist.name)];
+    this.selectedGenres = song.genres.map(value => new GenericDataObject(value.id, value.name));
+    this.selectedTags = song.tags.map(value => new GenericDataObject(value.id, value.name));
+
+    this.getRating();
+    this.getUserRating();
   }
 }

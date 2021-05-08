@@ -1,11 +1,12 @@
 <div *ngIf="selectObjectData">
   <mat-form-field appearance="{{appearance}}">
     <mat-label>{{selectObjectData.displayName}}:</mat-label>
-    <input [formControl]="objectControl" [matAutocomplete]="objectAC" matInput type="text" [value]="inputText">
+    <input [formControl]="objectControl" [matAutocomplete]="objectAC" [value]="inputText" matInput type="text">
     <mat-autocomplete #objectAC="matAutocomplete" [displayWith]="display">
       <mat-option *ngFor="let option of filteredOptions | async " [value]="option.id">
         <div (click)="optionClicked($event, option)">
-          <mat-checkbox [checked]="option.selected" (change)="toggleSelection(option)" (click)="$event.stopPropagation()">
+          <mat-checkbox (change)="toggleSelection(option)" (click)="$event.stopPropagation()"
+                        [checked]="isSelected(option)">
             {{option.id}} - {{option.name}}
           </mat-checkbox>
         </div>
@@ -15,10 +16,12 @@
   <br>
   <mat-label>Selected {{selectObjectData.displayName}}s:</mat-label>
   <br>
-  <mat-chip-list>
-    <mat-chip *ngIf="selectedOptions?.length === 0">(None)</mat-chip>
-    <mat-chip *ngFor="let option of selectedOptions">
-      {{option.id}} - {{option.name}}
-    </mat-chip>
-  </mat-chip-list>
+  <div id="chip-list">
+    <mat-chip-list>
+      <mat-chip *ngIf="selectedOptions?.length === 0">(None)</mat-chip>
+      <mat-chip *ngFor="let option of selectedOptions">
+        {{option.id}} - {{option.name}}
+      </mat-chip>
+    </mat-chip-list>
+  </div>
 </div>
