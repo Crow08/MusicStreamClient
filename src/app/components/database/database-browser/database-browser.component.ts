@@ -7,6 +7,8 @@ import {MatTableDataSource} from '@angular/material/table';
 import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
 import { Artist } from 'src/app/models/artist';
 import { GenericDataObject } from 'src/app/models/genericDataObject';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ServerResultNoSearchResultSnackBarComponent } from '../../messages/server-result-no-search-result-snack-bar.component';
 
 @Component({
   selector: 'app-database-browser',
@@ -24,7 +26,8 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
   selectedOptions: GenericDataObject[] = [];
 
   constructor(private formBuilder: FormBuilder,
-              private httpHelperService: HttpHelperService) { }
+              private httpHelperService: HttpHelperService,
+              private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
   }
@@ -76,6 +79,9 @@ export class DatabaseBrowserComponent implements OnInit, AfterViewInit {
     this.dataSource.data = songs;
     this.loading = false;
     if (!this.dataSource.data || this.dataSource.data.length == 0){
+      this.snackBar.openFromComponent(ServerResultNoSearchResultSnackBarComponent, {
+        duration: 5000
+      })
       this.noresult = true;
     }else{
       this.noresult = false;
