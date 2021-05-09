@@ -96,7 +96,8 @@ export class DatabaseBrowserComponent {
           if (!!songs) {
             if (songs.length === 0) {
               this.snackBar.openFromComponent(ServerResultNoSearchResultSnackBarComponent, {
-                duration: 5000
+                duration: 5000,
+                panelClass: ['no-result-snackbar']
               });
             }
             this.currentSongData = songs;
@@ -105,7 +106,8 @@ export class DatabaseBrowserComponent {
         }),
         catchError(() => {
           this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-            duration: 5000
+            duration: 5000,
+            
           });
           this.isLoadingResults = false;
           return of([]);
