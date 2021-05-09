@@ -106,8 +106,7 @@ export class DatabaseBrowserComponent {
         }),
         catchError(() => {
           this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-            duration: 5000,
-            
+            duration: 5000
           });
           this.isLoadingResults = false;
           return of([]);
