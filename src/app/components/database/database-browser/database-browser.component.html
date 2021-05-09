@@ -2,49 +2,67 @@
   <mat-card-header>
     <mat-card-title>Browse Database</mat-card-title>
   </mat-card-header>
-  <form [formGroup]="searchQuery" (ngSubmit)="submitSearch()">
+  <form (ngSubmit)="submitSearch()" [formGroup]="searchQuery">
     <mat-card-content>
       <mat-form-field appearance="fill">
         <mat-label>Search for...</mat-label>
-        <mat-select matInput formControlName="searchObject" (selectionChange)="onSelectionChange()"
-          [(ngModel)]="modeselect" [placeholder]="modeselect">
+        <mat-select (selectionChange)="onSelectionChange()" [(ngModel)]="modeSelect" [placeholder]="modeSelect"
+                    formControlName="searchObject">
           <mat-option value="song">Song</mat-option>
           <mat-option value="artist">Artist</mat-option>
         </mat-select>
       </mat-form-field>
       <br>
-      <mat-form-field appearance="fill" *ngIf="(searchQuery.get('searchObject').value == 'song')">
+      <mat-form-field *ngIf="(searchQuery.get('searchObject').value == 'song')" appearance="fill">
         <mat-label>Keyword...</mat-label>
-        <input matInput formControlName="searchKeyword" placeholder="Keyword..." />
+        <input formControlName="searchKeyword" matInput placeholder="Keyword..."/>
       </mat-form-field>
       <div class="chip-wrapper-width-contained">
         <app-object-multi-select *ngIf="!(searchQuery.get('searchObject').value == 'song')"
-          [selectObjectData]="dataBaseData" [(selectedOptions)]="selectedOptions" [appearance]="'fill'">
+                                 [(selectedOptions)]="selectedOptions" [appearance]="'fill'"
+                                 [selectObjectData]="dataBaseData">
         </app-object-multi-select>
       </div>
     </mat-card-content>
     <mat-card-footer>
-      <button id="start-search-btn" color="accent" mat-raised-button type="submit">Search</button>
-      <mat-spinner *ngIf="loading" [diameter]="25"></mat-spinner>
+      <button color="accent" id="start-search-btn" mat-raised-button type="submit">Search</button>
+      <mat-spinner *ngIf="isLoadingResults" [diameter]="25"></mat-spinner>
       <br><br><br>
-      <div [ngClass]="dataSource.data.length == 0 ? 'hidden':''">
-        <table id="search-results-table" mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <div [ngClass]="currentSongData.length == 0 ? 'hidden':''">
+        <table [dataSource]="dataSource" id="search-results-table" mat-table matSort
+               matSortActive="title" matSortDisableClear matSortDirection="desc"
+               (matSortChange)="resetPaging()">
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th *matHeaderCellDef mat-header-cell>
+              <mat-checkbox (change)="$event ? masterToggle() : null"
+                            [checked]="selection.hasValue() && isAllSelected()"
+                            [indeterminate]="selection.hasValue() && !isAllSelected()">
+              </mat-checkbox>
+            </th>
+            <td *matCellDef="let row" mat-cell>
+              <mat-checkbox (change)="$event ? selection.toggle(row) : null"
+                            (click)="$event.stopPropagation()"
+                            [checked]="selection.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
           <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef> Title </th>
-            <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+            <th *matHeaderCellDef mat-header-cell> Title</th>
+            <td *matCellDef="let element" mat-cell> {{element.title}} </td>
           </ng-container>
           <ng-container matColumnDef="album">
-            <th mat-header-cell *matHeaderCellDef> Album</th>
-            <td mat-cell *matCellDef="let element"> {{element.album.name}} </td>
+            <th *matHeaderCellDef mat-header-cell> Album</th>
+            <td *matCellDef="let element" mat-cell> {{element.album.name}} </td>
           </ng-container>
           <ng-container matColumnDef="artist">
-            <th mat-header-cell *matHeaderCellDef> Artist</th>
-            <td mat-cell *matCellDef="let element"> {{element.artist.name}} </td>
+            <th *matHeaderCellDef mat-header-cell> Artist</th>
+            <td *matCellDef="let element" mat-cell> {{element.artist.name}} </td>
           </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[10, 20, 30]"></mat-paginator>
+        <mat-paginator [pageSizeOptions]="[50, 100, 500]"></mat-paginator>
       </div>
     </mat-card-footer>
   </form>
