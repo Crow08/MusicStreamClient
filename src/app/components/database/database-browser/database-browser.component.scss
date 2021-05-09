@@ -28,6 +28,8 @@ mat-paginator {
 mat-form-field {
   margin-left: 10px;
   margin-right: 10px;
+  width: 100%;
+  display: initial;
 }
 
 mat-spinner {
@@ -39,9 +41,6 @@ mat-spinner {
 .hidden {
   display: none;
 }
-
-.chip-wrapper-width-contained {
+.mat-card-content {
   max-width: 450px;
-  margin-right: 10px;
-  margin-left: 10px;
 }

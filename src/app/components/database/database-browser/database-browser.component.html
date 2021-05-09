@@ -17,12 +17,10 @@
         <mat-label>Keyword...</mat-label>
         <input formControlName="searchKeyword" matInput placeholder="Keyword..."/>
       </mat-form-field>
-      <div class="chip-wrapper-width-contained">
-        <app-object-multi-select *ngIf="!(searchQuery.get('searchObject').value == 'song')"
-                                 [(selectedOptions)]="selectedOptions" [appearance]="'fill'"
-                                 [selectObjectData]="dataBaseData">
-        </app-object-multi-select>
-      </div>
+      <app-object-multi-select *ngIf="!(searchQuery.get('searchObject').value == 'song')"
+                               [(selectedOptions)]="selectedOptions" [appearance]="'fill'"
+                               [selectObjectData]="dataBaseData">
+      </app-object-multi-select>
     </mat-card-content>
     <mat-card-footer>
       <button color="accent" id="start-search-btn" mat-raised-button type="submit">Search</button>
