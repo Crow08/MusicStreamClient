@@ -12,7 +12,7 @@ import {Component} from '@angular/core';
     }
 
     .result-bar {
-      color: darkred;
+      color: black;
       font-weight: bold;
     }
   `],
