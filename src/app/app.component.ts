@@ -12,6 +12,12 @@ class Theme {
   }
 }
 
+export const availableThemes = [
+  new Theme('parrot-theme', 'Parrot'),
+  new Theme('turtle-theme', 'Turtle'),
+  new Theme('shark-theme', 'Shark')
+];
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -19,12 +25,8 @@ class Theme {
 })
 export class AppComponent {
   themeClass = 'parrot-theme';
-  availableThemes = [
-    new Theme('parrot-theme', 'Parrot'),
-    new Theme('turtle-theme', 'Turtle'),
-    new Theme('shark-theme', 'Shark')
-  ];
-  currentTheme = this.availableThemes[0];
+  availableThemes = availableThemes;
+  currentTheme = availableThemes[0];
 
   constructor(
     private router: Router,
