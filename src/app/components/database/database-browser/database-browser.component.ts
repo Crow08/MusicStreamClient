@@ -5,6 +5,7 @@ import {HttpHelperService} from '../../../services/http-helper.service';
 import {MatPaginator} from '@angular/material/paginator';
 import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
 import {Artist} from 'src/app/models/artist';
+import {Genre} from 'src/app/models/genre';
 import {GenericDataObject} from 'src/app/models/genericDataObject';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultNoSearchResultSnackBarComponent} from '../../messages/server-result-no-search-result-snack-bar.component';
@@ -47,6 +48,7 @@ export class DatabaseBrowserComponent {
 
   onSelectionChange(): void {
     this.dataSource = of([]);
+    this.selectedOptions = [];
     switch (this.modeSelect) {
       case 'artist':
         this.httpHelperService.getArray('/artists/all', Artist)
@@ -54,6 +56,12 @@ export class DatabaseBrowserComponent {
             this.dataBaseData = new ObjectSelectInputData('Artist', artists.map(artist => new GenericDataObject(artist.id, artist.name)));
           });
         break;
+        case 'genre':
+          this.httpHelperService.getArray('/genres/all', Genre)
+            .then((genres) => {
+              this.dataBaseData = new ObjectSelectInputData('Genre', genres.map(genre => new GenericDataObject(genre.id, genre.name)));
+            });
+          break;
       default:
     }
   }
@@ -79,13 +87,18 @@ export class DatabaseBrowserComponent {
         switchMap(() => {
           this.isLoadingResults = true;
           let searchQuery: Promise<Song[]>;
+          let searchArray = this.selectedOptions.map(song => song.id);
           switch (this.searchQuery.value.searchObject) {
             case 'song':
               searchQuery = this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
               break;
             case 'artist':
-              const searchArray = this.selectedOptions.map(song => song.id);
+              searchArray = this.selectedOptions.map(song => song.id);
               searchQuery = this.httpHelperService.getArray(`/songs/getSongsByArtist/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
+              break;
+            case 'genre':
+              searchArray = this.selectedOptions.map(song => song.id);
+              searchQuery = this.httpHelperService.getArray(`/songs/getSongsByGenre/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
               break;
             default:
           }
