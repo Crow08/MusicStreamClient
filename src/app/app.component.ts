@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthenticationService} from './services/authentication.service';
 
@@ -23,7 +23,7 @@ export const availableThemes = [
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   themeClass = 'parrot-theme';
   availableThemes = availableThemes;
   currentTheme = availableThemes[0];
@@ -32,6 +32,12 @@ export class AppComponent {
     private router: Router,
     private authenticationService: AuthenticationService
   ) {
+  }
+
+  isDesktopLayout = true;
+  
+  ngOnInit() {
+    window.onresize = () => this.isDesktopLayout = window.innerWidth >= 991;
   }
 
   selectTheme(theme: Theme): void {

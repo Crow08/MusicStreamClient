@@ -17,7 +17,7 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
       <div class="spacer"></div>
-      <h2 id="main-headline">Music Stream Client</h2>
+      <h2 *ngIf="isDesktopLayout" id="main-headline">Music Stream Client</h2>
       <div class="spacer"></div>
       <a (click)="logout()">
         <button mat-icon-button>

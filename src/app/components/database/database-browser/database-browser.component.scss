@@ -44,3 +44,7 @@ mat-spinner {
 .mat-card-content {
   max-width: 450px;
 }
+
+th.mat-header-cell, td.mat-cell, td.mat-footer-cell{
+  padding: 10px;
+}
