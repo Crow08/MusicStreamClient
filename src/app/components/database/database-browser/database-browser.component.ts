@@ -31,7 +31,7 @@ export class DatabaseBrowserComponent {
   }
 
   dataSource: Observable<Song[]>;
-  displayedColumns: string[] = ['select', 'title', 'album', 'artist'];
+  displayedColumns: string[] = ['select', 'title', 'album', 'artist', 'genre'];
   modeSelect;
   dataBaseData: ObjectSelectInputData;
   selectedOptions: GenericDataObject[] = [];

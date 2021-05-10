@@ -58,6 +58,10 @@
             <th *matHeaderCellDef mat-header-cell> Artist</th>
             <td *matCellDef="let element" mat-cell> {{element.artist.name}} </td>
           </ng-container>
+          <ng-container matColumnDef="genre">
+            <th *matHeaderCellDef mat-header-cell> Genre</th>
+            <td *matCellDef="let element" mat-cell> {{element.genres[0].name}} </td>
+          </ng-container>
           <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
           <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
         </table>
