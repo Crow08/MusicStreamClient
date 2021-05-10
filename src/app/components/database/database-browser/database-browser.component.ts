@@ -89,7 +89,13 @@ export class DatabaseBrowserComponent {
           let searchArray = this.selectedOptions.map(song => song.id);
           switch (this.searchQuery.value.searchObject) {
             case 'song':
-              searchQuery = this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
+              if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== ''){
+                searchQuery = this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
+              }else{
+                //var arr = Array.from(map.entries());
+                searchQuery = this.httpHelperService.getArray(`/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
+                console.log(searchQuery);   
+              }
               break;
             case 'artist':
               searchArray = this.selectedOptions.map(song => song.id);
