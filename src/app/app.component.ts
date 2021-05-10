@@ -35,8 +35,9 @@ export class AppComponent implements OnInit {
   }
 
   isDesktopLayout = true;
-  
+
   ngOnInit() {
+    this.isDesktopLayout = window.innerWidth >= 991;
     window.onresize = () => this.isDesktopLayout = window.innerWidth >= 991;
   }
 

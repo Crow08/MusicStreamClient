@@ -11,7 +11,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultNoSearchResultSnackBarComponent} from '../../messages/server-result-no-search-result-snack-bar.component';
 import {SelectionModel} from '@angular/cdk/collections';
 import {from, merge, Observable, of} from 'rxjs';
-import {catchError, startWith, switchMap, tap} from 'rxjs/operators';
+import {catchError, delay, startWith, switchMap, tap} from 'rxjs/operators';
 import {MatSort} from '@angular/material/sort';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
 
@@ -83,6 +83,7 @@ export class DatabaseBrowserComponent {
     this.dataSource = merge(this.sort.sortChange, this.paginator.page)
       .pipe(
         startWith({}),
+        delay(0),
         switchMap(() => {
           this.isLoadingResults = true;
           let searchQuery: Promise<Song[]>;
@@ -92,9 +93,7 @@ export class DatabaseBrowserComponent {
               if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== ''){
                 searchQuery = this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
               }else{
-                //var arr = Array.from(map.entries());
                 searchQuery = this.httpHelperService.getArray(`/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
-                console.log(searchQuery);   
               }
               break;
             case 'artist':
