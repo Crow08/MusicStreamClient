@@ -28,16 +28,30 @@
       <mat-spinner *ngIf="isLoadingResults" [diameter]="25"></mat-spinner>
       <br><br><br>
       <div [ngClass]="currentSongData.length == 0 ? 'hidden':''">
+        <div id="bulk-controls">
+          <mat-checkbox (change)="$event ? masterToggle() : null"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                        [indeterminate]="selection.hasValue() && !isAllSelected()">
+          </mat-checkbox>
+          <button mat-button type="button">
+            <mat-icon>queue</mat-icon>
+            <span>Add to queue</span>
+          </button>
+          <button mat-button type="button">
+            <mat-icon>playlist_add</mat-icon>
+            <span>Add to playlist</span>
+          </button>
+          <button mat-button type="button">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </div>
         <table [dataSource]="dataSource" id="search-results-table" mat-table matSort
                matSortActive="title" matSortDisableClear matSortDirection="desc"
                (matSortChange)="resetPaging()">
           <!-- Checkbox Column -->
           <ng-container matColumnDef="select">
             <th *matHeaderCellDef mat-header-cell>
-              <mat-checkbox (change)="$event ? masterToggle() : null"
-                            [checked]="selection.hasValue() && isAllSelected()"
-                            [indeterminate]="selection.hasValue() && !isAllSelected()">
-              </mat-checkbox>
             </th>
             <td *matCellDef="let row" mat-cell>
               <mat-checkbox (change)="$event ? selection.toggle(row) : null"
@@ -61,6 +75,40 @@
           <ng-container matColumnDef="genre">
             <th *matHeaderCellDef mat-header-cell> Genre</th>
             <td *matCellDef="let element" mat-cell> {{element.genres[0]?.name}} </td>
+          </ng-container>
+          <ng-container matColumnDef="menu">
+            <th *matHeaderCellDef mat-header-cell></th>
+            <td *matCellDef="let element" mat-cell>
+              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu" type="button">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item type="button">
+                  <mat-icon>play_arrow</mat-icon>
+                  <span>Play now</span>
+                </button>
+                <button mat-menu-item type="button">
+                  <mat-icon>playlist_play</mat-icon>
+                  <span>Play next</span>
+                </button>
+                <button mat-menu-item type="button">
+                  <mat-icon>queue</mat-icon>
+                  <span>Add to queue</span>
+                </button>
+                <button mat-menu-item type="button">
+                  <mat-icon>playlist_add</mat-icon>
+                  <span>Add to playlist</span>
+                </button>
+                <button mat-menu-item type="button">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+                <button mat-menu-item type="button">
+                  <mat-icon>delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </td>
           </ng-container>
           <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
           <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
