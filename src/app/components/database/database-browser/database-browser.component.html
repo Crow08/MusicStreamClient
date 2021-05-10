@@ -6,7 +6,7 @@
     <mat-card-content>
       <mat-form-field appearance="fill">
         <mat-label>Search for...</mat-label>
-        <mat-select (selectionChange)="onSelectionChange()" [(ngModel)]="modeSelect" [placeholder]="modeSelect"
+        <mat-select (selectionChange)="onSelectionChange()" [(value)]="modeSelect" [placeholder]="modeSelect"
                     formControlName="searchObject">
           <mat-option value="song">Song</mat-option>
           <mat-option value="artist">Artist</mat-option>

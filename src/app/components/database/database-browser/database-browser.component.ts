@@ -32,7 +32,7 @@ export class DatabaseBrowserComponent {
 
   dataSource: Observable<Song[]>;
   displayedColumns: string[] = ['select', 'title', 'album', 'artist'];
-  modeSelect = 'song';
+  modeSelect;
   dataBaseData: ObjectSelectInputData;
   selectedOptions: GenericDataObject[] = [];
   selection = new SelectionModel<Song>(true, []);
@@ -41,9 +41,8 @@ export class DatabaseBrowserComponent {
   @ViewChild(MatSort) sort: MatSort;
 
   searchQuery: FormGroup = this.formBuilder.group({
-    searchObject: [undefined, {updateOn: 'change'}],
+    searchObject: ['song', {updateOn: 'change'}],
     searchKeyword: [undefined, {updateOn: 'change'}],
-    searchTerm: [undefined, {updateOn: 'change'}],
   });
 
   onSelectionChange(): void {
