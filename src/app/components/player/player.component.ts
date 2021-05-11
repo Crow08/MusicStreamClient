@@ -276,4 +276,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.getRating();
     this.getUserRating();
   }
+
+  removeSongFromQueue(): void {
+    //ready to implement
+    console.log("removed Song?!");
+  }
 }
