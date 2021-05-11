@@ -53,9 +53,9 @@ mat-chip {
 }
 
 .removeSongFromQueue{
- float: right;
+ margin-left: auto;
 }
 
-.queueSpacer{
-  width: 100%;
+.mat-chip{
+  display: flex;
 }

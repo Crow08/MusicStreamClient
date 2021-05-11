@@ -14,10 +14,15 @@
 - make it look good
 
 ## Tobis Notes
+- deleting (just database for now), use delete or sth. like save()
 - Custom Text Snackbars (one good, one bad)
-- Use that snackbars to display error/return of playlist-add (witch the catch-line)
+- Use that snackbars to display error/return of playlist-add (with the catch-line)
 - mass add to playlist (steal from normal add2playlist)
 - close dialog on selection
+- new edit-song-dialog, autofill input-boxes with song data (more stealing)
+
+- add trash-can to allready played songs (remove float right in scss)
+- player-queue mat-chip has smaller font, add some water to grow that poor guy
 
 
 
