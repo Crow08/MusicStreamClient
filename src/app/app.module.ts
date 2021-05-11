@@ -30,6 +30,7 @@ import {TagComponent} from './components/input/tag/tag.component';
 import {GenreComponent} from './components/input/genre/genre.component';
 import {PlaylistComponent} from './components/input/playlist/playlist.component';
 import {AddObjectButtonComponent} from './components/util/add-object-button/add-object-button.component';
+import { AddToPlaylistDialogComponent } from './components/dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 
 
 @NgModule({
@@ -55,7 +56,8 @@ import {AddObjectButtonComponent} from './components/util/add-object-button/add-
     TagComponent,
     GenreComponent,
     PlaylistComponent,
-    AddObjectButtonComponent
+    AddObjectButtonComponent,
+    AddToPlaylistDialogComponent
   ],
   imports: [
     FormsModule,

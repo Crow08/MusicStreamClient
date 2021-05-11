@@ -14,6 +14,8 @@ import {from, merge, Observable, of} from 'rxjs';
 import {catchError, delay, startWith, switchMap, tap} from 'rxjs/operators';
 import {MatSort} from '@angular/material/sort';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
+import {MatDialog} from '@angular/material/dialog'
+import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 
 
 @Component({
@@ -27,7 +29,8 @@ export class DatabaseBrowserComponent {
 
   constructor(private formBuilder: FormBuilder,
               private httpHelperService: HttpHelperService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private playlistDialog: MatDialog) {
   }
 
   dataSource: Observable<Song[]>;
@@ -138,5 +141,31 @@ export class DatabaseBrowserComponent {
   displayGenreNames(genres: Genre[]): string {
     return genres.map(value => value.name).join(', ');
 
+  }
+
+  openPlaylistDialog(song : any){
+    const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
+
+  addSongToPlaylist(songId: number, playlistId: number){
+    this.httpHelperService.put(`/${songId}/addSongToPlaylist/${playlistId}`, null)
+    .then(() => {
+      console.log("added, I guess...");
+      //snackbar pls!!
+    })
+    .catch(console.error);
+  }
+
+  addSongsToPlaylist(songIds: number[], playlistId: number){
+    this.httpHelperService.put(`/addSongsToPlaylist/${playlistId}`, songIds)
+    .then(() => {
+      console.log("more added, I guess...");
+      //snackbar pls!!
+    })
+    .catch(console.error);
   }
 }
