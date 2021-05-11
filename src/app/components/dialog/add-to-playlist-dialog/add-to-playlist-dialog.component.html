@@ -1,4 +1,3 @@
 <p>add-to-playlist-dialog works!</p>
-<app-object-select [(selectedOptions)]="selectedOptions"
-                   [selectObjectData]="selectObjectData">
-</app-object-select>
+
+<app-input-playlist [(selectedOptions)]="selectedOptions" [multiMode]="false" (selectedOptionsChange)="onChange()"></app-input-playlist>

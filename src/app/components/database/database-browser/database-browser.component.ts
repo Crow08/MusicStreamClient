@@ -14,7 +14,7 @@ import {from, merge, Observable, of} from 'rxjs';
 import {catchError, delay, startWith, switchMap, tap} from 'rxjs/operators';
 import {MatSort} from '@angular/material/sort';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
-import {MatDialog} from '@angular/material/dialog'
+import {MatDialog} from '@angular/material/dialog';
 import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 
 
@@ -58,12 +58,12 @@ export class DatabaseBrowserComponent {
             this.dataBaseData = new ObjectSelectInputData('Artist', artists.map(artist => new GenericDataObject(artist.id, artist.name)));
           });
         break;
-        case 'genre':
-          this.httpHelperService.getArray('/genres/all', Genre)
-            .then((genres) => {
-              this.dataBaseData = new ObjectSelectInputData('Genre', genres.map(genre => new GenericDataObject(genre.id, genre.name)));
-            });
-          break;
+      case 'genre':
+        this.httpHelperService.getArray('/genres/all', Genre)
+          .then((genres) => {
+            this.dataBaseData = new ObjectSelectInputData('Genre', genres.map(genre => new GenericDataObject(genre.id, genre.name)));
+          });
+        break;
       default:
     }
   }
@@ -93,9 +93,9 @@ export class DatabaseBrowserComponent {
           let searchArray = this.selectedOptions.map(song => song.id);
           switch (this.searchQuery.value.searchObject) {
             case 'song':
-              if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== ''){
+              if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== '') {
                 searchQuery = this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
-              }else{
+              } else {
                 searchQuery = this.httpHelperService.getArray(`/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
               }
               break;
@@ -143,29 +143,15 @@ export class DatabaseBrowserComponent {
 
   }
 
-  openPlaylistDialog(song : any){
-    const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent);
+  openPlaylistDialog(song: any): void {
+    const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent, {
+      data: {
+        songId: song.id
+      }
+    });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
     });
-  }
-
-  addSongToPlaylist(songId: number, playlistId: number){
-    this.httpHelperService.put(`/${songId}/addSongToPlaylist/${playlistId}`, null)
-    .then(() => {
-      console.log("added, I guess...");
-      //snackbar pls!!
-    })
-    .catch(console.error);
-  }
-
-  addSongsToPlaylist(songIds: number[], playlistId: number){
-    this.httpHelperService.put(`/addSongsToPlaylist/${playlistId}`, songIds)
-    .then(() => {
-      console.log("more added, I guess...");
-      //snackbar pls!!
-    })
-    .catch(console.error);
   }
 }
