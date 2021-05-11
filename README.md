@@ -13,6 +13,13 @@
 
 - make it look good
 
+## Tobis Notes
+- Custom Text Snackbars (one good, one bad)
+- Use that snackbars to display error/return of playlist-add (witch the catch-line)
+- mass add to playlist (steal from normal add2playlist)
+- close dialog on selection
+
+
 
 ## Bugs
 - Song/User-Rating doesn't show on initializing session
