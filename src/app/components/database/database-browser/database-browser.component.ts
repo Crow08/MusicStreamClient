@@ -134,4 +134,9 @@ export class DatabaseBrowserComponent {
   resetPaging(): void {
     this.paginator.pageIndex = 0;
   }
+
+  displayGenreNames(genres: Genre[]): string {
+    return genres.map(value => value.name).join(', ');
+
+  }
 }

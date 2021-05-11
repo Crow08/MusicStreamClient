@@ -74,7 +74,7 @@
           </ng-container>
           <ng-container matColumnDef="genre">
             <th *matHeaderCellDef mat-header-cell> Genre</th>
-            <td *matCellDef="let element" mat-cell> {{element.genres[0]?.name}} </td>
+            <td *matCellDef="let element" mat-cell> {{displayGenreNames(element.genres)}} </td>
           </ng-container>
           <ng-container matColumnDef="menu">
             <th *matHeaderCellDef mat-header-cell></th>
