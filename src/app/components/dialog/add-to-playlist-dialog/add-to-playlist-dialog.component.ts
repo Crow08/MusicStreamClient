@@ -1,7 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {GenericDataObject} from 'src/app/models/genericDataObject';
 import {HttpHelperService} from '../../../services/http-helper.service';
-import {MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultSuccessSnackBarComponent} from '../../messages/server-result-success-snack-bar.component';
@@ -19,6 +19,7 @@ export class AddToPlaylistDialogComponent implements OnInit {
 
   constructor(private httpHelperService: HttpHelperService,
               private snackBar: MatSnackBar,
+              private dialogRef: MatDialogRef<AddToPlaylistDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
@@ -37,6 +38,7 @@ export class AddToPlaylistDialogComponent implements OnInit {
         this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
           duration: 2000,
         });
+        this.dialogRef.close();
       })
       .catch((e) => {
         console.log(e);
@@ -53,6 +55,7 @@ export class AddToPlaylistDialogComponent implements OnInit {
         this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
           duration: 2000,
         });
+        this.dialogRef.close();
       })
       .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
         duration: 2000,

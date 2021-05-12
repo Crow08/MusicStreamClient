@@ -18,7 +18,7 @@
 - Custom Text Snackbars (one good, one bad)
 - Use that snackbars to display error/return of playlist-add (with the catch-line)
 - mass add to playlist (steal from normal add2playlist)
-- close dialog on selection
+- [DONE] close dialog on selection
 - new edit-song-dialog, autofill input-boxes with song data (more stealing)
 
 - [DONE] add trash-can to allready played songs
