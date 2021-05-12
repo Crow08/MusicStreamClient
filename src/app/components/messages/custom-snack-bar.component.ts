@@ -3,12 +3,11 @@ import {MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-snack-bar-component-custom',
-  template: `<div class="snackBarWrapper">{{message}}</div>`,
+  template: `<div class="snackBarWrapper" style="background-color:{{background}}">{{message}}</div>`,
   styles: [`
     .snackBarWrapper {
       text-align: center;
       display: block;
-      background-color: darkgreen;
       margin-left: -16px;
       margin-right: -16px;
       margin-top: -14px;
@@ -24,11 +23,9 @@ import {MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 })
 export class CustomSnackBarComponent {
   message: String;
-  fontSize: String;
   background: String;
   constructor(
-    @Inject(MAT_SNACK_BAR_DATA) {message},
-    @Inject(MAT_SNACK_BAR_DATA) {background},
+    @Inject(MAT_SNACK_BAR_DATA) {message, background},
     ) {
       this.message = message;
       this.background = background;

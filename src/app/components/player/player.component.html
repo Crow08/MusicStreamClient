@@ -62,9 +62,9 @@
         <div id="queue-container">
           <mat-list role="list">
             <mat-list-item
-              *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length)" role="listitem">
+              *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length); let i = index " [attr.data-index]="i" role="listitem">
               {{song.title}}
-              <button class="removeSongFromQueue" mat-icon-button (click)="removeSongFromQueue()">
+              <button class="removeSongFromQueueButton" mat-icon-button (click)="removeSongFromQueueOrHistory(i,'history')">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-list-item>
@@ -73,17 +73,13 @@
                 <mat-chip color="primary" selected>
                   {{currentSong?.title}}
                   <!--Maybe add ngif so that it appears after the song title loaded. Looks weird otherwise-->
-                  <button class="removeSongFromQueue" mat-icon-button (click)="removeSongFromQueue()">
-                    <mat-icon>delete</mat-icon>
-                  </button>
                 </mat-chip>
-                
               </mat-chip-list>
             </mat-list-item>
-            <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength())" role="listitem">
+            <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength()); let i = index" [attr.data-index]="i" role="listitem">
               {{song.title}}
               <div class="queueSpacer"></div>
-              <button class="removeSongFromQueue" mat-icon-button (click)="removeSongFromQueue()">
+              <button class="removeSongFromQueueButton" mat-icon-button (click)="removeSongFromQueueOrHistory(i,'queue')">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-list-item>

@@ -231,6 +231,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
           case 'Queue':
             this.queue = commandObject.queue;
             break;
+          case 'History':
+            this.history = commandObject.history;
+            break;
         }
         break;
     }
@@ -277,8 +280,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.getUserRating();
   }
 
-  removeSongFromQueue(): void {
-    //ready to implement
-    console.log("removed Song?!");
+  removeSongFromQueueOrHistory(queueIndex: number, type: String): void {
+    this.publishCommand(`deleteSongFromQueue/${queueIndex}/${type}`);
   }
 }
