@@ -64,6 +64,9 @@
             <mat-list-item
               *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length)" role="listitem">
               {{song.title}}
+              <button class="removeSongFromQueue" mat-icon-button (click)="removeSongFromQueue()">
+                <mat-icon>delete</mat-icon>
+              </button>
             </mat-list-item>
             <mat-list-item>
               <mat-chip-list>

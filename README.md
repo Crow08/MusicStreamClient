@@ -21,8 +21,8 @@
 - close dialog on selection
 - new edit-song-dialog, autofill input-boxes with song data (more stealing)
 
-- add trash-can to allready played songs (remove float right in scss)
-- player-queue mat-chip has smaller font, add some water to grow that poor guy
+- [DONE] add trash-can to allready played songs
+- [DONE] player-queue mat-chip has smaller font, add some water to grow that poor guy
 
 
 
