@@ -16,6 +16,8 @@ import {MatSort} from '@angular/material/sort';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
 import {MatDialog} from '@angular/material/dialog';
 import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
+import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
+import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
 
 
 @Component({
@@ -30,7 +32,8 @@ export class DatabaseBrowserComponent {
   constructor(private formBuilder: FormBuilder,
               private httpHelperService: HttpHelperService,
               private snackBar: MatSnackBar,
-              private playlistDialog: MatDialog) {
+              private playlistDialog: MatDialog,
+              private deleteSongDialog: MatDialog) {
   }
 
   dataSource: Observable<Song[]>;
@@ -153,5 +156,28 @@ export class DatabaseBrowserComponent {
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
     });
+  }
+  deleteSong(song: any): void {
+    console.log(song)
+  const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
+    maxWidth: "400px",
+    data: {
+        title: "Send song into oblivion?",
+         }
+  });
+
+  dialogRef.afterClosed().subscribe(dialogResult => {
+    if (dialogResult){
+      this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
+      .then(() => {
+        this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+          duration: 2000,
+        });
+      })
+      .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+        duration: 2000,
+      }));
+    }    
+ });
   }
 }
