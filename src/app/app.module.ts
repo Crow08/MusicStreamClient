@@ -18,6 +18,7 @@ import {OverlayContainer} from '@angular/cdk/overlay';
 import {ThemeAwareOverlayContainer} from './ThemeAwareOverlayContainer';
 import {ServerResultSuccessSnackBarComponent} from './components/messages/server-result-success-snack-bar.component';
 import {ServerResultErrorSnackBarComponent} from './components/messages/server-result-error-snack-bar.component';
+import {CustomSnackBarComponent} from './components/messages/custom-snack-bar.component';
 import {MaterialModule} from './material.module';
 import {NewObjectDialogComponent} from './components/dialog/new-object-dialog/new-object-dialog.component';
 import {RatingStarComponent} from './components/rating-star/rating-star.component';
@@ -47,6 +48,7 @@ import { YesNoDialogComponent } from './components/dialog/yes-no-dialog/yes-no-d
     UploadComponent,
     ServerResultSuccessSnackBarComponent,
     ServerResultErrorSnackBarComponent,
+    CustomSnackBarComponent,
     NewObjectDialogComponent,
     RatingStarComponent,
     ObjectMultiSelectComponent,
