@@ -16,8 +16,8 @@
   $parrot-theme: mat-dark-theme($parrot-primary, $parrot-accent, $parrot-warn);
   $parrot-toolbar-theme: mat-dark-theme($parrot-toolbar-primary, $parrot-accent, $parrot-warn);
 
-  .theme-snackbar {
-    background: mat-color($parrot-accent) !important;
+  .mat-snack-bar-container.mat-snack-bar-center {
+    background: mat-color($parrot-accent);
   }
 
   @include angular-material-theme($parrot-theme);

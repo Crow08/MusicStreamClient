@@ -18,6 +18,7 @@ import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/
 import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
 import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
 import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
+import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
 
 
 @Component({
@@ -33,7 +34,8 @@ export class DatabaseBrowserComponent {
               private httpHelperService: HttpHelperService,
               private snackBar: MatSnackBar,
               private playlistDialog: MatDialog,
-              private deleteSongDialog: MatDialog) {
+              private deleteSongDialog: MatDialog,
+              private messageHandler: HttpCodeMessageGenerator) {
   }
 
   dataSource: Observable<Song[]>;
@@ -118,21 +120,19 @@ export class DatabaseBrowserComponent {
           // Flip flag to show that loading has finished.
           if (!!songs) {
             if (songs.length === 0) {
-              this.snackBar.openFromComponent(CustomSnackBarComponent,{
+              this.snackBar.openFromComponent(CustomSnackBarComponent, {
                 data: {
-                  theme: "true",
-                  message: "Didn´t find the thing you were looking for. Feel free to add it!"},
-                duration:5000
+                  message: 'Didn\'t find the thing you were looking for. Feel free to add it!'
+                },
+                duration: 4000
               });
             }
             this.currentSongData = songs;
           }
           this.isLoadingResults = false;
         }),
-        catchError(() => {
-          this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-            duration: 5000
-          });
+        catchError((e) => {
+          this.messageHandler.calculateReturnCodeMessage(e.status);
           this.isLoadingResults = false;
           return of([]);
         })
@@ -160,15 +160,15 @@ export class DatabaseBrowserComponent {
     });
   }
   deleteSong(song: any): void {
-    console.log(song)
-  const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
-    maxWidth: "400px",
+    console.log(song);
+    const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
+    maxWidth: '400px',
     data: {
-        title: "Send song into oblivion?",
+        title: 'Send song into oblivion?',
          }
   });
 
-  dialogRef.afterClosed().subscribe(dialogResult => {
+    dialogRef.afterClosed().subscribe(dialogResult => {
     if (dialogResult){
       this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
       .then(() => {
@@ -179,7 +179,7 @@ export class DatabaseBrowserComponent {
       .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
         duration: 2000,
       }));
-    }    
+    }
  });
   }
 }

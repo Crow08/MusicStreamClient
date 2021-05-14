@@ -5,7 +5,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultSuccessSnackBarComponent} from '../../messages/server-result-success-snack-bar.component';
-import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator'
+import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
 
 @Component({
   selector: 'app-add-to-playlist-dialog',
@@ -44,7 +44,10 @@ export class AddToPlaylistDialogComponent implements OnInit {
       .catch((e) => {
         console.log(e);
         console.log(e.status);
-        this.messageHandler.calculateReturnCodeMessage(e.status, "addSongToPlaylist");
+        this.messageHandler.calculateReturnCodeMessage(e.status, {
+          e409: 'Duplicate Song! Try for more variety!',
+          e404: 'Song not found!'
+        });
       });
   }
 

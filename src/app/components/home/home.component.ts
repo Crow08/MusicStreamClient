@@ -11,13 +11,12 @@ export class HomeComponent {
 
   constructor(private snackBar: MatSnackBar){}
 
-  testSnack(){
-    this.snackBar.openFromComponent(CustomSnackBarComponent,{
+  testSnack(): void{
+    this.snackBar.openFromComponent(CustomSnackBarComponent, {
+      panelClass: ['test-style2'],
       data: {
-        theme: "true",
-        customCSS:"background-color: red; color:darkslategrey; border:solid black 3px;",
-        message: "This could be your ad!"},
-        duration:60000
+        message: 'This could be your ad!'},
+        duration: 60000
     });
   }
 }
