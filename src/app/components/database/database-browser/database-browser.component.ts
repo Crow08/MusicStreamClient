@@ -120,7 +120,7 @@ export class DatabaseBrowserComponent {
             if (songs.length === 0) {
               this.snackBar.openFromComponent(ServerResultNoSearchResultSnackBarComponent, {
                 duration: 5000,
-                panelClass: ['no-result-snackbar']
+                panelClass: ['theme-snackbar']
               });
             }
             this.currentSongData = songs;

@@ -14,7 +14,8 @@ export class HomeComponent {
   testSnack(){
     this.snackBar.openFromComponent(CustomSnackBarComponent,{
       data: {
-        background: "red",
+        theme: "true",
+        customCSS:"background-color: red; color:darkslategrey; border:solid black 3px;",
         message: "This could be your ad!"},
         duration:60000
     });

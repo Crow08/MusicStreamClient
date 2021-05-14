@@ -3,9 +3,9 @@ import {MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-snack-bar-component-custom',
-  template: `<div class="snackBarWrapper" style="background-color:{{background}}">{{message}}</div>`,
+  template: `<div [ngClass]="additionalClasses()" class="snackbarWrapper" style="{{customCSS}}">{{message}}</div>`,
   styles: [`
-    .snackBarWrapper {
+    .snackbarWrapper {
       text-align: center;
       display: block;
       margin-left: -16px;
@@ -22,23 +22,44 @@ import {MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
   `],
 })
 export class CustomSnackBarComponent {
+  customCSS: String;
+  theme: Boolean;
   message: String;
-  background: String;
+
   constructor(
-    @Inject(MAT_SNACK_BAR_DATA) {message, background},
+    @Inject(MAT_SNACK_BAR_DATA) {message, theme, customCSS},
     ) {
+      //set message at the start. message is always there
       this.message = message;
-      this.background = background;
-    console.log(message);
-    console.log(background);
+
+      //apply custom css
+      if (customCSS !== ""){
+        this.customCSS = `${customCSS}`;
+      }
+      //apply theme background color...or not
+      if (theme == "true"){
+        this.theme = true;
+      }else{
+        this.theme = false;
+      }
   }
 
+//applies given theme - just one at the moment
+additionalClasses(){
+  if (this.theme){
+    return "theme-snackbar"
+  }else{
+    return ""
+  }
+
+}
 /*USE THIS TO OPEN DAT SNACKBAR! (DON´T FORGET TO IMPORT)
 
   testSnack(){
-    this.snackBar.openFromComponent(CustomPositiveSnackBarComponent,{
+    this.snackBar.openFromComponent(CustomSnackBarComponent,{
       data: {
-        background: "red",
+        theme: "true",
+        customCSS:"background-color: red; color:darkslategrey; border:solid black 3px;",
         message: "This could be your ad!"},
         duration:60000
     });
