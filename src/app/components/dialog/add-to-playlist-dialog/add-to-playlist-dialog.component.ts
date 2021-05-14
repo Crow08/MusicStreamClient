@@ -5,6 +5,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultSuccessSnackBarComponent} from '../../messages/server-result-success-snack-bar.component';
+import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator'
 
 @Component({
   selector: 'app-add-to-playlist-dialog',
@@ -14,12 +15,12 @@ import {ServerResultSuccessSnackBarComponent} from '../../messages/server-result
 export class AddToPlaylistDialogComponent implements OnInit {
 
   selectedOptions: GenericDataObject[] = [];
-
   songId: number;
 
   constructor(private httpHelperService: HttpHelperService,
               private snackBar: MatSnackBar,
               private dialogRef: MatDialogRef<AddToPlaylistDialogComponent>,
+              private messageHandler: HttpCodeMessageGenerator,
               @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
@@ -43,9 +44,7 @@ export class AddToPlaylistDialogComponent implements OnInit {
       .catch((e) => {
         console.log(e);
         console.log(e.status);
-        this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-          duration: 2000,
-        });
+        this.messageHandler.calculateReturnCodeMessage(e.status, "addSongToPlaylist");
       });
   }
 

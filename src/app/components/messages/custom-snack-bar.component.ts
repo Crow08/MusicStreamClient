@@ -12,6 +12,8 @@ import {MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
       margin-right: -16px;
       margin-top: -14px;
       margin-bottom: -16px;
+      padding-right: 10px;
+      padding-left: 10px;
       height: 48px;
       border-radius: 3px;
       vertical-align:middle;

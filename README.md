@@ -19,7 +19,7 @@
 - [DONE] deleting (just database for now), use delete or sth. like save()
 - [DONE] Custom Text Snackbars (one to rule them all!)
 - [DONE] custom snackbar needs to work with dynamic css vars
-- Use that snackbars to display error/return of playlist-add (with the catch-line)
+- [WIP] Use that snackbars to display error/return of playlist-add (with the catch-line)
 - mass add to playlist (steal from normal add2playlist)
 - [DONE] close dialog on selection
 - [DONE] add trash-can to allready played songs

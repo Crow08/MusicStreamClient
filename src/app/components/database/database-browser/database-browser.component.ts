@@ -8,7 +8,6 @@ import {Artist} from 'src/app/models/artist';
 import {Genre} from 'src/app/models/genre';
 import {GenericDataObject} from 'src/app/models/genericDataObject';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {ServerResultNoSearchResultSnackBarComponent} from '../../messages/server-result-no-search-result-snack-bar.component';
 import {SelectionModel} from '@angular/cdk/collections';
 import {from, merge, Observable, of} from 'rxjs';
 import {catchError, delay, startWith, switchMap, tap} from 'rxjs/operators';
@@ -18,6 +17,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
 import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
+import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
 
 
 @Component({
@@ -118,9 +118,11 @@ export class DatabaseBrowserComponent {
           // Flip flag to show that loading has finished.
           if (!!songs) {
             if (songs.length === 0) {
-              this.snackBar.openFromComponent(ServerResultNoSearchResultSnackBarComponent, {
-                duration: 5000,
-                panelClass: ['theme-snackbar']
+              this.snackBar.openFromComponent(CustomSnackBarComponent,{
+                data: {
+                  theme: "true",
+                  message: "Didn´t find the thing you were looking for. Feel free to add it!"},
+                duration:5000
               });
             }
             this.currentSongData = songs;
