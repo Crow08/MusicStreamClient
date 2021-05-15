@@ -8,12 +8,17 @@ import {Artist} from 'src/app/models/artist';
 import {Genre} from 'src/app/models/genre';
 import {GenericDataObject} from 'src/app/models/genericDataObject';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {ServerResultNoSearchResultSnackBarComponent} from '../../messages/server-result-no-search-result-snack-bar.component';
 import {SelectionModel} from '@angular/cdk/collections';
 import {from, merge, Observable, of} from 'rxjs';
 import {catchError, delay, startWith, switchMap, tap} from 'rxjs/operators';
 import {MatSort} from '@angular/material/sort';
 import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
+import {MatDialog} from '@angular/material/dialog';
+import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
+import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
+import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
+import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
+import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
 
 
 @Component({
@@ -27,7 +32,10 @@ export class DatabaseBrowserComponent {
 
   constructor(private formBuilder: FormBuilder,
               private httpHelperService: HttpHelperService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private playlistDialog: MatDialog,
+              private deleteSongDialog: MatDialog,
+              private messageHandler: HttpCodeMessageGenerator) {
   }
 
   dataSource: Observable<Song[]>;
@@ -55,12 +63,12 @@ export class DatabaseBrowserComponent {
             this.dataBaseData = new ObjectSelectInputData('Artist', artists.map(artist => new GenericDataObject(artist.id, artist.name)));
           });
         break;
-        case 'genre':
-          this.httpHelperService.getArray('/genres/all', Genre)
-            .then((genres) => {
-              this.dataBaseData = new ObjectSelectInputData('Genre', genres.map(genre => new GenericDataObject(genre.id, genre.name)));
-            });
-          break;
+      case 'genre':
+        this.httpHelperService.getArray('/genres/all', Genre)
+          .then((genres) => {
+            this.dataBaseData = new ObjectSelectInputData('Genre', genres.map(genre => new GenericDataObject(genre.id, genre.name)));
+          });
+        break;
       default:
     }
   }
@@ -90,9 +98,9 @@ export class DatabaseBrowserComponent {
           let searchArray = this.selectedOptions.map(song => song.id);
           switch (this.searchQuery.value.searchObject) {
             case 'song':
-              if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== ''){
+              if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== '') {
                 searchQuery = this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
-              }else{
+              } else {
                 searchQuery = this.httpHelperService.getArray(`/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
               }
               break;
@@ -112,19 +120,19 @@ export class DatabaseBrowserComponent {
           // Flip flag to show that loading has finished.
           if (!!songs) {
             if (songs.length === 0) {
-              this.snackBar.openFromComponent(ServerResultNoSearchResultSnackBarComponent, {
-                duration: 5000,
-                panelClass: ['no-result-snackbar']
+              this.snackBar.openFromComponent(CustomSnackBarComponent, {
+                data: {
+                  message: 'Didn\'t find the thing you were looking for. Feel free to add it!'
+                },
+                duration: 4000
               });
             }
             this.currentSongData = songs;
           }
           this.isLoadingResults = false;
         }),
-        catchError(() => {
-          this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-            duration: 5000
-          });
+        catchError((e) => {
+          this.messageHandler.calculateReturnCodeMessage(e.status);
           this.isLoadingResults = false;
           return of([]);
         })
@@ -138,5 +146,40 @@ export class DatabaseBrowserComponent {
   displayGenreNames(genres: Genre[]): string {
     return genres.map(value => value.name).join(', ');
 
+  }
+
+  openPlaylistDialog(song: any): void {
+    const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent, {
+      data: {
+        songId: song.id
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
+  deleteSong(song: any): void {
+    console.log(song);
+    const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
+    maxWidth: '400px',
+    data: {
+        title: 'Send song into oblivion?',
+         }
+  });
+
+    dialogRef.afterClosed().subscribe(dialogResult => {
+    if (dialogResult){
+      this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
+      .then(() => {
+        this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+          duration: 2000,
+        });
+      })
+      .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+        duration: 2000,
+      }));
+    }
+ });
   }
 }

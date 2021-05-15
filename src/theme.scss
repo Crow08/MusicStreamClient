@@ -16,8 +16,8 @@
   $parrot-theme: mat-dark-theme($parrot-primary, $parrot-accent, $parrot-warn);
   $parrot-toolbar-theme: mat-dark-theme($parrot-toolbar-primary, $parrot-accent, $parrot-warn);
 
-  .no-result-snackbar {
-    background: mat-color($parrot-accent) !important;
+  .mat-snack-bar-container.mat-snack-bar-center {
+    background: mat-color($parrot-accent);
   }
 
   @include angular-material-theme($parrot-theme);
@@ -34,7 +34,7 @@
   $turtle-theme: mat-dark-theme($turtle-primary, $turtle-accent, $turtle-warn);
   $turtle-toolbar-theme: mat-dark-theme($turtle-toolbar-primary, $turtle-accent, $turtle-warn);
 
-  .no-result-snackbar {
+  .theme-snackbar {
     background: mat-color($turtle-accent) !important;
   }
 
@@ -52,7 +52,7 @@
   $shark-theme: mat-dark-theme($shark-primary, $shark-accent, $shark-warn);
   $shark-toolbar-theme: mat-dark-theme($shark-toolbar-primary, $shark-accent, $shark-warn);
 
-  .no-result-snackbar {
+  .theme-snackbar {
     background: mat-color($shark-accent) !important;
   }
 

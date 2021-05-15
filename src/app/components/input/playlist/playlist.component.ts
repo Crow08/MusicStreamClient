@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
 import {AddObjectInputData} from '../../util/add-object-button/add-object-button.component';
 import {HttpHelperService} from '../../../services/http-helper.service';
@@ -14,6 +14,8 @@ import {GenericDataObject} from '../../../models/genericDataObject';
   styleUrls: ['../input-object.component.scss']
 })
 export class PlaylistComponent extends InputObjectDirective implements OnInit {
+
+  @Input() multiMode = true;
 
   constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
     super(httpHelperService, true);

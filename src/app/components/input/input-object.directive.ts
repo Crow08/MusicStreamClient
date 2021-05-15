@@ -22,4 +22,8 @@ export class InputObjectDirective {
   getDataForSelect(path: string, clazz: ClassConstructor<any>): Promise<any[]> {
     return this.httpHelperService.getArray(path, clazz);
   }
+
+  onChange(): void {
+    this.selectedOptionsChange.emit(this.selectedOptions);
+  }
 }

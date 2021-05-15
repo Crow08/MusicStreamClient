@@ -13,3 +13,8 @@ mat-card {
   margin-left: -20px;
   font-weight: bold;
 }
+
+::ng-deep .mat-snack-bar-container.mat-snack-bar-center.test-style2 {
+  color: orange;
+  background-color: red;
+}
