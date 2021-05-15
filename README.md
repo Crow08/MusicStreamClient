@@ -18,7 +18,7 @@
 ## Tobis Notes
 - [DONE] deleting (just database for now), use delete or sth. like save()
 - [DONE] Custom Text Snackbars (one to rule them all!)
-- [DONE] custom snackbar needs to work with dynamic css vars
+- [WIP] custom snackbar needs to work with dynamic css vars - use panel class
 - [WIP] Use that snackbars to display error/return of playlist-add (with the catch-line)
 - mass add to playlist (steal from normal add2playlist)
 - [DONE] close dialog on selection
