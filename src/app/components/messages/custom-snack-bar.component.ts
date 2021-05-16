@@ -24,15 +24,42 @@ export class CustomSnackBarComponent {
     @Inject(MAT_SNACK_BAR_DATA) {message},
     ) {
       // set message at the start. message is always there
-      this.message = message;
+      switch (message) {
+        case "successMessage":
+          this.message = this.successMessages[Math.floor(Math.random() * this.successMessages.length)];
+          break;
+        default:
+          this.message = message;
+          break;
+      }
+      
   }
+
+  successMessages: string[] = [
+    //positive
+    "Yay, it worked!",
+    "Wow, good job!",
+    "It worked, be proud!",
+    "You made the world a better place",
+    "You made the right choice",
+    "You rock!",
+    "Great success!",
+    //ironic
+    "You did it, but at what cost?",
+    "So you went with that one, huh?",
+    "Are you sure about that?",
+    "Well, if you say so...",
+    "Success! Wait what?",
+    "Guess that worked..."
+  ]
+
+
 /*USE THIS TO OPEN DAT SNACKBAR! (DON´T FORGET TO IMPORT)
 
   testSnack(){
     this.snackBar.openFromComponent(CustomSnackBarComponent,{
       data: {
-        theme: "true",
-        customCSS:"background-color: red; color:darkslategrey; border:solid black 3px;",
+        //put "successMessage" as message to get a random message
         message: "This could be your ad!"},
         duration:60000
     });

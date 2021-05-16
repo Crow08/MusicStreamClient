@@ -33,6 +33,7 @@ import {PlaylistComponent} from './components/input/playlist/playlist.component'
 import {AddObjectButtonComponent} from './components/util/add-object-button/add-object-button.component';
 import { AddToPlaylistDialogComponent } from './components/dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 import { YesNoDialogComponent } from './components/dialog/yes-no-dialog/yes-no-dialog.component';
+import { EditSongDialogComponent } from './components/dialog/edit-song-dialog/edit-song-dialog.component';
 
 
 @NgModule({
@@ -61,7 +62,8 @@ import { YesNoDialogComponent } from './components/dialog/yes-no-dialog/yes-no-d
     PlaylistComponent,
     AddObjectButtonComponent,
     AddToPlaylistDialogComponent,
-    YesNoDialogComponent
+    YesNoDialogComponent,
+    EditSongDialogComponent
   ],
   imports: [
     FormsModule,

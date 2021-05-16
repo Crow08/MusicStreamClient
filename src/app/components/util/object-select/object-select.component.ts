@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList,SimpleChanges, ViewChild, AfterViewInit, ViewChildren} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
@@ -20,7 +20,7 @@ export class ObjectSelectInputData {
   templateUrl: './object-select.component.html',
   styleUrls: ['./object-select.component.scss']
 })
-export class ObjectSelectComponent implements OnInit, OnChanges {
+export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input() selectObjectData: ObjectSelectInputData;
   @Input() selectedOptions: GenericDataObject[];
@@ -30,6 +30,9 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
   filteredOptions: Observable<GenericDataObject[]>;
 
   @ViewChild('objectAC') objectAC: MatAutocomplete;
+  @ViewChildren('MatAutocomplete') objectACs: QueryList<MatAutocomplete>;
+
+  private pendingChange;
 
   constructor() {
   }
@@ -43,10 +46,26 @@ export class ObjectSelectComponent implements OnInit, OnChanges {
       if (this.objectAC && changes.selectedOptions.currentValue[0]) {
         const hit = this.objectAC.options.find(item => item.value === changes.selectedOptions.currentValue[0].id);
         this.objectControl.setValue(hit.value);
+      } else if(changes.selectedOptions.currentValue[0]){
+        this.pendingChange = changes.selectedOptions.currentValue[0];
       }
     }
     if (changes.hasOwnProperty('selectObjectData')) {
       this.objectControl.reset();
+    }
+  }
+
+  ngAfterViewInit():void {
+    this.applyPendingChange();
+    this.objectACs.changes.subscribe(() => {
+      this.applyPendingChange();
+    });
+  }
+
+  applyPendingChange() {
+    if(this.pendingChange && this.objectAC) {
+      const hit = this.objectAC.options.find(item => item.value === this.pendingChange.id);
+      this.objectControl.setValue(hit.value);
     }
   }
 

@@ -15,7 +15,7 @@ export class HomeComponent {
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
       panelClass: ['test-style2'],
       data: {
-        message: 'This could be your ad!'},
+        message: 'successMessage'},
         duration: 60000
     });
   }

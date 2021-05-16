@@ -19,6 +19,7 @@ import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.com
 import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
 import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
 import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
+import { EditSongDialogComponent } from '../../dialog/edit-song-dialog/edit-song-dialog.component';
 
 
 @Component({
@@ -34,6 +35,7 @@ export class DatabaseBrowserComponent {
               private httpHelperService: HttpHelperService,
               private snackBar: MatSnackBar,
               private playlistDialog: MatDialog,
+              private editSongDialog: MatDialog,
               private deleteSongDialog: MatDialog,
               private messageHandler: HttpCodeMessageGenerator) {
   }
@@ -154,11 +156,23 @@ export class DatabaseBrowserComponent {
         songId: song.id
       }
     });
-
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
     });
   }
+
+  openEditSongDialog(song: any): void {
+    const dialogRef = this.editSongDialog.open(EditSongDialogComponent, {
+      data: {song}
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+      if (result){
+        this.submitSearch();
+      }
+    });
+  }
+
   deleteSong(song: any): void {
     console.log(song);
     const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
