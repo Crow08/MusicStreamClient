@@ -59,16 +59,20 @@
           <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
                       value="0.1"></mat-slider>
         </div>
-        <div id="queue-container">
+        <div id="queue-container" cdkDropList (cdkDropListDropped)="drop($event)">
           <mat-list role="list">
             <mat-list-item
-              *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length); let i = index " [attr.data-index]="i" role="listitem">
+              *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length); let i = index "
+              [attr.data-index]="i" role="listitem" cdkDrag>
+              <mat-chip color="primary" class="queue-placeholder" *cdkDragPlaceholder>{{song.title}}</mat-chip>
+              <div *cdkDragPreview></div>
               {{song.title}}
-              <button class="removeSongFromQueueButton" mat-icon-button (click)="removeSongFromQueueOrHistory(i,'history')">
+              <button class="removeSongFromQueueButton" mat-icon-button
+                      (click)="removeSongFromQueueOrHistory(i,'history')">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-list-item>
-            <mat-list-item>
+            <mat-list-item cdkDrag cdkDragDisabled>
               <mat-chip-list>
                 <mat-chip color="primary" selected>
                   {{currentSong?.title}}
@@ -76,10 +80,15 @@
                 </mat-chip>
               </mat-chip-list>
             </mat-list-item>
-            <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength()); let i = index" [attr.data-index]="i" role="listitem">
+
+            <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength()); let i = index"
+                           [attr.data-index]="i" role="listitem" cdkDrag>
+              <mat-chip color="primary" class="queue-placeholder" *cdkDragPlaceholder>{{song.title}}</mat-chip>
+              <div *cdkDragPreview></div>
               {{song.title}}
               <div class="queueSpacer"></div>
-              <button class="removeSongFromQueueButton" mat-icon-button (click)="removeSongFromQueueOrHistory(i,'queue')">
+              <button class="removeSongFromQueueButton" mat-icon-button
+                      (click)="removeSongFromQueueOrHistory(i,'queue')">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-list-item>

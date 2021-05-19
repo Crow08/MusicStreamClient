@@ -1,4 +1,5 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {CdkDragDrop} from '@angular/cdk/drag-drop';
 import {Subscription} from 'rxjs';
 import {LatencyComponent} from '../latency/latency.component';
 import {ActivatedRoute} from '@angular/router';
@@ -234,11 +235,19 @@ export class PlayerComponent implements AfterViewInit, OnInit {
           case 'History':
             this.history = commandObject.history;
             break;
+          case 'QueueAndHistory':
+            this.queue = commandObject.queue;
+            this.history = commandObject.history;
+            break;
         }
         break;
     }
   }
 
+  /**
+   * Move the given song in the playing position and update the history and/or the queue accordingly.
+   * @param songId the song to be played
+   */
   private updateQueueAndHistory(songId: number): void {
     const queueIndex = this.queue.findIndex(value => value.id === songId);
     if (queueIndex !== -1) {
@@ -280,7 +289,11 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.getUserRating();
   }
 
-  removeSongFromQueueOrHistory(queueIndex: number, type: String): void {
+  removeSongFromQueueOrHistory(queueIndex: number, type: string): void {
     this.publishCommand(`deleteSongFromQueue/${queueIndex}/${type}`);
+  }
+
+  drop(event: CdkDragDrop<string[]>): void {
+    this.publishCommand(`movedSong/${event.previousIndex}/to/${event.currentIndex}`);
   }
 }

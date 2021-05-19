@@ -25,6 +25,7 @@ import {MatSortModule} from '@angular/material/sort';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatMenuModule} from '@angular/material/menu';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [],
@@ -53,7 +54,8 @@ import {MatMenuModule} from '@angular/material/menu';
     MatSortModule,
     MatProgressSpinnerModule,
     MatSidenavModule,
-    MatMenuModule
+    MatMenuModule,
+    DragDropModule
   ],
   exports: [
     CommonModule,
@@ -80,7 +82,8 @@ import {MatMenuModule} from '@angular/material/menu';
     MatSortModule,
     MatProgressSpinnerModule,
     MatSidenavModule,
-    MatMenuModule
+    MatMenuModule,
+    DragDropModule
   ]
 })
 export class MaterialModule {
