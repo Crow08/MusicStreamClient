@@ -20,7 +20,7 @@
 - [DONE] Custom Text Snackbars (one to rule them all!)
 - [DONE] custom snackbar needs to work with dynamic css vars - use panel class
 - [DONE] Use that snackbars to display error/return of playlist-add (with the catch-line)
-- mass add to playlist (steal from normal add2playlist)
+- [DONE] mass add to playlist (steal from normal add2playlist)
 - [DONE] close dialog on selection
 - [DONE] add trash-can to allready played songs
 - [DONE] player-queue mat-chip has smaller font, add some water to grow that poor guy
@@ -29,7 +29,8 @@
 - cog-button for options in main bar headline thingy (spawns dialog)
 - implement hamburger menu. We need buttons!
 - get own sites for databasebrowser and upload - navigate via hamburger menu
-
+- mass delete (work out a not-that-much-offending line for this one)
+- mass add to queue
 
 
 ## Bugs

@@ -37,7 +37,7 @@
             <mat-icon>queue</mat-icon>
             <span>Add to queue</span>
           </button>
-          <button mat-button type="button">
+          <button mat-button type="button" [disabled]="selection.isEmpty()" (click)="openPlaylistDialog(selection.selected)">
             <mat-icon>playlist_add</mat-icon>
             <span>Add to playlist</span>
           </button>
@@ -95,7 +95,7 @@
                   <mat-icon>queue</mat-icon>
                   <span>Add to queue</span>
                 </button>
-                <button mat-menu-item type="button" (click)="openPlaylistDialog(element)">
+                <button mat-menu-item type="button" (click)="openPlaylistDialog([element])">
                   <mat-icon>playlist_add</mat-icon>
                   <span>Add to playlist</span>
                 </button>

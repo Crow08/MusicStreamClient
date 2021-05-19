@@ -150,10 +150,10 @@ export class DatabaseBrowserComponent {
 
   }
 
-  openPlaylistDialog(song: any): void {
+  openPlaylistDialog(songs: Song[]): void {
     const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent, {
       data: {
-        songId: song.id
+        songIds: songs.map((song)=> song.id)
       }
     });
     dialogRef.afterClosed().subscribe(result => {

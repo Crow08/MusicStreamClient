@@ -2,7 +2,6 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {GenericDataObject} from 'src/app/models/genericDataObject';
 import {HttpHelperService} from '../../../services/http-helper.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ServerResultSuccessSnackBarComponent} from '../../messages/server-result-success-snack-bar.component';
 import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
@@ -15,7 +14,7 @@ import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generat
 export class AddToPlaylistDialogComponent implements OnInit {
 
   selectedOptions: GenericDataObject[] = [];
-  songId: number;
+  songIds: number[];
 
   constructor(private httpHelperService: HttpHelperService,
               private snackBar: MatSnackBar,
@@ -25,12 +24,20 @@ export class AddToPlaylistDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.songId = this.data.songId;
+    this.songIds = this.data.songIds;
 
   }
 
   onChange(): void {
-    this.addSongToPlaylist(this.songId, this.selectedOptions[0].id);
+    if (this.songIds.length == 1){
+      this.addSongToPlaylist(this.songIds[0], this.selectedOptions[0].id);
+      console.log("one song");
+    }else{
+      this.addSongsToPlaylist(this.songIds, this.selectedOptions[0].id);
+      console.log(`${this.songIds.length} songs`);
+    }
+    
+    
   }
 
   addSongToPlaylist(songId: number, playlistId: number): void {
@@ -42,25 +49,23 @@ export class AddToPlaylistDialogComponent implements OnInit {
         this.dialogRef.close();
       })
       .catch((e) => {
-        console.log(e);
-        console.log(e.status);
         this.messageHandler.calculateReturnCodeMessage(e.status, {
           e409: 'Duplicate Song! Try for more variety!',
-          e404: 'Song not found!'
+          e404: 'Playlist not found!'
         });
       });
   }
 
   addSongsToPlaylist(songIds: number[], playlistId: number): void {
-    this.httpHelperService.put(`/playlists/${playlistId}/addSongsToPlaylist/`, songIds)
-      .then(() => {
-        this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-          duration: 2000,
-        });
-        this.dialogRef.close();
+    this.httpHelperService.putPlain(`/playlists/${playlistId}/addSongsToPlaylist/`, songIds)
+      .then((result) => {
+        this.messageHandler.customMessage(result);
       })
-      .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-        duration: 2000,
-      }));
+      .catch((e) => {
+        this.messageHandler.calculateReturnCodeMessage(e.status, {
+          e409: 'All selected songs are already in the playlist!',
+          e404: 'Playlist not found!'
+        });
+      });
   }
 }

@@ -59,4 +59,11 @@ export class HttpHelperService {
       this.http.put(`http://${environment.dbServer}${path}`, body, options).subscribe(resolve, reject);
     });
   }
+
+  public putPlain(path: string, body: any): Promise<string> {
+    const options = {headers: this.authenticationService.getAuthHeaderForCurrentUser(), responseType: 'text' as 'text'};
+    return new Promise<string>((resolve, reject) => {
+      this.http.put(`http://${environment.dbServer}${path}`, body, options).subscribe(resolve, reject);
+    });
+  }
 }
