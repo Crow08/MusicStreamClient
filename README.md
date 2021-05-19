@@ -18,13 +18,13 @@
 ## Tobis Notes
 - [DONE] deleting (just database for now), use delete or sth. like save()
 - [DONE] Custom Text Snackbars (one to rule them all!)
-- [WIP] custom snackbar needs to work with dynamic css vars - use panel class
-- [WIP] Use that snackbars to display error/return of playlist-add (with the catch-line)
+- [DONE] custom snackbar needs to work with dynamic css vars - use panel class
+- [DONE] Use that snackbars to display error/return of playlist-add (with the catch-line)
 - mass add to playlist (steal from normal add2playlist)
 - [DONE] close dialog on selection
 - [DONE] add trash-can to allready played songs
 - [DONE] player-queue mat-chip has smaller font, add some water to grow that poor guy
-- new edit-song-dialog, autofill input-boxes with song data (more stealing)
+- [DONE] new edit-song-dialog, autofill input-boxes with song data (more stealing)
 - new build your playlist interface (Material Stepper Component)
 - cog-button for options in main bar headline thingy (spawns dialog)
 - implement hamburger menu. We need buttons!
