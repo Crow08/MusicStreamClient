@@ -1,26 +1,28 @@
-<mat-card id="login-card">
-  <mat-card-title>Upload Songs</mat-card-title>
-  <mat-card-content>
-    <form [formGroup]="uploadForm" id="upload-form">
-      <p>
-        <button (click)="fileInput.click()" mat-raised-button type="button">Choose File</button>
-        <input #fileInput (change)="onFilesSelected()" hidden id="file" multiple type="file">
-        [{{files ? files.length : "no"}} song{{files && files.length == 1 ? "" : "s"}} selected.]
-      </p>
-      <mat-divider></mat-divider>
-      <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>
-      <mat-divider></mat-divider>
-      <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
-      <mat-divider></mat-divider>
-      <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>
-      <mat-divider></mat-divider>
-      <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
-      <mat-divider></mat-divider>
-      <app-input-playlist [(selectedOptions)]="selectedPlaylists"></app-input-playlist>
-      <button (click)="upload()" [disabled]="loading" color="accent" id="submit-button" mat-raised-button type="button">
-        Upload
-      </button>
-      <mat-spinner *ngIf="loading" diameter="35"></mat-spinner>
-    </form>
-  </mat-card-content>
-</mat-card>
+<div class="main-div">
+  <mat-card id="upload-card">
+    <mat-card-title>Upload Songs</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="uploadForm" id="upload-form">
+        <p>
+          <button (click)="fileInput.click()" mat-raised-button type="button">Choose File</button>
+          <input #fileInput (change)="onFilesSelected()" hidden id="file" multiple type="file">
+          [{{files ? files.length : "no"}} song{{files && files.length == 1 ? "" : "s"}} selected.]
+        </p>
+        <mat-divider></mat-divider>
+        <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>
+        <mat-divider></mat-divider>
+        <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
+        <mat-divider></mat-divider>
+        <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>
+        <mat-divider></mat-divider>
+        <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
+        <mat-divider></mat-divider>
+        <app-input-playlist [(selectedOptions)]="selectedPlaylists"></app-input-playlist>
+        <button (click)="upload()" [disabled]="loading" color="accent" id="submit-button" mat-raised-button type="button">
+          Upload
+        </button>
+        <mat-spinner *ngIf="loading" diameter="35"></mat-spinner>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

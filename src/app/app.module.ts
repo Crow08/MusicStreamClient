@@ -34,6 +34,7 @@ import {AddObjectButtonComponent} from './components/util/add-object-button/add-
 import { AddToPlaylistDialogComponent } from './components/dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 import { YesNoDialogComponent } from './components/dialog/yes-no-dialog/yes-no-dialog.component';
 import { EditSongDialogComponent } from './components/dialog/edit-song-dialog/edit-song-dialog.component';
+import { SiteOptionsDialogComponent } from './components/dialog/site-options-dialog/site-options-dialog.component';
 
 
 @NgModule({
@@ -63,7 +64,8 @@ import { EditSongDialogComponent } from './components/dialog/edit-song-dialog/ed
     AddObjectButtonComponent,
     AddToPlaylistDialogComponent,
     YesNoDialogComponent,
-    EditSongDialogComponent
+    EditSongDialogComponent,
+    SiteOptionsDialogComponent
   ],
   imports: [
     FormsModule,
@@ -74,6 +76,7 @@ import { EditSongDialogComponent } from './components/dialog/edit-song-dialog/ed
       {path: 'login', component: LoginComponent},
       {path: 'sessions/browse', component: SessionBrowserComponent, canActivate: [AuthGuard]},
       {path: 'database/browse', component: DatabaseBrowserComponent, canActivate: [AuthGuard]},
+      {path: 'upload', component: UploadComponent, canActivate: [AuthGuard]},
       {path: 'sessions/create', component: SessionCreatorComponent, canActivate: [AuthGuard]},
       {path: 'sessions/:sessionId/lobby', component: PlayerComponent, canActivate: [AuthGuard]},
       {path: '**', redirectTo: ''}], {relativeLinkResolution: 'legacy'}),

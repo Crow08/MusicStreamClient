@@ -19,6 +19,9 @@
   .mat-snack-bar-container.mat-snack-bar-center {
     background: mat-color($parrot-accent);
   }
+  .options-dialog {
+    max-width: 250px !important;
+  }
 
   @include angular-material-theme($parrot-theme);
   @include mat-toolbar-theme($parrot-toolbar-theme);
@@ -38,6 +41,10 @@
     background: mat-color($turtle-accent) !important;
   }
 
+  .options-dialog {
+    max-width: 250px !important;
+  }
+
   @include angular-material-theme($turtle-theme);
   @include mat-toolbar-theme($turtle-toolbar-theme);
 }
@@ -54,6 +61,10 @@
 
   .theme-snackbar {
     background: mat-color($shark-accent) !important;
+  }
+
+  .options-dialog {
+    max-width: 250px !important;
   }
 
   @include angular-material-theme($shark-theme);

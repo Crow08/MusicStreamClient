@@ -2,14 +2,21 @@
   <!-- Toolbar -->
   <mat-toolbar color="primary" id="toolbar">
     <mat-toolbar-row>
-      <button mat-icon-button>
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
         <mat-icon>menu</mat-icon>
       </button>
+      <mat-menu #menu="matMenu">
+        <button [routerLink]="'database/browse'" mat-menu-item>Browse</button>
+        <button [routerLink]="'upload'" mat-menu-item>Upload</button>
+      </mat-menu>
       <a routerLink="/">
         <button mat-icon-button>
           <mat-icon>home</mat-icon>
         </button>
       </a>
+      <button mat-icon-button (click)="openSettingsDialog()">
+        <mat-icon>settings</mat-icon>
+      </button>
       <mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{currentTheme.className}}">
         <mat-button-toggle (click)="selectTheme(theme)" *ngFor="let theme of availableThemes"
                            value='{{theme.className}}'>

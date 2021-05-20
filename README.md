@@ -26,9 +26,9 @@
 - [DONE] player-queue mat-chip has smaller font, add some water to grow that poor guy
 - [DONE] new edit-song-dialog, autofill input-boxes with song data (more stealing)
 - new build your playlist interface (Material Stepper Component)
-- cog-button for options in main bar headline thingy (spawns dialog)
-- implement hamburger menu. We need buttons!
-- get own sites for databasebrowser and upload - navigate via hamburger menu
+- [DONE] cog-button for options in main bar headline thingy (spawns dialog)
+- [DONE] implement hamburger menu. We need buttons!
+- [DONE] get own sites for databasebrowser and upload - navigate via hamburger menu
 - mass delete (work out a not-that-much-offending line for this one)
 - mass add to queue
 

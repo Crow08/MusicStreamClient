@@ -1,12 +1,17 @@
 import {Component, OnInit} from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {Router} from '@angular/router';
+import { SiteOptionsDialogComponent } from './components/dialog/site-options-dialog/site-options-dialog.component';
 import {AuthenticationService} from './services/authentication.service';
 
 class Theme {
   className: string;
   displayName: string;
 
-  constructor(className: string, displayName: string) {
+  constructor(
+    className: string,
+     displayName: string
+     ) {
     this.className = className;
     this.displayName = displayName;
   }
@@ -30,7 +35,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private settingsDialog: MatDialog
   ) {
   }
 
@@ -48,5 +54,14 @@ export class AppComponent implements OnInit {
   logout(): void {
     this.authenticationService.logout();
     this.router.navigate(['/login']);
+  }
+
+  openSettingsDialog(): void {
+    const dialogRef = this.settingsDialog.open(SiteOptionsDialogComponent, {
+      panelClass: 'options-dialog'
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
   }
 }
