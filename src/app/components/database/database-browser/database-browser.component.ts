@@ -188,12 +188,14 @@ export class DatabaseBrowserComponent {
       this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
       .then(() => {
         this.submitSearch();
-        this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-          duration: 2000,
+        this.snackBar.openFromComponent(CustomSnackBarComponent, {
+          data: {
+            message: 'deleteMessage'},
+            duration: 2000
         });
       })
       .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-        duration: 2000,
+        duration: 2000
       }));
     }
  });
@@ -215,12 +217,14 @@ export class DatabaseBrowserComponent {
       this.httpHelperService.put(`/songs/deleteSongs`, songs)
       .then(() => {
         this.submitSearch();
-        this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
-          duration: 2000,
+        this.snackBar.openFromComponent(CustomSnackBarComponent, {
+          data: {
+            message: 'deleteMessage'},
+            duration: 2000
         });
       })
       .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-        duration: 2000,
+        duration: 2000
       }));
     }
  });

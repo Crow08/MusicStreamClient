@@ -28,6 +28,9 @@ export class CustomSnackBarComponent {
         case "successMessage":
           this.message = this.successMessages[Math.floor(Math.random() * this.successMessages.length)];
           break;
+        case "deleteMessage":
+          this.message = this.deleteMessages[Math.floor(Math.random() * this.deleteMessages.length)];
+          break;
         default:
           this.message = message;
           break;
@@ -44,6 +47,7 @@ export class CustomSnackBarComponent {
     "You made the right choice",
     "You rock!",
     "Great success!",
+    "Mission acomplished!",
     //ironic
     "You did it, but at what cost?",
     "So you went with that one, huh?",
@@ -51,6 +55,21 @@ export class CustomSnackBarComponent {
     "Well, if you say so...",
     "Success! Wait what?",
     "Guess that worked..."
+  ]
+
+  deleteMessages: string[] = [
+    //evil
+    "Muhahahaha!",
+    "Punish the weak!",
+    "Burn in hell!",
+    "Yes! Yes! Yeeees!",
+    "Finally someone's cleaning up that mess",
+    //sad
+    "Damn, I liked that one",
+    "What a waste",
+    "Noooooooooooo!",
+    "You will regret that!",
+    "You monster!"
   ]
 
 
