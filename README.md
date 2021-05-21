@@ -37,3 +37,5 @@
 - Song/User-Rating doesn't show on initializing session
 - When changing songs after rating, the stars sometimes display a wrong rating
   -> Start Server, Join/Host session, Press Play and rate 5 stars then skip, next song still displays 5 stars (wrong rating, right one would be 0)
+- after mass deleting songs, the next delete will aditionally try to delete the already deleted
+  -> open databasebrowser, search, delete one or more songs, search again, delete more songs (don´t press yes, check console log instead)

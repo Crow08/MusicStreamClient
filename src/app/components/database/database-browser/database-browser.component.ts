@@ -174,7 +174,6 @@ export class DatabaseBrowserComponent {
   }
 
   deleteSong(song: any): void {
-    console.log(song);
     const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
     maxWidth: '400px',
     data: {
@@ -186,6 +185,32 @@ export class DatabaseBrowserComponent {
     if (dialogResult){
       this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
       .then(() => {
+        this.submitSearch();
+        this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+          duration: 2000,
+        });
+      })
+      .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
+        duration: 2000,
+      }));
+    }
+ });
+  }
+
+  deleteSongs(songs: Song[]): void {
+    console.log(songs);
+    const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
+    maxWidth: '400px',
+    data: {
+        title: 'Delete all selected songs?',
+         }
+  });
+
+    dialogRef.afterClosed().subscribe(dialogResult => {
+    if (dialogResult){
+      this.httpHelperService.put(`/songs/deleteSongs`, songs)
+      .then(() => {
+        this.submitSearch();
         this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
           duration: 2000,
         });

@@ -41,7 +41,7 @@
             <mat-icon>playlist_add</mat-icon>
             <span>Add to playlist</span>
           </button>
-          <button mat-button type="button">
+          <button mat-button type="button" [disabled]="selection.isEmpty()" (click)="deleteSongs(selection.selected)">
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>
