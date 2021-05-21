@@ -1,10 +1,11 @@
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import { Component, OnInit, Inject } from '@angular/core';
 
-
 export interface DialogData {
     title: string;
     message: string;
+    yesButton: string;
+    noButton: string;
 }
 
 @Component({
@@ -18,14 +19,22 @@ export class YesNoDialogComponent implements OnInit {
     dialogData: DialogData;
     title:string;
     message:string;
+    yesButton:string = "Yes";
+    noButton:string = "No";
 
     constructor(
         public dialogRef: MatDialogRef<YesNoDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData
-                ) {}
+                ) {
+                    if (data.yesButton){
+                        this.yesButton = data.yesButton;
+                    }
+                    if (data.noButton){
+                        this.noButton = data.noButton;
+                    }
+                }
 
     ngOnInit() {
-
     }
 
     onConfirm(): void {

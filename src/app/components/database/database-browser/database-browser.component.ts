@@ -178,6 +178,8 @@ export class DatabaseBrowserComponent {
     maxWidth: '400px',
     data: {
         title: 'Send song into oblivion?',
+        yesButton: 'Hell yeah!',
+        noButton: 'God, no!',
          }
   });
 
@@ -203,6 +205,8 @@ export class DatabaseBrowserComponent {
     maxWidth: '400px',
     data: {
         title: 'Delete all selected songs?',
+        yesButton: 'With pleasure!',
+        noButton: 'Nah!',
          }
   });
 
