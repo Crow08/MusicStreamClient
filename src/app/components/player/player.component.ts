@@ -12,6 +12,7 @@ import {HttpHelperService} from '../../services/http-helper.service';
 import {WsConfigService} from '../../services/ws-config.service';
 import {User} from '../../models/user';
 import {GenericDataObject} from '../../models/genericDataObject';
+import {SessionService} from '../../services/session.service';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -33,7 +34,6 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   loopMode = false;
   queue: { id: number, title: string }[] = [];
   history: { id: number, title: string }[] = [];
-  sessionId: number;
   sessionUsers: User[] = [];
   currentSong: Song;
   progression = 0;
@@ -54,12 +54,10 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               private rxStompService: RxStompService,
               private authenticationService: AuthenticationService,
               private audioService: AudioService,
-              private wsConfigService: WsConfigService) {
+              private wsConfigService: WsConfigService,
+              private sessionService: SessionService) {
     const routeParams = this.route.snapshot.paramMap;
-    this.sessionId = Number(routeParams.get('sessionId'));
-    this.wsConfigService.updateWsConfig({
-      session: this.sessionId,
-    });
+    this.sessionService.joinSession(Number(routeParams.get('sessionId')));
     this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
   }
 
@@ -77,9 +75,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   publishCommand(name: string): void {
-    if (this.sessionId) {
+    if (this.sessionService.sessionId) {
       this.latencyComponent.startLatencyMeasurement();
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionId}/commands/${name}`, body: name});
+      this.rxStompService.publish({destination: `/app/sessions/${this.sessionService.sessionId}/commands/${name}`, body: name});
     } else {
       alert('No active Session!');
     }
@@ -157,7 +155,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     if (PlayerComponent.topic) {
       PlayerComponent.topic.unsubscribe();
     }
-    PlayerComponent.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionId}`).subscribe((message: any) => {
+    PlayerComponent.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionService.sessionId}`).subscribe((message: any) => {
       this.processCommand(message.body);
     });
   }

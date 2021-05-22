@@ -3,6 +3,7 @@ import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/form
 import {Playlist} from '../../../models/playlist';
 import {Router} from '@angular/router';
 import {HttpHelperService} from '../../../services/http-helper.service';
+import {SessionService} from '../../../services/session.service';
 
 @Component({
   selector: 'app-session-creator',
@@ -21,6 +22,7 @@ export class SessionCreatorComponent implements OnInit {
   constructor(private router: Router,
               private formBuilder: FormBuilder,
               private httpHelperService: HttpHelperService,
+              private sessionService: SessionService
   ) {
   }
 
@@ -58,12 +60,8 @@ export class SessionCreatorComponent implements OnInit {
 
   private addSongs(sessionId: number): void {
     this.httpHelperService.put(`/sessions/${sessionId}/addpl`, this.f.playlist.value)
-      .then(() => this.joinSession(sessionId))
+      .then(() => this.sessionService.joinSession(sessionId))
       .catch(console.error);
 
-  }
-
-  private joinSession(sessionId: number): void {
-    this.router.navigateByUrl(`/sessions/${sessionId}/lobby`).catch(console.error);
   }
 }
