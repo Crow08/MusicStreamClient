@@ -9,7 +9,8 @@
 
 .parrot-theme {
   &#app-theme-container {
-    background-image: url('./assets/parrot.jpg');
+    background: url('./assets/parrot.jpg') no-repeat center fixed;
+    background-size: cover;
   }
 
   $parrot-warn: mat-palette($mat-red);
@@ -30,7 +31,8 @@
 // turtle (greenish) theme
 .turtle-theme {
   &#app-theme-container {
-    background-image: url('./assets/turtle.jpg');
+    background: url('./assets/turtle.jpg') no-repeat center fixed;
+    background-size: cover;
   }
 
   $turtle-warn: mat-palette($mat-red);
