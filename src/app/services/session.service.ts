@@ -15,6 +15,7 @@ export class SessionService {
               private rxStompService: RxStompService,
               private authenticationService: AuthenticationService,
               private wsService: WsService) {
+    this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
   }
 
   sessionId: number;
