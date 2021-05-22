@@ -1,7 +1,6 @@
 import {AfterViewInit, Component} from '@angular/core';
-import {Subscription} from 'rxjs';
 import {AuthenticationService} from '../../services/authentication.service';
-import {RxStompService} from '@stomp/ng2-stompjs';
+import {WsService} from '../../services/ws.service';
 
 @Component({
   selector: 'app-latency',
@@ -13,12 +12,11 @@ export class LatencyComponent implements AfterViewInit {
   latency: number;
   serverTimeOffset: number;
 
-  private topic: Subscription;
   private pingStart: number;
   private latencySamples: number[] = [];
   private isMeasurementPending = false;
 
-  constructor(private rxStompService: RxStompService,
+  constructor(private wsService: WsService,
               private authenticationService: AuthenticationService) {
   }
 
@@ -49,22 +47,19 @@ export class LatencyComponent implements AfterViewInit {
   }
 
   private initWebsocketLatency(): void {
-    this.topic = this.rxStompService.watch(`/topic/util/latency/${this.authenticationService.currentUserValue.id}`)
-      .subscribe((message: any) => {
-        this.receivePong(message.body);
-      });
+    this.wsService.subscribeToUtilLatencyTopic(this.authenticationService.currentUserValue, (body) => this.receivePong(body));
     this.pingServer();
   }
 
   private pingServer(): void {
     this.startLatencyMeasurement();
-    this.rxStompService.publish({destination: `/app/util/latency/${this.authenticationService.currentUserValue.id}`, body: 'ping'});
+    this.wsService.publishUtilCommand(`latency/${this.authenticationService.currentUserValue.id}`, 'ping');
   }
 
   private receivePong(body): void {
     if (this.endLatencyMeasurement()) {
       this.calculateServerTimeOffset(Number(body));
-      this.topic.unsubscribe();
+      this.wsService.unsubscribeFromUtilLatencyTopic();
     } else {
       this.pingServer();
     }

@@ -65,7 +65,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.wsService.subscribeToSessionControls((body) => this.processCommand(body));
+    this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
   }
 
   publishCommand(name: string): void {
