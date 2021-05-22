@@ -16,9 +16,9 @@ import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-e
 import {MatDialog} from '@angular/material/dialog';
 import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
-import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
+import {CustomSnackBarComponent} from '../../messages/custom-snack-bar.component';
 import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
-import { EditSongDialogComponent } from '../../dialog/edit-song-dialog/edit-song-dialog.component';
+import {EditSongDialogComponent} from '../../dialog/edit-song-dialog/edit-song-dialog.component';
 
 
 @Component({
@@ -89,6 +89,7 @@ export class DatabaseBrowserComponent {
   }
 
   submitSearch(): void {
+    this.selection = new SelectionModel<Song>(true, []);
     this.dataSource = merge(this.sort.sortChange, this.paginator.page)
       .pipe(
         startWith({}),
@@ -152,7 +153,7 @@ export class DatabaseBrowserComponent {
   openPlaylistDialog(songs: Song[]): void {
     const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent, {
       data: {
-        songIds: songs.map((song)=> song.id)
+        songIds: songs.map((song) => song.id)
       }
     });
     dialogRef.afterClosed().subscribe(result => {
@@ -166,7 +167,7 @@ export class DatabaseBrowserComponent {
     });
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
-      if (result){
+      if (result) {
         this.submitSearch();
       }
     });
@@ -174,58 +175,60 @@ export class DatabaseBrowserComponent {
 
   deleteSong(song: any): void {
     const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
-    maxWidth: '400px',
-    data: {
+      maxWidth: '400px',
+      data: {
         title: 'Send song into oblivion?',
         yesButton: 'Hell yeah!',
         noButton: 'God, no!',
-         }
-  });
+      }
+    });
 
     dialogRef.afterClosed().subscribe(dialogResult => {
-    if (dialogResult){
-      this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
-      .then(() => {
-        this.submitSearch();
-        this.snackBar.openFromComponent(CustomSnackBarComponent, {
-          data: {
-            message: 'deleteMessage'},
+      if (dialogResult) {
+        this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
+          .then(() => {
+            this.submitSearch();
+            this.snackBar.openFromComponent(CustomSnackBarComponent, {
+              data: {
+                message: 'deleteMessage'
+              },
+              duration: 2000
+            });
+          })
+          .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
             duration: 2000
-        });
-      })
-      .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-        duration: 2000
-      }));
-    }
- });
+          }));
+      }
+    });
   }
 
   deleteSongs(songs: Song[]): void {
     console.log(songs);
     const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
-    maxWidth: '400px',
-    data: {
+      maxWidth: '400px',
+      data: {
         title: 'Delete all selected songs?',
         yesButton: 'With pleasure!',
         noButton: 'Nah!',
-         }
-  });
+      }
+    });
 
     dialogRef.afterClosed().subscribe(dialogResult => {
-    if (dialogResult){
-      this.httpHelperService.put(`/songs/deleteSongs`, songs)
-      .then(() => {
-        this.submitSearch();
-        this.snackBar.openFromComponent(CustomSnackBarComponent, {
-          data: {
-            message: 'deleteMessage'},
+      if (dialogResult) {
+        this.httpHelperService.put(`/songs/deleteSongs`, songs)
+          .then(() => {
+            this.submitSearch();
+            this.snackBar.openFromComponent(CustomSnackBarComponent, {
+              data: {
+                message: 'deleteMessage'
+              },
+              duration: 2000
+            });
+          })
+          .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
             duration: 2000
-        });
-      })
-      .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-        duration: 2000
-      }));
-    }
- });
+          }));
+      }
+    });
   }
 }
