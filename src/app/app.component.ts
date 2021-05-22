@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
 
   isDesktopLayout = true;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.isDesktopLayout = window.innerWidth >= 991;
     window.onresize = () => this.isDesktopLayout = window.innerWidth >= 991;
   }
@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authenticationService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login']).catch(reason => console.error(reason));
   }
 
   openSettingsDialog(): void {
