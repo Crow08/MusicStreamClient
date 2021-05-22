@@ -1,9 +1,7 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
-import {Subscription} from 'rxjs';
 import {LatencyComponent} from '../latency/latency.component';
 import {ActivatedRoute} from '@angular/router';
-import {RxStompService} from '@stomp/ng2-stompjs';
 import {AuthenticationService} from '../../services/authentication.service';
 import {Song} from '../../models/song';
 import {AudioService} from '../../services/audio.service';
@@ -13,6 +11,7 @@ import {WsConfigService} from '../../services/ws-config.service';
 import {User} from '../../models/user';
 import {GenericDataObject} from '../../models/genericDataObject';
 import {SessionService} from '../../services/session.service';
+import {WsService} from '../../services/ws.service';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -27,8 +26,6 @@ enum PlayerState {
   styleUrls: ['./player.component.scss']
 })
 export class PlayerComponent implements AfterViewInit, OnInit {
-
-  private static topic: Subscription;
 
   playerState: PlayerState = PlayerState.STOP;
   loopMode = false;
@@ -51,14 +48,13 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   constructor(private route: ActivatedRoute,
               private httpHelperService: HttpHelperService,
-              private rxStompService: RxStompService,
               private authenticationService: AuthenticationService,
               private audioService: AudioService,
               private wsConfigService: WsConfigService,
-              private sessionService: SessionService) {
+              private sessionService: SessionService,
+              private wsService: WsService) {
     const routeParams = this.route.snapshot.paramMap;
     this.sessionService.joinSession(Number(routeParams.get('sessionId')));
-    this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
   }
 
   ngOnInit(): void {
@@ -69,18 +65,12 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.subscribeControlsTopic();
-    setTimeout(() => this.publishCommand(`join/${this.authenticationService.currentUserValue.id}`), 1000);
-
+    this.wsService.subscribeToSessionControls((body) => this.processCommand(body));
   }
 
   publishCommand(name: string): void {
-    if (this.sessionService.sessionId) {
-      this.latencyComponent.startLatencyMeasurement();
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionService.sessionId}/commands/${name}`, body: name});
-    } else {
-      alert('No active Session!');
-    }
+    this.latencyComponent.startLatencyMeasurement();
+    this.wsService.publishSessionCommand(name, name);
   }
 
   loadNewSong(songId: number, startTime: number, offset: number, directPlay = true): void {
@@ -149,15 +139,6 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   getDisplayQueueLength(): number {
     return Math.max(5, 10 - this.history.length);
-  }
-
-  private subscribeControlsTopic(): void {
-    if (PlayerComponent.topic) {
-      PlayerComponent.topic.unsubscribe();
-    }
-    PlayerComponent.topic = this.rxStompService.watch(`/topic/sessions/${this.sessionService.sessionId}`).subscribe((message: any) => {
-      this.processCommand(message.body);
-    });
   }
 
   private prepareSongStart(url: string, startTime: number, offset: number, directPlay: boolean): void {
