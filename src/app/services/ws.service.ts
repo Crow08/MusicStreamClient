@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {SessionService} from './session.service';
 import {RxStompService} from '@stomp/ng2-stompjs';
 import {User} from '../models/user';
 import {Subscription} from 'rxjs';
+import {WsConfigService} from './ws-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,13 +11,13 @@ export class WsService {
   private static utilLatencyTopic: Subscription;
   private static SessionControlsTopic: Subscription;
 
-  constructor(private sessionService: SessionService,
+  constructor(private wsConfigService: WsConfigService,
               private rxStompService: RxStompService) {
   }
 
   publishSessionCommand(name: string, body: string): void {
-    if (this.sessionService.sessionId) {
-      this.rxStompService.publish({destination: `/app/sessions/${this.sessionService.sessionId}/commands/${name}`, body});
+    if (this.wsConfigService.configParameter.session) {
+      this.rxStompService.publish({destination: `/app/sessions/${this.wsConfigService.configParameter.session}/commands/${name}`, body});
     } else {
       console.error('No active Session!');
     }
@@ -31,7 +31,7 @@ export class WsService {
     if (WsService.SessionControlsTopic) {
       WsService.SessionControlsTopic.unsubscribe();
     }
-    WsService.SessionControlsTopic = this.rxStompService.watch(`/topic/sessions/${this.sessionService.sessionId}`)
+    WsService.SessionControlsTopic = this.rxStompService.watch(`/topic/sessions/${this.wsConfigService.configParameter.session}`)
       .subscribe((message: any) => {
         callback(message.body);
       });
