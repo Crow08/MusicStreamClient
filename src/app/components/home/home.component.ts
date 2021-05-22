@@ -1,22 +1,31 @@
-import {Component} from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomSnackBarComponent } from '../messages/custom-snack-bar.component';
+import {Component, OnInit} from '@angular/core';
+import {AuthenticationService} from '../../services/authentication.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit{
 
-  constructor(private snackBar: MatSnackBar){}
+  constructor(
+    private authenticator: AuthenticationService){}
 
-  testSnack(): void{
-    this.snackBar.openFromComponent(CustomSnackBarComponent, {
-      panelClass: ['test-style2'],
-      data: {
-        message: 'successMessage'},
-        duration: 60000
-    });
+  greeting: string;
+
+  ngOnInit(){
+    const username = this.authenticator.currentUserValue.username;
+    this.greeting = this.welcomeMessages[Math.floor(Math.random() * this.welcomeMessages.length)].replace("{User}",`${username}`);
   }
+
+  welcomeMessages: string[] = [
+    //nam at back
+    "Welcome {User}",
+    "Pleased to meet you {User}",
+    "Hello {User}",
+    "Well, if it isn´t {User}",
+    //name in middle
+    "Oh it´s {User}, nice to meet you",
+    "Hi {User}, you look dashing today!"
+  ]
 }

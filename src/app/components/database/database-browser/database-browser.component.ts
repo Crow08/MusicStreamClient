@@ -16,7 +16,6 @@ import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-e
 import {MatDialog} from '@angular/material/dialog';
 import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
-import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
 import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
 import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
 import { EditSongDialogComponent } from '../../dialog/edit-song-dialog/edit-song-dialog.component';

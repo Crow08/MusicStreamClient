@@ -1,40 +1,10 @@
-<!--
-<mat-card id="database-card">
-  <mat-card-header>
-    <mat-card-title>Database:</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <ul>
-      <li>Functions:</li>
-      <li>Query Songs</li>
-      <li>Manage Metadata</li>
-      <li>Import Data</li>
-      <li>Export Data</li>
-      <li>Create Playlists</li>
-    </ul>
+<div>
+<div id="home-card-headline">
+  <h1>{{greeting}}</h1>
+  <p>Look below for existing sessions to join or create one on your own.</p>
+  <br>
+  <hr>
+</div>
 
-  </mat-card-content>
-  <mat-card-actions>
-    <button [routerLink]="'database/browse'" color="accent" mat-raised-button>Database Browser</button>
-    <button mat-raised-button (click)="testSnack()">Test</button>
-  </mat-card-actions>
-</mat-card>
--->
-<mat-card id="music-card">
-  <mat-card-header>
-    <mat-card-title>Music:</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <p>
-      Host or join music sessions to enjoy a synchronized music listening experience across multiple clients.
-    </p>
-  </mat-card-content>
-  <mat-card-actions>
-    <button [routerLink]="'sessions/browse'" color="accent" mat-raised-button>Join Session</button>
-    <button [routerLink]="'sessions/create'" color="accent" mat-raised-button>Host Session</button>
-  </mat-card-actions>
-</mat-card>
-
-<!--
-  <app-import></app-import>
--->
+  <app-browser></app-browser>
+</div>

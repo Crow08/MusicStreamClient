@@ -3,18 +3,11 @@
   justify-content: center;
 }
 
-mat-card {
-  margin: 10px;
-  max-width: 300px;
-}
-
-#database-card > mat-card-content > ul > li:first-child {
-  list-style-type: none;
-  margin-left: -20px;
-  font-weight: bold;
-}
-
-::ng-deep .mat-snack-bar-container.mat-snack-bar-center.test-style2 {
-  color: orange;
-  background-color: red;
+#home-card-headline{
+  border-radius: 3px;
+  background: rgba(24, 24, 24, 0.65);
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  max-width: 400px;
 }

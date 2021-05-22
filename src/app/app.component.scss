@@ -33,3 +33,19 @@ a, a:visited {
 .options-dialog {
   max-width: 250px !important;
 }
+
+#home-sidenav-container {
+  background: none;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  opacity: 1;
+}
+#sidenav {
+  background: black;
+}
+
+.navitem-text {
+  padding-top: 5px;
+  padding-left: 15px;
+}

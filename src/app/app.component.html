@@ -2,13 +2,10 @@
   <!-- Toolbar -->
   <mat-toolbar color="primary" id="toolbar">
     <mat-toolbar-row>
-      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+      <button mat-icon-button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu">
         <mat-icon>menu</mat-icon>
       </button>
-      <mat-menu #menu="matMenu">
-        <button [routerLink]="'database/browse'" mat-menu-item>Browse</button>
-        <button [routerLink]="'upload'" mat-menu-item>Upload</button>
-      </mat-menu>
+
       <a routerLink="/">
         <button mat-icon-button>
           <mat-icon>home</mat-icon>
@@ -19,7 +16,7 @@
       </button>
       <mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{currentTheme.className}}">
         <mat-button-toggle (click)="selectTheme(theme)" *ngFor="let theme of availableThemes"
-                           value='{{theme.className}}'>
+          value='{{theme.className}}'>
           {{theme.displayName}}
         </mat-button-toggle>
       </mat-button-toggle-group>
@@ -33,6 +30,23 @@
       </a>
     </mat-toolbar-row>
   </mat-toolbar>
-  <!-- content -->
-  <router-outlet></router-outlet>
+  <!-- sidenav -->
+  <mat-sidenav-container id="home-sidenav-container" autosize hasBackdrop="false">
+    <mat-sidenav #sidenav id="sidenav">
+      <mat-nav-list>
+          <a routerLink="database/browse" mat-list-item>
+          <mat-icon>search</mat-icon>
+          <span class="navitem-text">Browse</span>
+          </a>
+          <a routerLink="upload" mat-list-item>
+            <mat-icon>file_upload</mat-icon>
+            <span class="navitem-text">Upload</span>
+            </a>
+
+      </mat-nav-list>
+    </mat-sidenav>
+    <!-- content -->
+    <router-outlet></router-outlet>
+
+  </mat-sidenav-container>
 </div>
