@@ -33,7 +33,7 @@
                         [checked]="selection.hasValue() && isAllSelected()"
                         [indeterminate]="selection.hasValue() && !isAllSelected()">
           </mat-checkbox>
-          <button mat-button type="button">
+          <button mat-button type="button" [disabled]="selection.isEmpty()" (click)="addSongsToQueue(selection.selected)">
             <mat-icon>queue</mat-icon>
             <span>Add to queue</span>
           </button>
@@ -91,7 +91,7 @@
                   <mat-icon>playlist_play</mat-icon>
                   <span>Play next</span>
                 </button>
-                <button mat-menu-item type="button">
+                <button *ngIf="inSession" mat-menu-item type="button" (click)="addSongToQueue(element)">
                   <mat-icon>queue</mat-icon>
                   <span>Add to queue</span>
                 </button>

@@ -1,24 +1,26 @@
-import {Component, ViewChild} from '@angular/core';
-import {FormBuilder, FormGroup} from '@angular/forms';
-import {Song} from 'src/app/models/song';
-import {HttpHelperService} from '../../../services/http-helper.service';
-import {MatPaginator} from '@angular/material/paginator';
-import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
-import {Artist} from 'src/app/models/artist';
-import {Genre} from 'src/app/models/genre';
-import {GenericDataObject} from 'src/app/models/genericDataObject';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {SelectionModel} from '@angular/cdk/collections';
-import {from, merge, Observable, of} from 'rxjs';
-import {catchError, delay, startWith, switchMap, tap} from 'rxjs/operators';
-import {MatSort} from '@angular/material/sort';
-import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
-import {MatDialog} from '@angular/material/dialog';
-import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
-import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
-import {CustomSnackBarComponent} from '../../messages/custom-snack-bar.component';
-import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
-import {EditSongDialogComponent} from '../../dialog/edit-song-dialog/edit-song-dialog.component';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Song } from 'src/app/models/song';
+import { HttpHelperService } from '../../../services/http-helper.service';
+import { MatPaginator } from '@angular/material/paginator';
+import { ObjectSelectInputData } from '../../util/object-select/object-select.component';
+import { Artist } from 'src/app/models/artist';
+import { Genre } from 'src/app/models/genre';
+import { GenericDataObject } from 'src/app/models/genericDataObject';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
+import { from, merge, Observable, of } from 'rxjs';
+import { catchError, delay, startWith, switchMap, tap } from 'rxjs/operators';
+import { MatSort } from '@angular/material/sort';
+import { ServerResultErrorSnackBarComponent } from '../../messages/server-result-error-snack-bar.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AddToPlaylistDialogComponent } from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
+import { YesNoDialogComponent } from '../../dialog/yes-no-dialog/yes-no-dialog.component';
+import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
+import { HttpCodeMessageGenerator } from '../../messages/http-code-message-generator';
+import { EditSongDialogComponent } from '../../dialog/edit-song-dialog/edit-song-dialog.component';
+import { WsService } from 'src/app/services/ws.service';
+import { SessionService } from 'src/app/services/session.service';
 
 
 @Component({
@@ -26,17 +28,19 @@ import {EditSongDialogComponent} from '../../dialog/edit-song-dialog/edit-song-d
   templateUrl: './database-browser.component.html',
   styleUrls: ['./database-browser.component.scss']
 })
-export class DatabaseBrowserComponent {
+export class DatabaseBrowserComponent implements OnInit {
   isLoadingResults = false;
   currentSongData: Song[] = [];
 
   constructor(private formBuilder: FormBuilder,
-              private httpHelperService: HttpHelperService,
-              private snackBar: MatSnackBar,
-              private playlistDialog: MatDialog,
-              private editSongDialog: MatDialog,
-              private deleteSongDialog: MatDialog,
-              private messageHandler: HttpCodeMessageGenerator) {
+    private httpHelperService: HttpHelperService,
+    private snackBar: MatSnackBar,
+    private playlistDialog: MatDialog,
+    private editSongDialog: MatDialog,
+    private deleteSongDialog: MatDialog,
+    private messageHandler: HttpCodeMessageGenerator,
+    private wsService: WsService,
+    private sessionService: SessionService) {
   }
 
   dataSource: Observable<Song[]>;
@@ -45,14 +49,23 @@ export class DatabaseBrowserComponent {
   dataBaseData: ObjectSelectInputData;
   selectedOptions: GenericDataObject[] = [];
   selection = new SelectionModel<Song>(true, []);
+  inSession: Boolean;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   searchQuery: FormGroup = this.formBuilder.group({
-    searchObject: ['song', {updateOn: 'change'}],
-    searchKeyword: [undefined, {updateOn: 'change'}],
+    searchObject: ['song', { updateOn: 'change' }],
+    searchKeyword: [undefined, { updateOn: 'change' }],
   });
+
+  ngOnInit(): void{
+    if (this.sessionService.sessionId){
+      this.inSession = true;
+    }else{
+      this.inSession = false;
+    }
+  }
 
   onSelectionChange(): void {
     this.dataSource = of([]);
@@ -163,7 +176,7 @@ export class DatabaseBrowserComponent {
 
   openEditSongDialog(song: any): void {
     const dialogRef = this.editSongDialog.open(EditSongDialogComponent, {
-      data: {song}
+      data: { song }
     });
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
@@ -230,5 +243,13 @@ export class DatabaseBrowserComponent {
           }));
       }
     });
+  }
+
+  addSongToQueue(song: Song): void {
+    this.wsService.publishSessionCommand(`addSongToQueue`, JSON.stringify(song));
+  }
+
+  addSongsToQueue(songs: Song[]): void {
+    this.wsService.publishSessionCommand(`addSongsToQueue`, JSON.stringify(songs));
   }
 }
