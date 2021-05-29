@@ -30,15 +30,15 @@
       </a>
     </mat-toolbar-row>
   </mat-toolbar>
-  <!-- sidenav -->
+  <!-- sidenav // not sure yet if it should close on click...-->
   <mat-sidenav-container id="home-sidenav-container" autosize hasBackdrop="false">
     <mat-sidenav #sidenav id="sidenav">
       <mat-nav-list>
-          <a routerLink="database/browse" mat-list-item>
+          <a routerLink="database/browse" mat-list-item (click)="sidenav.toggle()">
           <mat-icon>search</mat-icon>
           <span class="navitem-text">Browse</span>
           </a>
-          <a routerLink="upload" mat-list-item>
+          <a routerLink="upload" mat-list-item (click)="sidenav.toggle()">
             <mat-icon>file_upload</mat-icon>
             <span class="navitem-text">Upload</span>
             </a>

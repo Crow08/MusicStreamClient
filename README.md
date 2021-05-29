@@ -29,13 +29,17 @@
 - [DONE] implement hamburger menu. We need buttons!
 - [DONE] get own sites for databasebrowser and upload - navigate via hamburger menu
 - [DONE] mass delete (work out a not-that-much-offending line for this one)
-- add to queue
-- mass add to queue
-- session list in home
+- [DONE] session list in home
+- [DONE] add to queue
+- [DONE] mass add to queue
+- play now
+- play next
 
 ## Bugs
 - Song/User-Rating doesn't show on initializing session
 - When changing songs after rating, the stars sometimes display a wrong rating
   -> Start Server, Join/Host session, Press Play and rate 5 stars then skip, next song still displays 5 stars (wrong rating, right one would be 0)
-- after mass deleting songs, the next delete will aditionally try to delete the already deleted
+- [fixed] after mass deleting songs, the next delete will aditionally try to delete the already deleted
   -> open databasebrowser, search, delete one or more songs, search again, delete more songs (don´t press yes, check console log instead)
+- [critical!] Client cant establish Websocket
+  -> do anything with client, restart server, try to create session, look at console (works after client gets restartet)
