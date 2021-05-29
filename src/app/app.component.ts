@@ -1,8 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {Router} from '@angular/router';
+import { Observable } from 'rxjs';
 import { SiteOptionsDialogComponent } from './components/dialog/site-options-dialog/site-options-dialog.component';
 import {AuthenticationService} from './services/authentication.service';
+import { SessionService } from './services/session.service';
 
 class Theme {
   className: string;
@@ -36,15 +38,26 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private authenticationService: AuthenticationService,
-    private settingsDialog: MatDialog
+    private settingsDialog: MatDialog,
+    private sessionService: SessionService
   ) {
   }
 
   isDesktopLayout = true;
+  inSession: Boolean;
+  sessionInfo = "Join a session!";
 
   ngOnInit(): void {
     this.isDesktopLayout = window.innerWidth >= 991;
     window.onresize = () => this.isDesktopLayout = window.innerWidth >= 991;
+    this.sessionService.sessionId.subscribe((id)=> {
+      if (id){
+        this.inSession = true;
+        this.sessionInfo = `Session-ID: ${id}`;
+      }else{
+        this.inSession = false;
+      }
+    });
   }
 
   selectTheme(theme: Theme): void {
