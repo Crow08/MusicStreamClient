@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {Router} from '@angular/router';
-import { Observable } from 'rxjs';
 import { SiteOptionsDialogComponent } from './components/dialog/site-options-dialog/site-options-dialog.component';
 import {AuthenticationService} from './services/authentication.service';
 import { SessionService } from './services/session.service';

@@ -60,11 +60,13 @@ export class DatabaseBrowserComponent implements OnInit {
   });
 
   ngOnInit(): void{
-    if (this.sessionService.sessionId){
-      this.inSession = true;
-    }else{
-      this.inSession = false;
-    }
+    this.sessionService.sessionId.subscribe((id)=> {
+      if (id){
+        this.inSession = true;
+      }else{
+        this.inSession = false;
+      }
+    });
   }
 
   onSelectionChange(): void {
@@ -247,9 +249,31 @@ export class DatabaseBrowserComponent implements OnInit {
 
   addSongToQueue(song: Song): void {
     this.wsService.publishSessionCommand(`addSongToQueue`, JSON.stringify(song));
+    //this needs work, we cant just claim that it works everytime! #Arrow-function
+    this.snackBar.openFromComponent(CustomSnackBarComponent,{
+      data: {
+        message: "successMessage"},
+        duration:2000
+    });
   }
 
   addSongsToQueue(songs: Song[]): void {
     this.wsService.publishSessionCommand(`addSongsToQueue`, JSON.stringify(songs));
+        //this needs work, we cant just claim that it works everytime! #Arrow-function
+        this.snackBar.openFromComponent(CustomSnackBarComponent,{
+          data: {
+            message: "successMessage"},
+            duration:2000
+        });
+  }
+
+  playSongNext(song: Song): void {
+    this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
+        //this needs work, we cant just claim that it works everytime! #Arrow-function
+        this.snackBar.openFromComponent(CustomSnackBarComponent,{
+          data: {
+            message: "successMessage"},
+            duration:2000
+        });
   }
 }

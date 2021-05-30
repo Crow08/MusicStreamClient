@@ -87,7 +87,7 @@
                   <mat-icon>play_arrow</mat-icon>
                   <span>Play now</span>
                 </button>
-                <button mat-menu-item type="button">
+                <button *ngIf="inSession" mat-menu-item type="button" (click)="playSongNext([element])">
                   <mat-icon>playlist_play</mat-icon>
                   <span>Play next</span>
                 </button>
