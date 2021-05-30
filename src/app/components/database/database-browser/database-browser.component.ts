@@ -276,4 +276,9 @@ export class DatabaseBrowserComponent implements OnInit {
             duration:2000
         });
   }
+
+  playSongNow(song: Song): void {
+    this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
+    setTimeout(() => this.wsService.publishSessionCommand(`skip`, `skip`), 1000);
+  }
 }

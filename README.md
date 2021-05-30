@@ -32,8 +32,8 @@
 - [DONE] session list in home
 - [DONE] add to queue
 - [DONE] mass add to queue
-- play now
-- play next
+- [DONE] play next
+- [KINDA_DONE] play now
 
 ## Bugs
 - Song/User-Rating doesn't show on initializing session
@@ -43,5 +43,5 @@
   -> open databasebrowser, search, delete one or more songs, search again, delete more songs (don´t press yes, check console log instead)
 - [sporadic] Sometimes Client cant establish Websocket (sometimes)
   -> do anything with client, restart server, try to create session, look at console (works after client gets restartet)
-- [sporadic] Sometimes the current song is blank after restarting
+- [sporadic] Sometimes the current song is blank after restarting (Cannot set property of 'title' of undefined)
 -> not really sure...join session do stuff and restart client I guess...

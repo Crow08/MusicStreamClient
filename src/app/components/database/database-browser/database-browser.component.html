@@ -83,11 +83,11 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button mat-menu-item type="button">
+                <button *ngIf="inSession" mat-menu-item type="button" (click)="playSongNow(element)">
                   <mat-icon>play_arrow</mat-icon>
                   <span>Play now</span>
                 </button>
-                <button *ngIf="inSession" mat-menu-item type="button" (click)="playSongNext([element])">
+                <button *ngIf="inSession" mat-menu-item type="button" (click)="playSongNext(element)">
                   <mat-icon>playlist_play</mat-icon>
                   <span>Play next</span>
                 </button>
