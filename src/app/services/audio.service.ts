@@ -1,4 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
+import {SettingsService} from './settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -8,8 +9,8 @@ export class AudioService {
   private audio = new Audio();
   private progressionListeners: ((p: number) => void)[] = [];
 
-  constructor() {
-    this.setVolume(0.1);
+  constructor( private settingsService: SettingsService) {
+    this.setVolume(settingsService.defaultVolume);
     this.audio.addEventListener('timeupdate', () => {
       this.progressionListeners.forEach((value) =>
         value((this.audio.currentTime / this.audio.duration) * 100)

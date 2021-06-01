@@ -4,22 +4,9 @@ import { Router } from '@angular/router';
 import { SiteOptionsDialogComponent } from './components/dialog/site-options-dialog/site-options-dialog.component';
 import { AuthenticationService } from './services/authentication.service';
 import { SessionService } from './services/session.service';
+import {SettingsService} from './services/settings.service';
 
-class Theme {
-  className: string;
-  displayName: string;
 
-  constructor(className: string, displayName: string) {
-    this.className = className;
-    this.displayName = displayName;
-  }
-}
-
-export const availableThemes = [
-  new Theme('parrot-theme', 'Parrot'),
-  new Theme('turtle-theme', 'Turtle'),
-  new Theme('shark-theme', 'Shark'),
-];
 
 @Component({
   selector: 'app-root',
@@ -28,17 +15,17 @@ export const availableThemes = [
 })
 export class AppComponent implements OnInit {
   themeClass = 'parrot-theme';
-  availableThemes = availableThemes;
-  currentTheme = availableThemes[0];
+
   isDesktopLayout = true;
-  inSession: Boolean;
+  inSession: boolean;
   sessionInfo = 'Join a session!';
 
   constructor(
     private router: Router,
     private authenticationService: AuthenticationService,
     private settingsDialog: MatDialog,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private settingsService: SettingsService
   ) {}
 
   ngOnInit(): void {
@@ -54,10 +41,6 @@ export class AppComponent implements OnInit {
     });
   }
 
-  selectTheme(theme: Theme): void {
-    this.currentTheme = theme;
-  }
-
   logout(): void {
     this.authenticationService.logout();
     this.router.navigate(['/login']).catch((reason) => console.error(reason));
@@ -70,5 +53,9 @@ export class AppComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog result: ${result}`);
     });
+  }
+
+  getCurrentThemeClassName(): string {
+    return this.settingsService.currentTheme.className;
   }
 }

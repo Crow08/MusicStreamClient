@@ -1,4 +1,4 @@
-<div [ngClass]="currentTheme.className" id="app-theme-container">
+<div [ngClass]="getCurrentThemeClassName()" id="app-theme-container">
   <!-- Toolbar -->
   <mat-toolbar color="primary" id="toolbar">
     <mat-toolbar-row>
@@ -14,12 +14,7 @@
       <button (click)="openSettingsDialog()" mat-icon-button>
         <mat-icon>settings</mat-icon>
       </button>
-      <mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{currentTheme.className}}">
-        <mat-button-toggle (click)="selectTheme(theme)" *ngFor="let theme of availableThemes"
-                           value='{{theme.className}}'>
-          {{theme.displayName}}
-        </mat-button-toggle>
-      </mat-button-toggle-group>
+
       <div class="spacer"></div>
       <h2 *ngIf="isDesktopLayout" id="main-headline">Music Stream Client</h2>
       <div class="spacer"></div>
