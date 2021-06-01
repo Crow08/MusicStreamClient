@@ -79,9 +79,12 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     songId: number,
     startTime: number,
     offset: number,
-    directPlay = true
+    directPlay = true,
+    updateQueueAndHistory = true
   ): void {
-    this.updateQueueAndHistory(songId);
+    if (updateQueueAndHistory) {
+      this.updateQueueAndHistory(songId);
+    }
     if (songId === -1) {
       this.playerState = PlayerState.STOP;
       return;
@@ -230,7 +233,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               this.loadNewSong(
                 commandObject.currentSong.id,
                 commandObject.time,
-                commandObject.startOffset
+                commandObject.startOffset,
+                true,
+                false
               );
               break;
             case 'STOP':
