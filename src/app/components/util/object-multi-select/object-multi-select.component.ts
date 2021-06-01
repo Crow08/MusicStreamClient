@@ -1,12 +1,11 @@
-import {Component} from '@angular/core';
-import {ObjectSelectComponent} from '../object-select/object-select.component';
-import {GenericDataObject} from '../../../models/genericDataObject';
-
+import { Component } from '@angular/core';
+import { ObjectSelectComponent } from '../object-select/object-select.component';
+import { GenericDataObject } from '../../../models/genericDataObject';
 
 @Component({
   selector: 'app-object-multi-select',
   templateUrl: './object-multi-select.component.html',
-  styleUrls: ['./object-multi-select.component.scss']
+  styleUrls: ['./object-multi-select.component.scss'],
 })
 export class ObjectMultiSelectComponent extends ObjectSelectComponent {
   inputText: any;
@@ -22,7 +21,10 @@ export class ObjectMultiSelectComponent extends ObjectSelectComponent {
 
   toggleSelection(option: GenericDataObject): void {
     if (this.isSelected(option)) {
-      this.selectedOptions.splice(this.selectedOptions.findIndex(value => value.id === option.id), 1);
+      this.selectedOptions.splice(
+        this.selectedOptions.findIndex((value) => value.id === option.id),
+        1
+      );
     } else {
       this.selectedOptions.push(option);
     }
@@ -33,6 +35,8 @@ export class ObjectMultiSelectComponent extends ObjectSelectComponent {
   display = (): string | undefined => '';
 
   isSelected(option: GenericDataObject): boolean {
-    return this.selectedOptions.findIndex(value => value.id === option.id) !== -1;
+    return (
+      this.selectedOptions.findIndex((value) => value.id === option.id) !== -1
+    );
   }
 }

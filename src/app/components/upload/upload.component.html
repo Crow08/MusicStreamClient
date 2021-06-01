@@ -18,7 +18,8 @@
         <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
         <mat-divider></mat-divider>
         <app-input-playlist [(selectedOptions)]="selectedPlaylists"></app-input-playlist>
-        <button (click)="upload()" [disabled]="loading" color="accent" id="submit-button" mat-raised-button type="button">
+        <button (click)="upload()" [disabled]="loading" color="accent" id="submit-button" mat-raised-button
+                type="button">
           Upload
         </button>
         <mat-spinner *ngIf="loading" diameter="35"></mat-spinner>

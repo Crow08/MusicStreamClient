@@ -1,14 +1,13 @@
-import {AfterViewInit, Component} from '@angular/core';
-import {AuthenticationService} from '../../services/authentication.service';
-import {WsService} from '../../services/ws.service';
+import { AfterViewInit, Component } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service';
+import { WsService } from '../../services/ws.service';
 
 @Component({
   selector: 'app-latency',
   templateUrl: './latency.component.html',
-  styleUrls: ['./latency.component.scss']
+  styleUrls: ['./latency.component.scss'],
 })
 export class LatencyComponent implements AfterViewInit {
-
   latency: number;
   serverTimeOffset: number;
 
@@ -16,23 +15,24 @@ export class LatencyComponent implements AfterViewInit {
   private latencySamples: number[] = [];
   private isMeasurementPending = false;
 
-  constructor(private wsService: WsService,
-              private authenticationService: AuthenticationService) {
-  }
+  constructor(
+    private wsService: WsService,
+    private authenticationService: AuthenticationService
+  ) {}
 
   ngAfterViewInit(): void {
     this.initWebsocketLatency();
   }
 
   public startLatencyMeasurement(): void {
-    this.pingStart = (new Date()).getTime();
+    this.pingStart = new Date().getTime();
     this.isMeasurementPending = true;
   }
 
   public endLatencyMeasurement(): boolean {
     let enoughSamples = false;
     if (this.isMeasurementPending) {
-      const pingEnd = (new Date()).getTime();
+      const pingEnd = new Date().getTime();
       const latency = pingEnd - this.pingStart; // full round trip
       this.latencySamples.push(latency);
       if (this.latencySamples.length > 10) {
@@ -47,13 +47,19 @@ export class LatencyComponent implements AfterViewInit {
   }
 
   private initWebsocketLatency(): void {
-    this.wsService.subscribeToUtilLatencyTopic(this.authenticationService.currentUserValue, (body) => this.receivePong(body));
+    this.wsService.subscribeToUtilLatencyTopic(
+      this.authenticationService.currentUserValue,
+      (body) => this.receivePong(body)
+    );
     this.pingServer();
   }
 
   private pingServer(): void {
     this.startLatencyMeasurement();
-    this.wsService.publishUtilCommand(`latency/${this.authenticationService.currentUserValue.id}`, 'ping');
+    this.wsService.publishUtilCommand(
+      `latency/${this.authenticationService.currentUserValue.id}`,
+      'ping'
+    );
   }
 
   private receivePong(body): void {
@@ -66,8 +72,8 @@ export class LatencyComponent implements AfterViewInit {
   }
 
   private calculateServerTimeOffset(serverTime: number): void {
-    this.serverTimeOffset = this.pingStart - (serverTime - (this.latency / 2));
-    console.log('Server Time: ' + (serverTime - (this.latency / 2)));
+    this.serverTimeOffset = this.pingStart - (serverTime - this.latency / 2);
+    console.log('Server Time: ' + (serverTime - this.latency / 2));
     console.log('Client Time: ' + this.pingStart);
     console.log('Server Time Offset:' + this.serverTimeOffset);
   }

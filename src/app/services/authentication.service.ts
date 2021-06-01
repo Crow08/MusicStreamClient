@@ -1,26 +1,29 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import {User} from '../models/user';
-import {environment} from '../../environments/environment';
-import {WsConfigService} from './ws-config.service';
+import { User } from '../models/user';
+import { environment } from '../../environments/environment';
+import { WsConfigService } from './ws-config.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthenticationService {
-
   private currentUserSubject: BehaviorSubject<User>;
 
-  constructor(private http: HttpClient,
-              private wsConfigService: WsConfigService) {
-    this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
-    this.currentUserSubject.subscribe(value =>
+  constructor(
+    private http: HttpClient,
+    private wsConfigService: WsConfigService
+  ) {
+    this.currentUserSubject = new BehaviorSubject<User>(
+      JSON.parse(localStorage.getItem('currentUser'))
+    );
+    this.currentUserSubject.subscribe((value) =>
       this.wsConfigService.updateWsConfig({
         login: value?.username,
-        auth: value?.password
+        auth: value?.password,
       })
     );
   }
@@ -30,11 +33,13 @@ export class AuthenticationService {
   }
 
   private static getAuthHeaderForUser(user: User): HttpHeaders {
-    return new HttpHeaders({Authorization: `Basic ${user.authdata}`});
+    return new HttpHeaders({ Authorization: `Basic ${user.authdata}` });
   }
 
   public getAuthHeaderForCurrentUser(): HttpHeaders {
-    return AuthenticationService.getAuthHeaderForUser(this.currentUserSubject.value);
+    return AuthenticationService.getAuthHeaderForUser(
+      this.currentUserSubject.value
+    );
   }
 
   login(username: string, password: string): Observable<User> {
@@ -42,14 +47,19 @@ export class AuthenticationService {
     user.username = username;
     user.password = password;
     user.authdata = window.btoa(username + ':' + password);
-    return this.http.get<any>(`http://${environment.dbServer}/users/login`, {headers: AuthenticationService.getAuthHeaderForUser(user)})
-      .pipe(map(userDTO => {
-        user.id = userDTO.id;
-        console.log(`Login: ${JSON.stringify(userDTO)}`);
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        this.currentUserSubject.next(user);
-        return user;
-      }));
+    return this.http
+      .get<any>(`http://${environment.dbServer}/users/login`, {
+        headers: AuthenticationService.getAuthHeaderForUser(user),
+      })
+      .pipe(
+        map((userDTO) => {
+          user.id = userDTO.id;
+          console.log(`Login: ${JSON.stringify(userDTO)}`);
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+          return user;
+        })
+      );
   }
 
   logout(): void {

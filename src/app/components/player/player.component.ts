@@ -1,36 +1,35 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {CdkDragDrop} from '@angular/cdk/drag-drop';
-import {LatencyComponent} from '../latency/latency.component';
-import {ActivatedRoute} from '@angular/router';
-import {AuthenticationService} from '../../services/authentication.service';
-import {Song} from '../../models/song';
-import {AudioService} from '../../services/audio.service';
-import {MatSliderChange} from '@angular/material/slider';
-import {HttpHelperService} from '../../services/http-helper.service';
-import {WsConfigService} from '../../services/ws-config.service';
-import {User} from '../../models/user';
-import {GenericDataObject} from '../../models/genericDataObject';
-import {SessionService} from '../../services/session.service';
-import {WsService} from '../../services/ws.service';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { LatencyComponent } from '../latency/latency.component';
+import { ActivatedRoute } from '@angular/router';
+import { AuthenticationService } from '../../services/authentication.service';
+import { Song } from '../../models/song';
+import { AudioService } from '../../services/audio.service';
+import { MatSliderChange } from '@angular/material/slider';
+import { HttpHelperService } from '../../services/http-helper.service';
+import { WsConfigService } from '../../services/ws-config.service';
+import { User } from '../../models/user';
+import { GenericDataObject } from '../../models/genericDataObject';
+import { SessionService } from '../../services/session.service';
+import { WsService } from '../../services/ws.service';
 
 enum PlayerState {
   WAITING = 'WAITING',
   PLAY = 'PLAY',
   PAUSE = 'PAUSE',
-  STOP = 'STOP'
+  STOP = 'STOP',
 }
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
-  styleUrls: ['./player.component.scss']
+  styleUrls: ['./player.component.scss'],
 })
 export class PlayerComponent implements AfterViewInit, OnInit {
-
   playerState: PlayerState = PlayerState.STOP;
   loopMode = false;
-  queue: { id: number, title: string }[] = [];
-  history: { id: number, title: string }[] = [];
+  queue: { id: number; title: string }[] = [];
+  history: { id: number; title: string }[] = [];
   sessionUsers: User[] = [];
   currentSong: Song;
   progression = 0;
@@ -45,20 +44,23 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
 
-
-  constructor(private route: ActivatedRoute,
-              private httpHelperService: HttpHelperService,
-              private authenticationService: AuthenticationService,
-              private audioService: AudioService,
-              private wsConfigService: WsConfigService,
-              private sessionService: SessionService,
-              private wsService: WsService) {
+  constructor(
+    private route: ActivatedRoute,
+    private httpHelperService: HttpHelperService,
+    private authenticationService: AuthenticationService,
+    private audioService: AudioService,
+    private wsConfigService: WsConfigService,
+    private sessionService: SessionService,
+    private wsService: WsService
+  ) {
     const routeParams = this.route.snapshot.paramMap;
     this.sessionService.joinSession(Number(routeParams.get('sessionId')));
   }
 
   ngOnInit(): void {
-    this.audioService.addProgressionListener((progression) => this.progression = progression);
+    this.audioService.addProgressionListener(
+      (progression) => (this.progression = progression)
+    );
     this.audioService.songEndedSubject.subscribe(() => {
       this.publishCommand(`end/${this.currentSong.id}`);
     });
@@ -73,32 +75,40 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.wsService.publishSessionCommand(name, name);
   }
 
-  loadNewSong(songId: number, startTime: number, offset: number, directPlay = true): void {
+  loadNewSong(
+    songId: number,
+    startTime: number,
+    offset: number,
+    directPlay = true
+  ): void {
     this.updateQueueAndHistory(songId);
     if (songId === -1) {
       this.playerState = PlayerState.STOP;
       return;
     }
     const basePath = `/songs/${songId}/data`;
-    this.httpHelperService.getPlain(`${basePath}${(offset === 0 ? '' : `/${offset}`)}?X-NPE-PSU-Duration=PT1H`)
-      .then(url => {
+    this.httpHelperService
+      .getPlain(
+        `${basePath}${offset === 0 ? '' : `/${offset}`}?X-NPE-PSU-Duration=PT1H`
+      )
+      .then((url) => {
         this.songTimeOffset = offset;
         this.prepareSongStart(url, startTime, 0, directPlay);
       })
-      .catch(error => {
+      .catch((error) => {
         if (error.status === 422) {
-          this.httpHelperService.getPlain(`${basePath}?X-NPE-PSU-Duration=PT1H`)
-            .then(url => {
-                this.songTimeOffset = 0;
-                this.prepareSongStart(url, startTime, offset, directPlay);
-              },
-              console.error
-            );
+          this.httpHelperService
+            .getPlain(`${basePath}?X-NPE-PSU-Duration=PT1H`)
+            .then((url) => {
+              this.songTimeOffset = 0;
+              this.prepareSongStart(url, startTime, offset, directPlay);
+            }, console.error);
           return;
         }
       });
-    this.httpHelperService.get(`/songs/${songId}`, Song)
-      .then(song => {
+    this.httpHelperService
+      .get(`/songs/${songId}`, Song)
+      .then((song) => {
         this.setNewSong(song);
       })
       .catch(console.error);
@@ -109,7 +119,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   onRating(rating: number): void {
-    this.httpHelperService.put(`/ratings/${this.currentSong.id}/addUserRating/${rating}`, null)
+    this.httpHelperService
+      .put(`/ratings/${this.currentSong.id}/addUserRating/${rating}`, null)
       .then(() => {
         this.getRating();
       })
@@ -117,7 +128,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   getRating(): void {
-    this.httpHelperService.getPlain(`/ratings/getSongRating/${this.currentSong.id}`)
+    this.httpHelperService
+      .getPlain(`/ratings/getSongRating/${this.currentSong.id}`)
       .then((rating) => {
         this.songRating = Number(rating);
       })
@@ -125,7 +137,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   getUserRating(): void {
-    this.httpHelperService.getPlain(`/ratings/getUserRating/${this.currentSong.id}`)
+    this.httpHelperService
+      .getPlain(`/ratings/getUserRating/${this.currentSong.id}`)
       .then((rating) => {
         this.userSongRating = Number(rating);
       })
@@ -133,15 +146,32 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   }
 
   getDisplayHistoryStartIndex(): number {
-
-    return Math.max(0, this.history.length - Math.max(5, 10 - this.queue.length));
+    return Math.max(
+      0,
+      this.history.length - Math.max(5, 10 - this.queue.length)
+    );
   }
 
   getDisplayQueueLength(): number {
     return Math.max(5, 10 - this.history.length);
   }
 
-  private prepareSongStart(url: string, startTime: number, offset: number, directPlay: boolean): void {
+  removeSongFromQueueOrHistory(queueIndex: number, type: string): void {
+    this.publishCommand(`deleteSongFromQueue/${queueIndex}/${type}`);
+  }
+
+  drop(event: CdkDragDrop<string[]>): void {
+    this.publishCommand(
+      `movedSong/${event.previousIndex}/to/${event.currentIndex}`
+    );
+  }
+
+  private prepareSongStart(
+    url: string,
+    startTime: number,
+    offset: number,
+    directPlay: boolean
+  ): void {
     this.audioService.setSrc(url);
     this.audioService.setCurrentTime(offset / 1000);
     if (directPlay) {
@@ -152,9 +182,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   private schedulePlay(startTime: number): void {
     this.playerState = PlayerState.WAITING;
     setTimeout(() => {
-      this.audioService.play().catch(reason => console.error(reason));
+      this.audioService.play().catch((reason) => console.error(reason));
       this.playerState = PlayerState.PLAY;
-    }, startTime - (new Date()).getTime());
+    }, startTime - new Date().getTime());
   }
 
   private processCommand(jsonString: string): void {
@@ -166,7 +196,9 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.loadNewSong(commandObject.songId, commandObject.time, 0);
         break;
       case 'Pause':
-        this.audioService.pauseAtPosition(commandObject.position - this.songTimeOffset);
+        this.audioService.pauseAtPosition(
+          commandObject.position - this.songTimeOffset
+        );
         this.playerState = PlayerState.PAUSE;
         break;
       case 'Resume':
@@ -177,17 +209,29 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.playerState = PlayerState.STOP;
         break;
       case 'Leave':
-        this.sessionUsers.splice(this.sessionUsers.findIndex(value => value.id === commandObject.userId), 1);
+        this.sessionUsers.splice(
+          this.sessionUsers.findIndex(
+            (value) => value.id === commandObject.userId
+          ),
+          1
+        );
         break;
       case 'Join':
         this.sessionUsers = commandObject.sessionUsers;
-        if (commandObject.userId === this.authenticationService.currentUserValue.id) {
+        if (
+          commandObject.userId ===
+          this.authenticationService.currentUserValue.id
+        ) {
           this.queue = commandObject.queue;
           this.history = commandObject.history;
           this.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
-              this.loadNewSong(commandObject.currentSong.id, commandObject.time, commandObject.startOffset);
+              this.loadNewSong(
+                commandObject.currentSong.id,
+                commandObject.time,
+                commandObject.startOffset
+              );
               break;
             case 'STOP':
               this.audioService.stop();
@@ -197,7 +241,12 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               this.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
-              this.loadNewSong(commandObject.currentSong.id, commandObject.time, commandObject.startOffset, false);
+              this.loadNewSong(
+                commandObject.currentSong.id,
+                commandObject.time,
+                commandObject.startOffset,
+                false
+              );
               this.playerState = PlayerState.STOP;
               break;
           }
@@ -228,11 +277,14 @@ export class PlayerComponent implements AfterViewInit, OnInit {
    * @param songId the song to be played
    */
   private updateQueueAndHistory(songId: number): void {
-    const queueIndex = this.queue.findIndex(value => value.id === songId);
+    const queueIndex = this.queue.findIndex((value) => value.id === songId);
     if (queueIndex !== -1) {
       // forward
       if (this.currentSong) {
-        this.history.push({id: this.currentSong.id, title: this.currentSong.title});
+        this.history.push({
+          id: this.currentSong.id,
+          title: this.currentSong.title,
+        });
       }
       this.currentSong.title = this.queue.splice(queueIndex, 1)[0].title;
       if (queueIndex !== 0) {
@@ -241,11 +293,16 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.queue = [];
       }
     } else {
-      const historyIndex = this.history.findIndex(value => value.id === songId);
+      const historyIndex = this.history.findIndex(
+        (value) => value.id === songId
+      );
       if (historyIndex !== -1) {
         // backwards
         if (this.currentSong) {
-          this.queue.unshift({id: this.currentSong.id, title: this.currentSong.title});
+          this.queue.unshift({
+            id: this.currentSong.id,
+            title: this.currentSong.title,
+          });
         }
         this.currentSong.title = this.history.splice(historyIndex, 1)[0].title;
         if (historyIndex === 0) {
@@ -259,20 +316,20 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   private setNewSong(song: Song): void {
     this.currentSong = song;
-    this.selectedAlbum = [new GenericDataObject(song.album.id, song.album.name)];
-    this.selectedArtist = [new GenericDataObject(song.artist.id, song.artist.name)];
-    this.selectedGenres = song.genres.map(value => new GenericDataObject(value.id, value.name));
-    this.selectedTags = song.tags.map(value => new GenericDataObject(value.id, value.name));
+    this.selectedAlbum = [
+      new GenericDataObject(song.album.id, song.album.name),
+    ];
+    this.selectedArtist = [
+      new GenericDataObject(song.artist.id, song.artist.name),
+    ];
+    this.selectedGenres = song.genres.map(
+      (value) => new GenericDataObject(value.id, value.name)
+    );
+    this.selectedTags = song.tags.map(
+      (value) => new GenericDataObject(value.id, value.name)
+    );
 
     this.getRating();
     this.getUserRating();
-  }
-
-  removeSongFromQueueOrHistory(queueIndex: number, type: string): void {
-    this.publishCommand(`deleteSongFromQueue/${queueIndex}/${type}`);
-  }
-
-  drop(event: CdkDragDrop<string[]>): void {
-    this.publishCommand(`movedSong/${event.previousIndex}/to/${event.currentIndex}`);
   }
 }

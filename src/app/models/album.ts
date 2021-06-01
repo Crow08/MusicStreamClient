@@ -1,4 +1,3 @@
-import {GenericDataObject} from './genericDataObject';
+import { GenericDataObject } from './genericDataObject';
 
-export class Album extends GenericDataObject {
-}
+export class Album extends GenericDataObject {}

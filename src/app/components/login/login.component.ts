@@ -1,26 +1,37 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from '@angular/forms';
-import {first} from 'rxjs/operators';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormGroupDirective,
+  NgForm,
+  Validators,
+} from '@angular/forms';
+import { first } from 'rxjs/operators';
 
-import {AuthenticationService} from '../../services/authentication.service';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
-
-
 export class LoginComponent implements OnInit {
-
   static InputErrorStateMatcher = class {
-
     error: boolean;
 
-    isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    isErrorState(
+      control: FormControl | null,
+      form: FormGroupDirective | NgForm | null
+    ): boolean {
       const isSubmitted = form && form.submitted;
-      return !!(control && (control.invalid || this.error) && (control.dirty || control.touched || isSubmitted));
+      return !!(
+        control &&
+        (control.invalid || this.error) &&
+        (control.dirty || control.touched || isSubmitted)
+      );
     }
   };
 
@@ -52,7 +63,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
     });
 
     // get return url from route parameters or default to '/'
@@ -70,18 +81,20 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    this.authenticationService.login(this.f.username.value, this.f.password.value)
+    this.authenticationService
+      .login(this.f.username.value, this.f.password.value)
       .pipe(first())
       .subscribe(
-        data => {
+        (data) => {
           this.router.navigate([this.returnUrl]);
         },
-        error => {
+        (error) => {
           console.error(error);
           this.fmDebug.html = error;
           this.error = 'Login failed.';
           this.matcher.error = true;
           this.loading = false;
-        });
+        }
+      );
   }
 }

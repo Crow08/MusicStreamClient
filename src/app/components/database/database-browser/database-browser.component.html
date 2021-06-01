@@ -33,22 +33,24 @@
                         [checked]="selection.hasValue() && isAllSelected()"
                         [indeterminate]="selection.hasValue() && !isAllSelected()">
           </mat-checkbox>
-          <button mat-button type="button" [disabled]="selection.isEmpty()" (click)="addSongsToQueue(selection.selected)">
+          <button (click)="addSongsToQueue(selection.selected)" [disabled]="selection.isEmpty()" mat-button
+                  type="button">
             <mat-icon>queue</mat-icon>
             <span>Add to queue</span>
           </button>
-          <button mat-button type="button" [disabled]="selection.isEmpty()" (click)="openPlaylistDialog(selection.selected)">
+          <button (click)="openPlaylistDialog(selection.selected)" [disabled]="selection.isEmpty()" mat-button
+                  type="button">
             <mat-icon>playlist_add</mat-icon>
             <span>Add to playlist</span>
           </button>
-          <button mat-button type="button" [disabled]="selection.isEmpty()" (click)="deleteSongs(selection.selected)">
+          <button (click)="deleteSongs(selection.selected)" [disabled]="selection.isEmpty()" mat-button type="button">
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>
         </div>
-        <table [dataSource]="dataSource" id="search-results-table" mat-table matSort
-               matSortActive="title" matSortDisableClear matSortDirection="desc"
-               (matSortChange)="resetPaging()">
+        <table (matSortChange)="resetPaging()" [dataSource]="dataSource" id="search-results-table" mat-table
+               matSort matSortActive="title" matSortDirection="desc"
+               matSortDisableClear>
           <!-- Checkbox Column -->
           <ng-container matColumnDef="select">
             <th *matHeaderCellDef mat-header-cell>
@@ -79,31 +81,32 @@
           <ng-container matColumnDef="menu">
             <th *matHeaderCellDef mat-header-cell></th>
             <td *matCellDef="let element" mat-cell>
-              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu" type="button">
+              <button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu" mat-icon-button
+                      type="button">
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button *ngIf="inSession" mat-menu-item type="button" (click)="playSongNow(element)">
+                <button (click)="playSongNow(element)" *ngIf="inSession" mat-menu-item type="button">
                   <mat-icon>play_arrow</mat-icon>
                   <span>Play now</span>
                 </button>
-                <button *ngIf="inSession" mat-menu-item type="button" (click)="playSongNext(element)">
+                <button (click)="playSongNext(element)" *ngIf="inSession" mat-menu-item type="button">
                   <mat-icon>playlist_play</mat-icon>
                   <span>Play next</span>
                 </button>
-                <button *ngIf="inSession" mat-menu-item type="button" (click)="addSongToQueue(element)">
+                <button (click)="addSongToQueue(element)" *ngIf="inSession" mat-menu-item type="button">
                   <mat-icon>queue</mat-icon>
                   <span>Add to queue</span>
                 </button>
-                <button mat-menu-item type="button" (click)="openPlaylistDialog([element])">
+                <button (click)="openPlaylistDialog([element])" mat-menu-item type="button">
                   <mat-icon>playlist_add</mat-icon>
                   <span>Add to playlist</span>
                 </button>
-                <button mat-menu-item type="button" (click)="openEditSongDialog(element)">
+                <button (click)="openEditSongDialog(element)" mat-menu-item type="button">
                   <mat-icon>edit</mat-icon>
                   <span>Edit</span>
                 </button>
-                <button mat-menu-item type="button" (click)="deleteSong(element)">
+                <button (click)="deleteSong(element)" mat-menu-item type="button">
                   <mat-icon>delete</mat-icon>
                   <span>Delete</span>
                 </button>

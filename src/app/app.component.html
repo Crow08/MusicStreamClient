@@ -2,7 +2,7 @@
   <!-- Toolbar -->
   <mat-toolbar color="primary" id="toolbar">
     <mat-toolbar-row>
-      <button mat-icon-button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu">
+      <button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu" mat-icon-button>
         <mat-icon>menu</mat-icon>
       </button>
 
@@ -11,12 +11,12 @@
           <mat-icon>home</mat-icon>
         </button>
       </a>
-      <button mat-icon-button (click)="openSettingsDialog()">
+      <button (click)="openSettingsDialog()" mat-icon-button>
         <mat-icon>settings</mat-icon>
       </button>
       <mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{currentTheme.className}}">
         <mat-button-toggle (click)="selectTheme(theme)" *ngFor="let theme of availableThemes"
-          value='{{theme.className}}'>
+                           value='{{theme.className}}'>
           {{theme.displayName}}
         </mat-button-toggle>
       </mat-button-toggle-group>
@@ -32,17 +32,17 @@
     </mat-toolbar-row>
   </mat-toolbar>
   <!-- sidenav // not sure yet if it should close on click...-->
-  <mat-sidenav-container id="home-sidenav-container" autosize hasBackdrop="false">
+  <mat-sidenav-container autosize hasBackdrop="false" id="home-sidenav-container">
     <mat-sidenav #sidenav id="sidenav">
       <mat-nav-list>
-          <a routerLink="database/browse" mat-list-item (click)="sidenav.toggle()">
+        <a (click)="sidenav.toggle()" mat-list-item routerLink="database/browse">
           <mat-icon>search</mat-icon>
           <span class="navitem-text">Browse</span>
-          </a>
-          <a routerLink="upload" mat-list-item (click)="sidenav.toggle()">
-            <mat-icon>file_upload</mat-icon>
-            <span class="navitem-text">Upload</span>
-            </a>
+        </a>
+        <a (click)="sidenav.toggle()" mat-list-item routerLink="upload">
+          <mat-icon>file_upload</mat-icon>
+          <span class="navitem-text">Upload</span>
+        </a>
 
       </mat-nav-list>
     </mat-sidenav>

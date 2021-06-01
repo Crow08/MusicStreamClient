@@ -1,12 +1,12 @@
 <mat-card class="yes-no-dialog" fxLayoutGap>
 
-    <p mat-dialog-title>{{data.title}}</p>
+  <p mat-dialog-title>{{data.title}}</p>
 
-    <p display-2>{{data.message}}</p>
+  <p display-2>{{data.message}}</p>
 
 
-    <div mat-dialog-actions class="yesNoDialogOptions">
-        <button mat-raised-button (click)="onDismiss()">{{noButton}}</button>
-        <button mat-raised-button color="accent" (click)="onConfirm()">{{yesButton}}</button>
-    </div>
+  <div class="yesNoDialogOptions" mat-dialog-actions>
+    <button (click)="onDismiss()" mat-raised-button>{{noButton}}</button>
+    <button (click)="onConfirm()" color="accent" mat-raised-button>{{yesButton}}</button>
+  </div>
 </mat-card>

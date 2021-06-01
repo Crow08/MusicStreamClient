@@ -1,15 +1,18 @@
 #chip-list {
   padding-bottom: 10px;
 }
+
 .mat-chip {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
+
 .mat-standard-chip {
-    display: inline-block;
+  display: inline-block;
 }
+
 .mat-form-field {
   width: 100%;
 }

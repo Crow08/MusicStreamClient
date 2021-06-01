@@ -22,17 +22,37 @@ import { EditSongDialogComponent } from '../../dialog/edit-song-dialog/edit-song
 import { WsService } from 'src/app/services/ws.service';
 import { SessionService } from 'src/app/services/session.service';
 
-
 @Component({
   selector: 'app-database-browser',
   templateUrl: './database-browser.component.html',
-  styleUrls: ['./database-browser.component.scss']
+  styleUrls: ['./database-browser.component.scss'],
 })
 export class DatabaseBrowserComponent implements OnInit {
   isLoadingResults = false;
   currentSongData: Song[] = [];
+  dataSource: Observable<Song[]>;
+  displayedColumns: string[] = [
+    'select',
+    'title',
+    'album',
+    'artist',
+    'genre',
+    'menu',
+  ];
+  modeSelect;
+  dataBaseData: ObjectSelectInputData;
+  selectedOptions: GenericDataObject[] = [];
+  selection = new SelectionModel<Song>(true, []);
+  inSession: Boolean;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  searchQuery: FormGroup = this.formBuilder.group({
+    searchObject: ['song', { updateOn: 'change' }],
+    searchKeyword: [undefined, { updateOn: 'change' }],
+  });
 
-  constructor(private formBuilder: FormBuilder,
+  constructor(
+    private formBuilder: FormBuilder,
     private httpHelperService: HttpHelperService,
     private snackBar: MatSnackBar,
     private playlistDialog: MatDialog,
@@ -40,30 +60,14 @@ export class DatabaseBrowserComponent implements OnInit {
     private deleteSongDialog: MatDialog,
     private messageHandler: HttpCodeMessageGenerator,
     private wsService: WsService,
-    private sessionService: SessionService) {
-  }
+    private sessionService: SessionService
+  ) {}
 
-  dataSource: Observable<Song[]>;
-  displayedColumns: string[] = ['select', 'title', 'album', 'artist', 'genre', 'menu'];
-  modeSelect;
-  dataBaseData: ObjectSelectInputData;
-  selectedOptions: GenericDataObject[] = [];
-  selection = new SelectionModel<Song>(true, []);
-  inSession: Boolean;
-
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-
-  searchQuery: FormGroup = this.formBuilder.group({
-    searchObject: ['song', { updateOn: 'change' }],
-    searchKeyword: [undefined, { updateOn: 'change' }],
-  });
-
-  ngOnInit(): void{
-    this.sessionService.sessionId.subscribe((id)=> {
-      if (id){
+  ngOnInit(): void {
+    this.sessionService.sessionId.subscribe((id) => {
+      if (id) {
         this.inSession = true;
-      }else{
+      } else {
         this.inSession = false;
       }
     });
@@ -74,16 +78,24 @@ export class DatabaseBrowserComponent implements OnInit {
     this.selectedOptions = [];
     switch (this.modeSelect) {
       case 'artist':
-        this.httpHelperService.getArray('/artists/all', Artist)
+        this.httpHelperService
+          .getArray('/artists/all', Artist)
           .then((artists) => {
-            this.dataBaseData = new ObjectSelectInputData('Artist', artists.map(artist => new GenericDataObject(artist.id, artist.name)));
+            this.dataBaseData = new ObjectSelectInputData(
+              'Artist',
+              artists.map(
+                (artist) => new GenericDataObject(artist.id, artist.name)
+              )
+            );
           });
         break;
       case 'genre':
-        this.httpHelperService.getArray('/genres/all', Genre)
-          .then((genres) => {
-            this.dataBaseData = new ObjectSelectInputData('Genre', genres.map(genre => new GenericDataObject(genre.id, genre.name)));
-          });
+        this.httpHelperService.getArray('/genres/all', Genre).then((genres) => {
+          this.dataBaseData = new ObjectSelectInputData(
+            'Genre',
+            genres.map((genre) => new GenericDataObject(genre.id, genre.name))
+          );
+        });
         break;
       default:
     }
@@ -98,62 +110,77 @@ export class DatabaseBrowserComponent implements OnInit {
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggle(): void {
-    this.isAllSelected() ?
-      this.selection.clear() :
-      this.currentSongData.forEach(row => this.selection.select(row));
+    this.isAllSelected()
+      ? this.selection.clear()
+      : this.currentSongData.forEach((row) => this.selection.select(row));
   }
 
   submitSearch(): void {
     this.selection = new SelectionModel<Song>(true, []);
-    this.dataSource = merge(this.sort.sortChange, this.paginator.page)
-      .pipe(
-        startWith({}),
-        delay(0),
-        switchMap(() => {
-          this.isLoadingResults = true;
-          let searchQuery: Promise<Song[]>;
-          let searchArray = this.selectedOptions.map(song => song.id);
-          switch (this.searchQuery.value.searchObject) {
-            case 'song':
-              if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== '') {
-                searchQuery = this.httpHelperService.getArray(`/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
-              } else {
-                searchQuery = this.httpHelperService.getArray(`/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
-              }
-              break;
-            case 'artist':
-              searchArray = this.selectedOptions.map(song => song.id);
-              searchQuery = this.httpHelperService.getArray(`/songs/getSongsByArtist/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
-              break;
-            case 'genre':
-              searchArray = this.selectedOptions.map(song => song.id);
-              searchQuery = this.httpHelperService.getArray(`/songs/getSongsByGenre/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`, Song);
-              break;
-            default:
-          }
-          return from(searchQuery);
-        }),
-        tap(songs => {
-          // Flip flag to show that loading has finished.
-          if (!!songs) {
-            if (songs.length === 0) {
-              this.snackBar.openFromComponent(CustomSnackBarComponent, {
-                data: {
-                  message: 'Didn\'t find the thing you were looking for. Feel free to add it!'
-                },
-                duration: 4000
-              });
+    this.dataSource = merge(this.sort.sortChange, this.paginator.page).pipe(
+      startWith({}),
+      delay(0),
+      switchMap(() => {
+        this.isLoadingResults = true;
+        let searchQuery: Promise<Song[]>;
+        let searchArray = this.selectedOptions.map((song) => song.id);
+        switch (this.searchQuery.value.searchObject) {
+          case 'song':
+            if (
+              this.searchQuery.value.searchKeyword !== null &&
+              this.searchQuery.value.searchKeyword !== ''
+            ) {
+              searchQuery = this.httpHelperService.getArray(
+                `/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+                Song
+              );
+            } else {
+              searchQuery = this.httpHelperService.getArray(
+                `/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+                Song
+              );
             }
-            this.currentSongData = songs;
+            break;
+          case 'artist':
+            searchArray = this.selectedOptions.map((song) => song.id);
+            searchQuery = this.httpHelperService.getArray(
+              `/songs/getSongsByArtist/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+              Song
+            );
+            break;
+          case 'genre':
+            searchArray = this.selectedOptions.map((song) => song.id);
+            searchQuery = this.httpHelperService.getArray(
+              `/songs/getSongsByGenre/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+              Song
+            );
+            break;
+          default:
+        }
+        return from(searchQuery);
+      }),
+      tap((songs) => {
+        // Flip flag to show that loading has finished.
+        if (!!songs) {
+          if (songs.length === 0) {
+            this.snackBar.openFromComponent(CustomSnackBarComponent, {
+              data: {
+                message:
+                  "Didn't find the thing you were looking for. Feel free to add it!",
+              },
+              duration: 4000,
+            });
           }
-          this.isLoadingResults = false;
-        }),
-        catchError((e) => {
-          this.messageHandler.calculateReturnCodeMessage(e.status);
-          this.isLoadingResults = false;
-          return of([]);
-        })
-      );
+          this.currentSongData = songs;
+        }
+        this.isLoadingResults = false;
+      }),
+      catchError((e) => {
+        this.messageHandler.calculateReturnCodeMessage(e.status);
+        this.isLoadingResults = false;
+        return of([]);
+      })
+    );
   }
 
   resetPaging(): void {
@@ -161,26 +188,25 @@ export class DatabaseBrowserComponent implements OnInit {
   }
 
   displayGenreNames(genres: Genre[]): string {
-    return genres.map(value => value.name).join(', ');
-
+    return genres.map((value) => value.name).join(', ');
   }
 
   openPlaylistDialog(songs: Song[]): void {
     const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent, {
       data: {
-        songIds: songs.map((song) => song.id)
-      }
+        songIds: songs.map((song) => song.id),
+      },
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog result: ${result}`);
     });
   }
 
   openEditSongDialog(song: any): void {
     const dialogRef = this.editSongDialog.open(EditSongDialogComponent, {
-      data: { song }
+      data: { song },
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog result: ${result}`);
       if (result) {
         this.submitSearch();
@@ -195,24 +221,30 @@ export class DatabaseBrowserComponent implements OnInit {
         title: 'Send song into oblivion?',
         yesButton: 'Hell yeah!',
         noButton: 'God, no!',
-      }
+      },
     });
 
-    dialogRef.afterClosed().subscribe(dialogResult => {
+    dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
-        this.httpHelperService.put(`/songs/deleteSongById/${song.id}`, null)
+        this.httpHelperService
+          .put(`/songs/deleteSongById/${song.id}`, null)
           .then(() => {
             this.submitSearch();
             this.snackBar.openFromComponent(CustomSnackBarComponent, {
               data: {
-                message: 'deleteMessage'
+                message: 'deleteMessage',
               },
-              duration: 2000
+              duration: 2000,
             });
           })
-          .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-            duration: 2000
-          }));
+          .catch(() =>
+            this.snackBar.openFromComponent(
+              ServerResultErrorSnackBarComponent,
+              {
+                duration: 2000,
+              }
+            )
+          );
       }
     });
   }
@@ -225,60 +257,78 @@ export class DatabaseBrowserComponent implements OnInit {
         title: 'Delete all selected songs?',
         yesButton: 'With pleasure!',
         noButton: 'Nah!',
-      }
+      },
     });
 
-    dialogRef.afterClosed().subscribe(dialogResult => {
+    dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
-        this.httpHelperService.put(`/songs/deleteSongs`, songs)
+        this.httpHelperService
+          .put(`/songs/deleteSongs`, songs)
           .then(() => {
             this.submitSearch();
             this.snackBar.openFromComponent(CustomSnackBarComponent, {
               data: {
-                message: 'deleteMessage'
+                message: 'deleteMessage',
               },
-              duration: 2000
+              duration: 2000,
             });
           })
-          .catch(() => this.snackBar.openFromComponent(ServerResultErrorSnackBarComponent, {
-            duration: 2000
-          }));
+          .catch(() =>
+            this.snackBar.openFromComponent(
+              ServerResultErrorSnackBarComponent,
+              {
+                duration: 2000,
+              }
+            )
+          );
       }
     });
   }
 
   addSongToQueue(song: Song): void {
-    this.wsService.publishSessionCommand(`addSongToQueue`, JSON.stringify(song));
+    this.wsService.publishSessionCommand(
+      `addSongToQueue`,
+      JSON.stringify(song)
+    );
     //this needs work, we cant just claim that it works everytime! #Arrow-function
-    this.snackBar.openFromComponent(CustomSnackBarComponent,{
+    this.snackBar.openFromComponent(CustomSnackBarComponent, {
       data: {
-        message: "successMessage"},
-        duration:2000
+        message: 'successMessage',
+      },
+      duration: 2000,
     });
   }
 
   addSongsToQueue(songs: Song[]): void {
-    this.wsService.publishSessionCommand(`addSongsToQueue`, JSON.stringify(songs));
-        //this needs work, we cant just claim that it works everytime! #Arrow-function
-        this.snackBar.openFromComponent(CustomSnackBarComponent,{
-          data: {
-            message: "successMessage"},
-            duration:2000
-        });
+    this.wsService.publishSessionCommand(
+      `addSongsToQueue`,
+      JSON.stringify(songs)
+    );
+    //this needs work, we cant just claim that it works everytime! #Arrow-function
+    this.snackBar.openFromComponent(CustomSnackBarComponent, {
+      data: {
+        message: 'successMessage',
+      },
+      duration: 2000,
+    });
   }
 
   playSongNext(song: Song): void {
     this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
-        //this needs work, we cant just claim that it works everytime! #Arrow-function
-        this.snackBar.openFromComponent(CustomSnackBarComponent,{
-          data: {
-            message: "successMessage"},
-            duration:2000
-        });
+    //this needs work, we cant just claim that it works everytime! #Arrow-function
+    this.snackBar.openFromComponent(CustomSnackBarComponent, {
+      data: {
+        message: 'successMessage',
+      },
+      duration: 2000,
+    });
   }
 
   playSongNow(song: Song): void {
     this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
-    setTimeout(() => this.wsService.publishSessionCommand(`skip`, `skip`), 1000);
+    setTimeout(
+      () => this.wsService.publishSessionCommand(`skip`, `skip`),
+      1000
+    );
   }
 }

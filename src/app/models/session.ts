@@ -1,5 +1,3 @@
-import {GenericDataObject} from './genericDataObject';
+import { GenericDataObject } from './genericDataObject';
 
-export class Session extends GenericDataObject {
-}
-
+export class Session extends GenericDataObject {}

@@ -1,22 +1,24 @@
-import {Injectable} from '@angular/core';
-import {InjectableRxStompConfig} from '@stomp/ng2-stompjs';
-import {environment} from '../../environments/environment';
+import { Injectable } from '@angular/core';
+import { InjectableRxStompConfig } from '@stomp/ng2-stompjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WsConfigService {
-
   configParameter = {
     login: '',
     usercode: '',
-    session: '0'
+    session: '0',
   };
 
-  constructor() {
-  }
+  constructor() {}
 
-  updateWsConfig(config: { login?: string, auth?: string, session?: number }): void {
+  updateWsConfig(config: {
+    login?: string;
+    auth?: string;
+    session?: number;
+  }): void {
     if (config.session) {
       this.configParameter.session = String(config.session);
     }
@@ -27,7 +29,6 @@ export class WsConfigService {
       this.configParameter.usercode = config.auth;
     }
   }
-
 
   myRxStompConfig(): InjectableRxStompConfig {
     return {
@@ -53,7 +54,7 @@ export class WsConfigService {
       // Skip this key to stop logging to console
       debug: (msg: string): void => {
         // console.log(new Date(), msg);
-      }
+      },
     };
   }
 }

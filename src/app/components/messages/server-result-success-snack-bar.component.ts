@@ -1,21 +1,20 @@
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-snack-bar-component-upload-result',
-  template: `<span class="result-bar">
-    Success!
-  </span>`,
-  styles: [`
-    :host {
-      text-align: center;
-      display: block;
-    }
+  template: `<span class="result-bar"> Success! </span>`,
+  styles: [
+    `
+      :host {
+        text-align: center;
+        display: block;
+      }
 
-    .result-bar {
-      color: darkgreen;
-      font-weight: bold;
-    }
-  `],
+      .result-bar {
+        color: darkgreen;
+        font-weight: bold;
+      }
+    `,
+  ],
 })
-export class ServerResultSuccessSnackBarComponent {
-}
+export class ServerResultSuccessSnackBarComponent {}

@@ -1,19 +1,19 @@
 <mat-card class="edit-song-card">
-    <mat-card-header>
-      <mat-card-title>Edit Song</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-form-field>
-        <mat-label>Song title</mat-label>
-        <input matInput [(ngModel)]="selectedTitle">
-      </mat-form-field>
-      <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>
-      <mat-divider></mat-divider>
-      <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
-      <mat-divider></mat-divider>
-      <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>
-      <mat-divider></mat-divider>
-      <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
-    </mat-card-content>
-    <button mat-button (click)="saveSong()">Save</button>
-  </mat-card>
+  <mat-card-header>
+    <mat-card-title>Edit Song</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-form-field>
+      <mat-label>Song title</mat-label>
+      <input [(ngModel)]="selectedTitle" matInput>
+    </mat-form-field>
+    <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>
+    <mat-divider></mat-divider>
+    <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
+    <mat-divider></mat-divider>
+    <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>
+    <mat-divider></mat-divider>
+    <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
+  </mat-card-content>
+  <button (click)="saveSong()" mat-button>Save</button>
+</mat-card>

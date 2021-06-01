@@ -1,9 +1,21 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, QueryList,SimpleChanges, ViewChild, AfterViewInit, ViewChildren} from '@angular/core';
-import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
-import {GenericDataObject} from '../../../models/genericDataObject';
-import {MatAutocomplete} from '@angular/material/autocomplete';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  QueryList,
+  SimpleChanges,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { GenericDataObject } from '../../../models/genericDataObject';
+import { MatAutocomplete } from '@angular/material/autocomplete';
 
 export class ObjectSelectInputData {
   displayName: string;
@@ -18,10 +30,9 @@ export class ObjectSelectInputData {
 @Component({
   selector: 'app-object-select',
   templateUrl: './object-select.component.html',
-  styleUrls: ['./object-select.component.scss']
+  styleUrls: ['./object-select.component.scss'],
 })
 export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
-
   @Input() selectObjectData: ObjectSelectInputData;
   @Input() selectedOptions: GenericDataObject[];
   @Output() selectedOptionsChange = new EventEmitter<GenericDataObject[]>();
@@ -34,8 +45,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
 
   private pendingChange;
 
-  constructor() {
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.setUpFilter();
@@ -44,9 +54,11 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.hasOwnProperty('selectedOptions')) {
       if (this.objectAC && changes.selectedOptions.currentValue[0]) {
-        const hit = this.objectAC.options.find(item => item.value === changes.selectedOptions.currentValue[0].id);
+        const hit = this.objectAC.options.find(
+          (item) => item.value === changes.selectedOptions.currentValue[0].id
+        );
         this.objectControl.setValue(hit.value);
-      } else if(changes.selectedOptions.currentValue[0]){
+      } else if (changes.selectedOptions.currentValue[0]) {
         this.pendingChange = changes.selectedOptions.currentValue[0];
       }
     }
@@ -55,7 +67,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  ngAfterViewInit():void {
+  ngAfterViewInit(): void {
     this.applyPendingChange();
     this.objectACs.changes.subscribe(() => {
       this.applyPendingChange();
@@ -63,8 +75,10 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   applyPendingChange() {
-    if(this.pendingChange && this.objectAC) {
-      const hit = this.objectAC.options.find(item => item.value === this.pendingChange.id);
+    if (this.pendingChange && this.objectAC) {
+      const hit = this.objectAC.options.find(
+        (item) => item.value === this.pendingChange.id
+      );
       this.objectControl.setValue(hit.value);
     }
   }
@@ -75,20 +89,22 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   selectionChanged(): void {
-    const hit = this.selectObjectData.options.find(value => value.id === Number(this.objectControl.value));
+    const hit = this.selectObjectData.options.find(
+      (value) => value.id === Number(this.objectControl.value)
+    );
     if (hit) {
       this.setOptionsSelected([hit]);
     }
   }
 
   display = (id: number): string | undefined => {
-    return this.selectObjectData.options.find(value => value.id === id)?.name;
+    return this.selectObjectData.options.find((value) => value.id === id)?.name;
   };
 
   private setUpFilter(): void {
     this.filteredOptions = this.objectControl.valueChanges.pipe(
       startWith(''),
-      map(filter => this.objectFilter(filter, this.selectObjectData.options))
+      map((filter) => this.objectFilter(filter, this.selectObjectData.options))
     );
   }
 
@@ -97,9 +113,11 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
       return array;
     }
     const filterInput = filter.toLowerCase();
-    return array.filter(option => {
-      return option.name.toLowerCase().indexOf(filterInput) >= 0
-        || option.id.toString().indexOf(filterInput) >= 0;
+    return array.filter((option) => {
+      return (
+        option.name.toLowerCase().indexOf(filterInput) >= 0 ||
+        option.id.toString().indexOf(filterInput) >= 0
+      );
     });
   }
 }

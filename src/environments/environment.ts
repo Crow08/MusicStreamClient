@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  dbServer: 'localhost:8888'
+  dbServer: 'localhost:8888',
 };
 
 /*
