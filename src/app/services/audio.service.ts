@@ -37,6 +37,10 @@ export class AudioService {
     this.audio.volume = volume;
   }
 
+  getVolume(): number {
+    return this.audio.volume;
+  }
+
   setSrc(src: string): void {
     this.audio.src = src;
   }

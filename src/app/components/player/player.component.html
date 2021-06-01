@@ -57,7 +57,7 @@
             <mat-icon>{{loopMode ? 'repeat_on' : 'repeat'}}</mat-icon>
           </button>
           <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
-                      value="0.1"></mat-slider>
+                      value="{{getVolume()}}"></mat-slider>
         </div>
         <div (cdkDropListDropped)="drop($event)" cdkDropList id="queue-container">
           <mat-list role="list">

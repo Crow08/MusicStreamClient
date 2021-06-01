@@ -8,14 +8,12 @@ import {MatSliderChange} from '@angular/material/slider';
   styleUrls: ['./site-options-dialog.component.scss'],
 })
 export class SiteOptionsDialogComponent implements OnInit {
-  currentTheme: Theme;
   availableThemes: Theme[];
   volumeLabel(value: number): string {
     return Math.round((value / 0.4) * 100) + '%';
   }
 
   constructor(private settingsService: SettingsService) {
-    this.currentTheme = settingsService.currentTheme;
     this.availableThemes = settingsService.availableThemes;
   }
 
@@ -27,5 +25,13 @@ export class SiteOptionsDialogComponent implements OnInit {
 
   setVolume(event: MatSliderChange): void {
     this.settingsService.defaultVolume = event.value;
+  }
+
+  getCurrentTheme(): Theme {
+    return this.settingsService.currentTheme;
+  }
+
+  getDefaultVolume(): number {
+    return this.settingsService.defaultVolume;
   }
 }

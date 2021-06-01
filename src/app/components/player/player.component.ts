@@ -337,4 +337,8 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.getRating();
     this.getUserRating();
   }
+
+  getVolume(): number {
+    return this.audioService.getVolume();
+  }
 }

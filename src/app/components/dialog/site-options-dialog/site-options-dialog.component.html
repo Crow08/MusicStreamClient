@@ -1,6 +1,6 @@
 <h1>Options</h1>
 <h3>Theme:</h3>
-<mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{currentTheme.className}}">
+<mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{getCurrentTheme().className}}">
   <mat-button-toggle (click)="selectTheme(theme)" *ngFor="let theme of availableThemes"
                      value='{{theme.className}}'>
     {{theme.displayName}}
@@ -10,4 +10,4 @@
 <br>
 <h3>Default player volume:</h3>
 <mat-slider thumbLabel [displayWith]="volumeLabel" (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
-            value="0.1"></mat-slider>
+            value="{{getDefaultVolume()}}"></mat-slider>
