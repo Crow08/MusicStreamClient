@@ -6,115 +6,199 @@
     <mat-card-content>
       <mat-form-field appearance="fill">
         <mat-label>Search for...</mat-label>
-        <mat-select (selectionChange)="onSelectionChange()" [(value)]="modeSelect" [placeholder]="modeSelect"
-                    formControlName="searchObject">
+        <mat-select
+          (selectionChange)="onSelectionChange()"
+          [(value)]="modeSelect"
+          [placeholder]="modeSelect"
+          formControlName="searchObject"
+        >
           <mat-option value="song">Song</mat-option>
           <mat-option value="artist">Artist</mat-option>
           <mat-option value="genre">Genre</mat-option>
         </mat-select>
       </mat-form-field>
-      <br>
-      <mat-form-field *ngIf="(searchQuery.get('searchObject').value == 'song')" appearance="fill">
+      <br />
+      <mat-form-field
+        *ngIf="searchQuery.get('searchObject').value == 'song'"
+        appearance="fill"
+      >
         <mat-label>Keyword...</mat-label>
-        <input formControlName="searchKeyword" matInput placeholder="Keyword..."/>
+        <input
+          formControlName="searchKeyword"
+          matInput
+          placeholder="Keyword..."
+        />
       </mat-form-field>
-      <app-object-multi-select *ngIf="!(searchQuery.get('searchObject').value == 'song')"
-                               [(selectedOptions)]="selectedOptions" [appearance]="'fill'"
-                               [selectObjectData]="dataBaseData">
+      <app-object-multi-select
+        *ngIf="!(searchQuery.get('searchObject').value == 'song')"
+        [(selectedOptions)]="selectedOptions"
+        [appearance]="'fill'"
+        [selectObjectData]="dataBaseData"
+      >
       </app-object-multi-select>
     </mat-card-content>
     <mat-card-footer>
-      <button color="accent" id="start-search-btn" mat-raised-button type="submit">Search</button>
+      <button
+        color="accent"
+        id="start-search-btn"
+        mat-raised-button
+        type="submit"
+      >
+        Search
+      </button>
       <mat-spinner *ngIf="isLoadingResults" [diameter]="25"></mat-spinner>
-      <br><br><br>
-      <div [ngClass]="currentSongData.length == 0 ? 'hidden':''">
+      <br /><br /><br />
+      <div [ngClass]="currentSongData.length == 0 ? 'hidden' : ''">
         <div id="bulk-controls">
-          <mat-checkbox (change)="$event ? masterToggle() : null"
-                        [checked]="selection.hasValue() && isAllSelected()"
-                        [indeterminate]="selection.hasValue() && !isAllSelected()">
+          <mat-checkbox
+            (change)="$event ? masterToggle() : null"
+            [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()"
+          >
           </mat-checkbox>
-          <button (click)="addSongsToQueue(selection.selected)" [disabled]="selection.isEmpty()" mat-button
-                  type="button">
+          <button
+            (click)="addSongsToQueue(selection.selected)"
+            [disabled]="selection.isEmpty()"
+            mat-button
+            type="button"
+          >
             <mat-icon>queue</mat-icon>
             <span>Add to queue</span>
           </button>
-          <button (click)="openPlaylistDialog(selection.selected)" [disabled]="selection.isEmpty()" mat-button
-                  type="button">
+          <button
+            (click)="openPlaylistDialog(selection.selected)"
+            [disabled]="selection.isEmpty()"
+            mat-button
+            type="button"
+          >
             <mat-icon>playlist_add</mat-icon>
             <span>Add to playlist</span>
           </button>
-          <button (click)="deleteSongs(selection.selected)" [disabled]="selection.isEmpty()" mat-button type="button">
+          <button
+            (click)="deleteSongs(selection.selected)"
+            [disabled]="selection.isEmpty()"
+            mat-button
+            type="button"
+          >
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>
         </div>
-        <table (matSortChange)="resetPaging()" [dataSource]="dataSource" id="search-results-table" mat-table
-               matSort matSortActive="title" matSortDirection="desc"
-               matSortDisableClear>
+        <table
+          (matSortChange)="resetPaging()"
+          [dataSource]="dataSource"
+          id="search-results-table"
+          mat-table
+          matSort
+          matSortActive="title"
+          matSortDirection="desc"
+          matSortDisableClear
+        >
           <!-- Checkbox Column -->
           <ng-container matColumnDef="select">
-            <th *matHeaderCellDef mat-header-cell>
-            </th>
+            <th *matHeaderCellDef mat-header-cell></th>
             <td *matCellDef="let row" mat-cell>
-              <mat-checkbox (change)="$event ? selection.toggle(row) : null"
-                            (click)="$event.stopPropagation()"
-                            [checked]="selection.isSelected(row)">
+              <mat-checkbox
+                (change)="$event ? selection.toggle(row) : null"
+                (click)="$event.stopPropagation()"
+                [checked]="selection.isSelected(row)"
+              >
               </mat-checkbox>
             </td>
           </ng-container>
           <ng-container matColumnDef="title">
-            <th *matHeaderCellDef mat-header-cell> Title</th>
-            <td *matCellDef="let element" mat-cell> {{element.title}} </td>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Title</th>
+            <td *matCellDef="let element" mat-cell>{{ element.title }}</td>
           </ng-container>
           <ng-container matColumnDef="album">
-            <th *matHeaderCellDef mat-header-cell> Album</th>
-            <td *matCellDef="let element" mat-cell> {{element.album?.name}} </td>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Album</th>
+            <td *matCellDef="let element" mat-cell>
+              {{ element.album?.name }}
+            </td>
           </ng-container>
           <ng-container matColumnDef="artist">
-            <th *matHeaderCellDef mat-header-cell> Artist</th>
-            <td *matCellDef="let element" mat-cell> {{element.artist?.name}} </td>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Artist</th>
+            <td *matCellDef="let element" mat-cell>
+              {{ element.artist?.name }}
+            </td>
           </ng-container>
           <ng-container matColumnDef="genre">
-            <th *matHeaderCellDef mat-header-cell> Genre</th>
-            <td *matCellDef="let element" mat-cell> {{displayGenreNames(element.genres)}} </td>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Genre</th>
+            <td *matCellDef="let element" mat-cell>
+              {{ displayGenreNames(element.genres) }}
+            </td>
           </ng-container>
           <ng-container matColumnDef="menu">
             <th *matHeaderCellDef mat-header-cell></th>
             <td *matCellDef="let element" mat-cell>
-              <button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu" mat-icon-button
-                      type="button">
+              <button
+                [matMenuTriggerFor]="menu"
+                aria-label="Example icon-button with a menu"
+                mat-icon-button
+                type="button"
+              >
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button (click)="playSongNow(element)" *ngIf="inSession" mat-menu-item type="button">
+                <button
+                  (click)="playSongNow(element)"
+                  *ngIf="inSession"
+                  mat-menu-item
+                  type="button"
+                >
                   <mat-icon>play_arrow</mat-icon>
                   <span>Play now</span>
                 </button>
-                <button (click)="playSongNext(element)" *ngIf="inSession" mat-menu-item type="button">
+                <button
+                  (click)="playSongNext(element)"
+                  *ngIf="inSession"
+                  mat-menu-item
+                  type="button"
+                >
                   <mat-icon>playlist_play</mat-icon>
                   <span>Play next</span>
                 </button>
-                <button (click)="addSongToQueue(element)" *ngIf="inSession" mat-menu-item type="button">
+                <button
+                  (click)="addSongToQueue(element)"
+                  *ngIf="inSession"
+                  mat-menu-item
+                  type="button"
+                >
                   <mat-icon>queue</mat-icon>
                   <span>Add to queue</span>
                 </button>
-                <button (click)="openPlaylistDialog([element])" mat-menu-item type="button">
+                <button
+                  (click)="openPlaylistDialog([element])"
+                  mat-menu-item
+                  type="button"
+                >
                   <mat-icon>playlist_add</mat-icon>
                   <span>Add to playlist</span>
                 </button>
-                <button (click)="openEditSongDialog(element)" mat-menu-item type="button">
+                <button
+                  (click)="openEditSongDialog(element)"
+                  mat-menu-item
+                  type="button"
+                >
                   <mat-icon>edit</mat-icon>
                   <span>Edit</span>
                 </button>
-                <button (click)="deleteSong(element)" mat-menu-item type="button">
+                <button
+                  (click)="deleteSong(element)"
+                  mat-menu-item
+                  type="button"
+                >
                   <mat-icon>delete</mat-icon>
                   <span>Delete</span>
                 </button>
               </mat-menu>
             </td>
           </ng-container>
-          <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+          <tr
+            *matHeaderRowDef="displayedColumns; sticky: true"
+            mat-header-row
+          ></tr>
+          <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
         </table>
         <mat-paginator [pageSizeOptions]="[50, 100, 500]"></mat-paginator>
       </div>

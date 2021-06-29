@@ -10,7 +10,6 @@
 - user-liste (wer hört zu?)
 - Miniatur-Player (während man andere Sachen auf der Seite macht)
 - Auto-Playlist anhand von Tags
-- Sort Song-Queue with awesome drag & drop
 - make paginator work (database-browser)
 
 - make it look good
@@ -33,15 +32,12 @@
 - [DONE] add to queue
 - [DONE] mass add to queue
 - [DONE] play next
-- [KINDA_DONE] play now
+- [DONE] play now
+- song-Details feld -> funktional und hübsch
 
 ## Bugs
 - Song/User-Rating doesn't show on initializing session
 - When changing songs after rating, the stars sometimes display a wrong rating
   -> Start Server, Join/Host session, Press Play and rate 5 stars then skip, next song still displays 5 stars (wrong rating, right one would be 0)
-- [fixed] after mass deleting songs, the next delete will aditionally try to delete the already deleted
-  -> open databasebrowser, search, delete one or more songs, search again, delete more songs (don´t press yes, check console log instead)
 - [sporadic] Sometimes Client cant establish Websocket (sometimes)
-  -> do anything with client, restart server, try to create session, look at console (works after client gets restartet)
-- [sporadic] Sometimes the current song is blank after restarting (Cannot set property of 'title' of undefined)
--> not really sure...join session do stuff and restart client I guess...
+  -> do anything with client, restart server, try to create session, look at console (works again after client gets restartet)
