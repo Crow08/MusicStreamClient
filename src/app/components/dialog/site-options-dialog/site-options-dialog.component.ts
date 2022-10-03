@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {SettingsService, Theme} from '../../../services/settings.service';
 import {MatSliderChange} from '@angular/material/slider';
 
@@ -7,7 +7,7 @@ import {MatSliderChange} from '@angular/material/slider';
   templateUrl: './site-options-dialog.component.html',
   styleUrls: ['./site-options-dialog.component.scss'],
 })
-export class SiteOptionsDialogComponent implements OnInit {
+export class SiteOptionsDialogComponent {
   availableThemes: Theme[];
   volumeLabel(value: number): string {
     return Math.round((value / 0.4) * 100) + '%';
@@ -16,8 +16,6 @@ export class SiteOptionsDialogComponent implements OnInit {
   constructor(private settingsService: SettingsService) {
     this.availableThemes = settingsService.availableThemes;
   }
-
-  ngOnInit(): void {}
 
   selectTheme(theme: Theme): void {
     this.settingsService.currentTheme = theme;

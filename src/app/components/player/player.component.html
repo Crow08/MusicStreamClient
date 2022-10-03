@@ -32,16 +32,16 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <mat-progress-bar [mode]="playerState == 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
+        <mat-progress-bar [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
                           color="accent"></mat-progress-bar>
         <div id="control-buttons">
           <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
             <mat-icon>skip_previous</mat-icon>
           </button>
           <button
-            (click)="publishCommand(playerState == 'STOP' ? 'start' : playerState == 'PAUSE' ? 'resume' : 'pause')"
+            (click)="publishCommand(playerState === 'STOP' ? 'start' : playerState === 'PAUSE' ? 'resume' : 'pause')"
             class="player-controls" color="accent" mat-raised-button>
-            <mat-icon>{{playerState == 'PLAY' ? 'pause' : 'play_arrow'}}</mat-icon>
+            <mat-icon>{{playerState === 'PLAY' ? 'pause' : 'play_arrow'}}</mat-icon>
           </button>
           <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
             <mat-icon>stop</mat-icon>

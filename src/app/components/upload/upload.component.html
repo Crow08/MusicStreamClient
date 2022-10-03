@@ -6,7 +6,7 @@
         <p>
           <button (click)="fileInput.click()" mat-raised-button type="button">Choose File</button>
           <input #fileInput (change)="onFilesSelected()" hidden id="file" multiple type="file">
-          [{{files ? files.length : "no"}} song{{files && files.length == 1 ? "" : "s"}} selected.]
+          [{{files ? files.length : "no"}} song{{files && files.length === 1 ? "" : "s"}} selected.]
         </p>
         <mat-divider></mat-divider>
         <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>

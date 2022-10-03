@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 
 export interface DialogData {
   title: string;
@@ -9,11 +9,11 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'yes-no-dialog',
+  selector: 'app-yes-no-dialog',
   templateUrl: './yes-no-dialog.component.html',
   styleUrls: ['./yes-no-dialog.component.scss'],
 })
-export class YesNoDialogComponent implements OnInit {
+export class YesNoDialogComponent {
   dialogData: DialogData;
   title: string;
   message: string;
@@ -31,8 +31,6 @@ export class YesNoDialogComponent implements OnInit {
       this.noButton = data.noButton;
     }
   }
-
-  ngOnInit() {}
 
   onConfirm(): void {
     // Close the dialog, return true
