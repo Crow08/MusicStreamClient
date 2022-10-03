@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Session } from '../../../models/session';
-import { HttpHelperService } from '../../../services/http-helper.service';
-import { SessionService } from '../../../services/session.service';
+import {Component, OnInit} from '@angular/core';
+import {Session} from '../../../models/session';
+import {HttpHelperService} from '../../../services/http-helper.service';
+import {SessionService} from '../../../services/session.service';
 
 @Component({
   selector: 'app-browser',
@@ -14,7 +14,8 @@ export class SessionBrowserComponent implements OnInit {
   constructor(
     private httpHelperService: HttpHelperService,
     private sessionService: SessionService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.httpHelperService

@@ -1,17 +1,17 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { LatencyComponent } from '../latency/latency.component';
-import { ActivatedRoute } from '@angular/router';
-import { AuthenticationService } from '../../services/authentication.service';
-import { Song } from '../../models/song';
-import { AudioService } from '../../services/audio.service';
-import { MatSliderChange } from '@angular/material/slider';
-import { HttpHelperService } from '../../services/http-helper.service';
-import { WsConfigService } from '../../services/ws-config.service';
-import { User } from '../../models/user';
-import { GenericDataObject } from '../../models/genericDataObject';
-import { SessionService } from '../../services/session.service';
-import { WsService } from '../../services/ws.service';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {CdkDragDrop} from '@angular/cdk/drag-drop';
+import {LatencyComponent} from '../latency/latency.component';
+import {ActivatedRoute} from '@angular/router';
+import {AuthenticationService} from '../../services/authentication.service';
+import {Song} from '../../models/song';
+import {AudioService} from '../../services/audio.service';
+import {MatSliderChange} from '@angular/material/slider';
+import {HttpHelperService} from '../../services/http-helper.service';
+import {WsConfigService} from '../../services/ws-config.service';
+import {User} from '../../models/user';
+import {GenericDataObject} from '../../models/genericDataObject';
+import {SessionService} from '../../services/session.service';
+import {WsService} from '../../services/ws.service';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -167,6 +167,10 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.publishCommand(
       `movedSong/${event.previousIndex}/to/${event.currentIndex}`
     );
+  }
+
+  getVolume(): number {
+    return this.audioService.getVolume();
   }
 
   private prepareSongStart(
@@ -336,9 +340,5 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
     this.getRating();
     this.getUserRating();
-  }
-
-  getVolume(): number {
-    return this.audioService.getVolume();
   }
 }

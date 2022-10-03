@@ -1,5 +1,5 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import {Component, Inject} from '@angular/core';
+import {MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-snack-bar-component-custom',
@@ -46,7 +46,7 @@ export class CustomSnackBarComponent {
     'Punish the weak!',
     'Burn in hell!',
     'Yes! Yes! Yeeees!',
-    "Finally someone's cleaning up that mess",
+    'Finally someone\'s cleaning up that mess',
     //sad
     'Damn, I liked that one',
     'What a waste',
@@ -55,20 +55,20 @@ export class CustomSnackBarComponent {
     'You monster!',
   ];
 
-  constructor(@Inject(MAT_SNACK_BAR_DATA) { message }) {
+  constructor(@Inject(MAT_SNACK_BAR_DATA) {message}) {
     // set message at the start. message is always there
     switch (message) {
       case 'successMessage':
         this.message =
           this.successMessages[
             Math.floor(Math.random() * this.successMessages.length)
-          ];
+            ];
         break;
       case 'deleteMessage':
         this.message =
           this.deleteMessages[
             Math.floor(Math.random() * this.deleteMessages.length)
-          ];
+            ];
         break;
       default:
         this.message = message;

@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {SettingsService} from './settings.service';
 
 @Injectable({
@@ -9,7 +9,7 @@ export class AudioService {
   private audio = new Audio();
   private progressionListeners: ((p: number) => void)[] = [];
 
-  constructor( private settingsService: SettingsService) {
+  constructor(private settingsService: SettingsService) {
     this.setVolume(settingsService.defaultVolume);
     this.audio.addEventListener('timeupdate', () => {
       this.progressionListeners.forEach((value) =>

@@ -1,9 +1,9 @@
-import { ClassConstructor } from 'class-transformer/types/interfaces';
-import { HttpHelperService } from '../../services/http-helper.service';
-import { Directive, EventEmitter, Input, Output } from '@angular/core';
-import { ObjectSelectInputData } from '../util/object-select/object-select.component';
-import { AddObjectInputData } from '../util/add-object-button/add-object-button.component';
-import { GenericDataObject } from '../../models/genericDataObject';
+import {ClassConstructor} from 'class-transformer/types/interfaces';
+import {HttpHelperService} from '../../services/http-helper.service';
+import {Directive, EventEmitter, Input, Output} from '@angular/core';
+import {ObjectSelectInputData} from '../util/object-select/object-select.component';
+import {AddObjectInputData} from '../util/add-object-button/add-object-button.component';
+import {GenericDataObject} from '../../models/genericDataObject';
 
 @Directive()
 export class InputObjectDirective {

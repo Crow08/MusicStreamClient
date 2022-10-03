@@ -1,3 +1,4 @@
-import { GenericDataObject } from './genericDataObject';
+import {GenericDataObject} from './genericDataObject';
 
-export class Tag extends GenericDataObject {}
+export class Tag extends GenericDataObject {
+}

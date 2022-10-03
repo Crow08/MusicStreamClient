@@ -1,7 +1,7 @@
-import { Album } from './album';
-import { Artist } from './artist';
-import { Genre } from './genre';
-import { Tag } from './tag';
+import {Album} from './album';
+import {Artist} from './artist';
+import {Genre} from './genre';
+import {Tag} from './tag';
 
 export class Song {
   id: number;

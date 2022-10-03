@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {SettingsService, Theme} from '../../../services/settings.service';
 import {MatSliderChange} from '@angular/material/slider';
 
@@ -9,12 +9,13 @@ import {MatSliderChange} from '@angular/material/slider';
 })
 export class SiteOptionsDialogComponent {
   availableThemes: Theme[];
-  volumeLabel(value: number): string {
-    return Math.round((value / 0.4) * 100) + '%';
-  }
 
   constructor(private settingsService: SettingsService) {
     this.availableThemes = settingsService.availableThemes;
+  }
+
+  volumeLabel(value: number): string {
+    return Math.round((value / 0.4) * 100) + '%';
   }
 
   selectTheme(theme: Theme): void {

@@ -1,6 +1,6 @@
-import { AfterViewInit, Component } from '@angular/core';
-import { AuthenticationService } from '../../services/authentication.service';
-import { WsService } from '../../services/ws.service';
+import {AfterViewInit, Component} from '@angular/core';
+import {AuthenticationService} from '../../services/authentication.service';
+import {WsService} from '../../services/ws.service';
 
 @Component({
   selector: 'app-latency',
@@ -18,7 +18,8 @@ export class LatencyComponent implements AfterViewInit {
   constructor(
     private wsService: WsService,
     private authenticationService: AuthenticationService
-  ) {}
+  ) {
+  }
 
   ngAfterViewInit(): void {
     this.initWebsocketLatency();

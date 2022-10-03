@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ServerResultSuccessSnackBarComponent } from '../messages/server-result-success-snack-bar.component';
-import { ServerResultErrorSnackBarComponent } from '../messages/server-result-error-snack-bar.component';
-import { HttpHelperService } from '../../services/http-helper.service';
-import { MatDialog } from '@angular/material/dialog';
-import { AuthenticationService } from '../../services/authentication.service';
-import { GenericDataObject } from '../../models/genericDataObject';
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormBuilder, UntypedFormGroup} from '@angular/forms';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ServerResultSuccessSnackBarComponent} from '../messages/server-result-success-snack-bar.component';
+import {ServerResultErrorSnackBarComponent} from '../messages/server-result-error-snack-bar.component';
+import {HttpHelperService} from '../../services/http-helper.service';
+import {MatDialog} from '@angular/material/dialog';
+import {AuthenticationService} from '../../services/authentication.service';
+import {GenericDataObject} from '../../models/genericDataObject';
 
 @Component({
   selector: 'app-import',
@@ -31,7 +31,8 @@ export class UploadComponent implements OnInit {
     private formBuilder: UntypedFormBuilder,
     private snackBar: MatSnackBar,
     public dialog: MatDialog
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({

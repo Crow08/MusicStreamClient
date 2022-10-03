@@ -1,12 +1,13 @@
-import { CustomSnackBarComponent } from './custom-snack-bar.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Injectable } from '@angular/core';
+import {CustomSnackBarComponent} from './custom-snack-bar.component';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {Injectable} from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpCodeMessageGenerator {
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(private snackBar: MatSnackBar) {
+  }
 
   public calculateReturnCodeMessage(
     httpCode: number,

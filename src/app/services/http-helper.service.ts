@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
-import { plainToClass } from 'class-transformer';
-import { HttpClient } from '@angular/common/http';
-import { AuthenticationService } from './authentication.service';
-import { ClassConstructor } from 'class-transformer/types/interfaces';
+import {Injectable} from '@angular/core';
+import {environment} from '../../environments/environment';
+import {plainToClass} from 'class-transformer';
+import {HttpClient} from '@angular/common/http';
+import {AuthenticationService} from './authentication.service';
+import {ClassConstructor} from 'class-transformer/types/interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,8 @@ export class HttpHelperService {
   constructor(
     private http: HttpClient,
     private authenticationService: AuthenticationService
-  ) {}
+  ) {
+  }
 
   public get<T>(path: string, clazz: ClassConstructor<T>): Promise<T> {
     const options = {

@@ -9,5 +9,6 @@
 <br>
 <br>
 <h3>Default player volume:</h3>
-<mat-slider thumbLabel [displayWith]="volumeLabel" (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
+<mat-slider (input)="setVolume($event)" [displayWith]="volumeLabel" id="volume-slider" max="0.4" min="0" step="0.004"
+            thumbLabel
             value="{{getDefaultVolume()}}"></mat-slider>

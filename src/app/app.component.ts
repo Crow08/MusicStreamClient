@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { SiteOptionsDialogComponent } from './components/dialog/site-options-dialog/site-options-dialog.component';
-import { AuthenticationService } from './services/authentication.service';
-import { SessionService } from './services/session.service';
+import {Component, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {Router} from '@angular/router';
+import {SiteOptionsDialogComponent} from './components/dialog/site-options-dialog/site-options-dialog.component';
+import {AuthenticationService} from './services/authentication.service';
+import {SessionService} from './services/session.service';
 import {SettingsService} from './services/settings.service';
-
 
 
 @Component({
@@ -26,7 +25,8 @@ export class AppComponent implements OnInit {
     private settingsDialog: MatDialog,
     private sessionService: SessionService,
     private settingsService: SettingsService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.isDesktopLayout = window.innerWidth >= 991;

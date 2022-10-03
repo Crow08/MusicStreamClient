@@ -11,11 +11,11 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
-import { GenericDataObject } from '../../../models/genericDataObject';
-import { MatAutocomplete } from '@angular/material/autocomplete';
+import {UntypedFormControl} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
+import {GenericDataObject} from '../../../models/genericDataObject';
+import {MatAutocomplete} from '@angular/material/autocomplete';
 
 export class ObjectSelectInputData {
   displayName: string;
@@ -45,7 +45,8 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
 
   private pendingChange;
 
-  constructor() {}
+  constructor() {
+  }
 
   ngOnInit(): void {
     this.setUpFilter();

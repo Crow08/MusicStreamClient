@@ -17,7 +17,7 @@
           <mat-option value="genre">Genre</mat-option>
         </mat-select>
       </mat-form-field>
-      <br />
+      <br/>
       <mat-form-field
         *ngIf="searchQuery.get('searchObject').value === 'song'"
         appearance="fill"
@@ -47,7 +47,7 @@
         Search
       </button>
       <mat-spinner *ngIf="isLoadingResults" [diameter]="25"></mat-spinner>
-      <br /><br /><br />
+      <br/><br/><br/>
       <div [ngClass]="currentSongData.length === 0 ? 'hidden' : ''">
         <div id="bulk-controls">
           <mat-checkbox

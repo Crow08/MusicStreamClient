@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { WsConfigService } from './ws-config.service';
-import { RxStompService } from '@stomp/ng2-stompjs';
-import { AuthenticationService } from './authentication.service';
-import { WsService } from './ws.service';
-import { BehaviorSubject } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {WsConfigService} from './ws-config.service';
+import {RxStompService} from '@stomp/ng2-stompjs';
+import {AuthenticationService} from './authentication.service';
+import {WsService} from './ws.service';
+import {BehaviorSubject} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

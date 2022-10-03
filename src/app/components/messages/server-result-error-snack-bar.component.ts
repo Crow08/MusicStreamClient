@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-snack-bar-component-upload-result',
@@ -17,4 +17,5 @@ import { Component } from '@angular/core';
     `,
   ],
 })
-export class ServerResultErrorSnackBarComponent {}
+export class ServerResultErrorSnackBarComponent {
+}
