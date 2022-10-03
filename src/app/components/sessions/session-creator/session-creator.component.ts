@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
-  FormBuilder,
-  FormGroup,
+  UntypedFormBuilder,
+  UntypedFormGroup,
   Validators,
 } from '@angular/forms';
 import { Playlist } from '../../../models/playlist';
@@ -16,7 +16,7 @@ import { SessionService } from '../../../services/session.service';
   styleUrls: ['./session-creator.component.scss'],
 })
 export class SessionCreatorComponent implements OnInit {
-  sessionForm: FormGroup;
+  sessionForm: UntypedFormGroup;
   loading = false;
   submitted = false;
   error = '';
@@ -25,7 +25,7 @@ export class SessionCreatorComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private httpHelperService: HttpHelperService,
     private sessionService: SessionService
   ) {}

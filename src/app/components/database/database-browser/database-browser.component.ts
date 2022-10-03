@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { Song } from 'src/app/models/song';
 import { HttpHelperService } from '../../../services/http-helper.service';
 import { MatPaginator } from '@angular/material/paginator';
@@ -46,13 +46,13 @@ export class DatabaseBrowserComponent implements OnInit {
   inSession: Boolean;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  searchQuery: FormGroup = this.formBuilder.group({
+  searchQuery: UntypedFormGroup = this.formBuilder.group({
     searchObject: ['song', { updateOn: 'change' }],
     searchKeyword: [undefined, { updateOn: 'change' }],
   });
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private httpHelperService: HttpHelperService,
     private snackBar: MatSnackBar,
     private playlistDialog: MatDialog,

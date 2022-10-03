@@ -2,9 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
   FormGroupDirective,
   NgForm,
   Validators,
@@ -23,7 +23,7 @@ export class LoginComponent implements OnInit {
     error: boolean;
 
     isErrorState(
-      control: FormControl | null,
+      control: UntypedFormControl | null,
       form: FormGroupDirective | NgForm | null
     ): boolean {
       const isSubmitted = form && form.submitted;
@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit {
     }
   };
 
-  loginForm: FormGroup;
+  loginForm: UntypedFormGroup;
   loading = false;
   submitted = false;
   returnUrl: string;
@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
   @ViewChild('console') fmDebug;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private authenticationService: AuthenticationService

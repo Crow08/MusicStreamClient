@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ServerResultSuccessSnackBarComponent } from '../messages/server-result-success-snack-bar.component';
 import { ServerResultErrorSnackBarComponent } from '../messages/server-result-error-snack-bar.component';
@@ -17,7 +17,7 @@ export class UploadComponent implements OnInit {
   loading = false;
   files: FileList;
 
-  uploadForm: FormGroup;
+  uploadForm: UntypedFormGroup;
 
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
@@ -28,7 +28,7 @@ export class UploadComponent implements OnInit {
   constructor(
     private httpHelperService: HttpHelperService,
     private authenticationService: AuthenticationService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private snackBar: MatSnackBar,
     public dialog: MatDialog
   ) {}

@@ -11,7 +11,7 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { GenericDataObject } from '../../../models/genericDataObject';
@@ -37,7 +37,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() selectedOptions: GenericDataObject[];
   @Output() selectedOptionsChange = new EventEmitter<GenericDataObject[]>();
   @Input() appearance: string;
-  objectControl = new FormControl();
+  objectControl = new UntypedFormControl();
   filteredOptions: Observable<GenericDataObject[]>;
 
   @ViewChild('objectAC') objectAC: MatAutocomplete;
