@@ -12,6 +12,7 @@ import {
 import {first} from 'rxjs/operators';
 
 import {AuthenticationService} from '../../services/authentication.service';
+import {ErrorStateMatcher} from '@angular/material/core';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,7 @@ import {AuthenticationService} from '../../services/authentication.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  static InputErrorStateMatcher = class {
+  static InputErrorStateMatcher = class implements ErrorStateMatcher {
     error: boolean;
 
     isErrorState(
@@ -51,7 +52,7 @@ export class LoginComponent implements OnInit {
   ) {
     // redirect to home if already logged in
     if (this.authenticationService.currentUserValue) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/']).catch(console.error);
     }
   }
 
@@ -84,17 +85,17 @@ export class LoginComponent implements OnInit {
     this.authenticationService
       .login(this.f.username.value, this.f.password.value)
       .pipe(first())
-      .subscribe(
-        (data) => {
-          this.router.navigate([this.returnUrl]);
+      .subscribe({
+        next: () => {
+          this.router.navigate([this.returnUrl]).catch(console.error);
         },
-        (error) => {
+        error: (error) => {
           console.error(error);
           this.fmDebug.html = error;
           this.error = 'Login failed.';
           this.matcher.error = true;
           this.loading = false;
         }
-      );
+      });
   }
 }

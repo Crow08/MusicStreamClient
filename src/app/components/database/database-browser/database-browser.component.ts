@@ -66,11 +66,7 @@ export class DatabaseBrowserComponent implements OnInit {
 
   ngOnInit(): void {
     this.sessionService.sessionId.subscribe((id) => {
-      if (id) {
-        this.inSession = true;
-      } else {
-        this.inSession = false;
-      }
+      this.inSession = !!id;
     });
   }
 

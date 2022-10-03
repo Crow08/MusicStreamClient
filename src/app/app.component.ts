@@ -13,8 +13,6 @@ import {SettingsService} from './services/settings.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  themeClass = 'parrot-theme';
-
   isDesktopLayout = true;
   inSession: boolean;
   sessionInfo = 'Join a session!';

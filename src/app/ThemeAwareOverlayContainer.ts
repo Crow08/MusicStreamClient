@@ -4,10 +4,6 @@ import {OverlayContainer} from '@angular/cdk/overlay';
 import {Platform} from '@angular/cdk/platform';
 import {availableThemes} from './services/settings.service';
 
-export const OVERLAY_PARENT_HTML = new InjectionToken<string>(
-  'OVERLAY_PARENT_HTML'
-);
-
 @Injectable({providedIn: 'root'})
 export class ThemeAwareOverlayContainer
   extends OverlayContainer

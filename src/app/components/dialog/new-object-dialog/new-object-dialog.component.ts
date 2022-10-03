@@ -31,10 +31,9 @@ export class NewObjectDialogComponent {
   }
 
   getData(): object {
-    const returnVal = this.data.stringProperties.reduce((obj, prop) => {
+    return this.data.stringProperties.reduce((obj, prop) => {
       obj[prop.key] = prop.value;
       return obj;
     }, {});
-    return returnVal;
   }
 }

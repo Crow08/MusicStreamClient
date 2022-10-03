@@ -16,6 +16,7 @@ import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import {GenericDataObject} from '../../../models/genericDataObject';
 import {MatAutocomplete} from '@angular/material/autocomplete';
+import {MatFormFieldAppearance} from '@angular/material/form-field';
 
 export class ObjectSelectInputData {
   displayName: string;
@@ -36,7 +37,7 @@ export class ObjectSelectComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() selectObjectData: ObjectSelectInputData;
   @Input() selectedOptions: GenericDataObject[];
   @Output() selectedOptionsChange = new EventEmitter<GenericDataObject[]>();
-  @Input() appearance: string;
+  @Input() appearance: MatFormFieldAppearance;
   objectControl = new UntypedFormControl();
   filteredOptions: Observable<GenericDataObject[]>;
 

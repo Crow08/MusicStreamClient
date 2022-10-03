@@ -1,4 +1,4 @@
-/* Theme specific styles will take effect across all components but obly if style clsaa is set on #app-theme-container. */
+/* Theme specific styles will take effect across all components but only if style class is set on #app-theme-container. */
 @import '~@angular/material/theming';
 @import 'src/app/themes/parrot.scss';
 @import 'src/app/themes/turtle.scss';

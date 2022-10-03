@@ -14,7 +14,6 @@ export interface DialogData {
   styleUrls: ['./yes-no-dialog.component.scss'],
 })
 export class YesNoDialogComponent {
-  dialogData: DialogData;
   title: string;
   message: string;
   yesButton: string = 'Yes';

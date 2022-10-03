@@ -31,7 +31,7 @@ export class WsService {
   publishUtilCommand(name: string, body: string): void {
     this.rxStompService.publish({
       destination: `/app/util/${name}`,
-      body: 'ping',
+      body: body,
     });
   }
 

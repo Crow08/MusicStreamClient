@@ -107,23 +107,23 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="title">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header>Title</th>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="title">Title</th>
             <td *matCellDef="let element" mat-cell>{{ element.title }}</td>
           </ng-container>
           <ng-container matColumnDef="album">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header>Album</th>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="album.name">Album</th>
             <td *matCellDef="let element" mat-cell>
               {{ element.album?.name }}
             </td>
           </ng-container>
           <ng-container matColumnDef="artist">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header>Artist</th>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="artist.name">Artist</th>
             <td *matCellDef="let element" mat-cell>
               {{ element.artist?.name }}
             </td>
           </ng-container>
           <ng-container matColumnDef="genre">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header>Genre</th>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="genres">Genre</th>
             <td *matCellDef="let element" mat-cell>
               {{ displayGenreNames(element.genres) }}
             </td>

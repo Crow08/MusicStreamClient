@@ -47,7 +47,7 @@ export class WsConfigService {
 
       // Wait in milliseconds before attempting auto reconnect
       // Set to 0 to disable
-      // Typical value 500 (500 milli seconds)
+      // Typical value 500 milliseconds
       reconnectDelay: 5000,
 
       // Will log diagnostics on console

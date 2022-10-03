@@ -13,8 +13,7 @@ import {MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
         font-weight: bold;
       }
 
-      ::ng-deep
-        .mat-snack-bar-container.mat-snack-bar-center.http-error-notification {
+      ::ng-deep .mat-snack-bar-container.mat-snack-bar-center.http-error-notification {
         background: rgb(255, 47, 47);
       }
     `,
@@ -31,7 +30,7 @@ export class CustomSnackBarComponent {
     'You made the right choice',
     'You rock!',
     'Great success!',
-    'Mission acomplished!',
+    'Mission accomplished!',
     //ironic
     'You did it, but at what cost?',
     'So you went with that one, huh?',
@@ -75,16 +74,4 @@ export class CustomSnackBarComponent {
         break;
     }
   }
-
-  /*USE THIS TO OPEN DAT SNACKBAR! (DON´T FORGET TO IMPORT)
-
-    testSnack(){
-      this.snackBar.openFromComponent(CustomSnackBarComponent,{
-        data: {
-          //put "successMessage" as message to get a random message
-          message: "This could be your ad!"},
-          duration:60000
-      });
-    }
-  */
 }

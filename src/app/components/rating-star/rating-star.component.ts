@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ThemePalette} from '@angular/material/core';
 
 @Component({
   selector: 'app-rating-star',
@@ -11,7 +12,7 @@ export class RatingStarComponent implements OnInit {
   @Output() rating = new EventEmitter<number>();
 
   maxRating = 5;
-  colors: string[] = [];
+  colors: ThemePalette[] = [];
 
   ngOnInit(): void {
     this.resetColors();
