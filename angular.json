@@ -73,8 +73,19 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "development": {
+              "aot": false,
+              "outputHashing": "all",
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": false
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -84,8 +95,12 @@
           "configurations": {
             "production": {
               "browserTarget": "musicStreamClient:build:production"
+            },
+            "development": {
+              "browserTarget": "musicStreamClient:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -106,6 +121,9 @@
     }
   },
   "cli": {
+    "cache": {
+      "enabled": false
+    },
     "schematicCollections": [
       "@angular-eslint/schematics",
       "@angular-eslint/schematics"
