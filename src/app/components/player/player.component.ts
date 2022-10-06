@@ -216,12 +216,12 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         this.playerState = PlayerState.STOP;
         break;
       case 'Leave':
-        this.sessionUsers.splice(
-          this.sessionUsers.findIndex(
-            (value) => value.id === commandObject.userId
-          ),
-          1
+        const userIndex = this.sessionUsers.findIndex(
+          (value) => value.id === commandObject.userId
         );
+        if (userIndex != -1) {
+          this.sessionUsers.splice(userIndex, 1);
+        }
         break;
       case 'Join':
         this.sessionUsers = commandObject.sessionUsers;

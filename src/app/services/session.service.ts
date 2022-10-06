@@ -25,7 +25,9 @@ export class SessionService {
   }
 
   joinSession(sessionId: number): void {
-    this.leaveSession();
+    if(this.sessionId.getValue() !== sessionId) {
+      this.leaveSession();
+    }
     this.sessionId.next(sessionId);
     this.router
       .navigateByUrl(`/sessions/${sessionId}/lobby`)
@@ -46,16 +48,12 @@ export class SessionService {
   }
 
   private leaveSession(): void {
-    if (this.sessionId !== undefined) {
+    if (this.sessionId.getValue() !== undefined) {
       this.sessionId.next(undefined);
-      setTimeout(
-        () =>
-          this.wsService.publishSessionCommand(
-            `leave/${this.authenticationService.currentUserValue.id}`,
-            'leave'
-          ),
-        1000
-      );
+        this.wsService.publishSessionCommand(
+          `leave/${this.authenticationService.currentUserValue.id}`,
+          'leave'
+        );
     }
   }
 }
