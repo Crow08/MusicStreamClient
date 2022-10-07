@@ -1,18 +1,9 @@
 <div [ngClass]="getCurrentThemeClassName()" id="app-theme-container">
-  <!-- Toolbar -->
-  <mat-toolbar color="primary" id="toolbar">
+<!-- Header -->
+  <mat-toolbar color="primary" id="header">
     <mat-toolbar-row>
       <button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu" mat-icon-button>
         <mat-icon>menu</mat-icon>
-      </button>
-
-      <a routerLink="/">
-        <button mat-icon-button>
-          <mat-icon>home</mat-icon>
-        </button>
-      </a>
-      <button (click)="openSettingsDialog()" mat-icon-button>
-        <mat-icon>settings</mat-icon>
       </button>
 
       <div class="spacer"></div>
@@ -26,10 +17,14 @@
       </a>
     </mat-toolbar-row>
   </mat-toolbar>
-  <!-- sidenav // not sure yet if it should close on click...-->
+<!-- sidenav -->
   <mat-sidenav-container autosize hasBackdrop="false" id="home-sidenav-container">
     <mat-sidenav #sidenav id="sidenav">
       <mat-nav-list>
+        <a (click)="sidenav.toggle()" mat-list-item routerLink="/">
+          <mat-icon>home</mat-icon>
+          <span class="navItem-text">Home</span>
+        </a>
         <a (click)="sidenav.toggle()" mat-list-item routerLink="database/browse">
           <mat-icon>search</mat-icon>
           <span class="navItem-text">Browse</span>
@@ -38,11 +33,18 @@
           <mat-icon>file_upload</mat-icon>
           <span class="navItem-text">Upload</span>
         </a>
-
+        <a (click)="openSettingsDialog();sidenav.toggle()" mat-list-item>
+          <mat-icon>settings</mat-icon>
+          <span class="navItem-text">Settings</span>
+        </a>
       </mat-nav-list>
     </mat-sidenav>
-    <!-- content -->
-    <router-outlet></router-outlet>
 
+<!-- content -->
+  <router-outlet></router-outlet>
   </mat-sidenav-container>
+<!-- Footer -->
+  <mat-toolbar color="primary" id="footer">
+    <app-mini-player></app-mini-player>
+  </mat-toolbar>
 </div>

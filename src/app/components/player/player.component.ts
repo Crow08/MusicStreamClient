@@ -1,17 +1,13 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {CdkDragDrop} from '@angular/cdk/drag-drop';
-import {LatencyComponent} from '../latency/latency.component';
-import {ActivatedRoute} from '@angular/router';
-import {AuthenticationService} from '../../services/authentication.service';
-import {Song} from '../../models/song';
-import {AudioService} from '../../services/audio.service';
-import {MatSliderChange} from '@angular/material/slider';
-import {HttpHelperService} from '../../services/http-helper.service';
-import {WsConfigService} from '../../services/ws-config.service';
-import {User} from '../../models/user';
-import {GenericDataObject} from '../../models/genericDataObject';
-import {SessionService} from '../../services/session.service';
-import {WsService} from '../../services/ws.service';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { LatencyComponent } from '../latency/latency.component';
+import { AuthenticationService } from '../../services/authentication.service';
+import { Song } from '../../models/song';
+import { AudioService } from '../../services/audio.service';
+import { MatSliderChange } from '@angular/material/slider';
+import { HttpHelperService } from '../../services/http-helper.service';
+import { User } from '../../models/user';
+import { GenericDataObject } from '../../models/genericDataObject';
+import { WsService } from '../../services/ws.service';
 
 enum PlayerState {
   WAITING = 'WAITING',
@@ -20,58 +16,68 @@ enum PlayerState {
   STOP = 'STOP',
 }
 
-@Component({
-  selector: 'app-player',
-  templateUrl: './player.component.html',
-  styleUrls: ['./player.component.scss'],
-})
-export class PlayerComponent implements AfterViewInit, OnInit {
-  playerState: PlayerState = PlayerState.STOP;
-  loopMode = false;
-  queue: { id: number; title: string }[] = [];
-  history: { id: number; title: string }[] = [];
-  sessionUsers: User[] = [];
-  currentSong: Song;
-  progression = 0;
-  songTimeOffset = 0;
-  songRating = 0;
-  userSongRating = 0;
+export abstract class PlayerComponent {
+  static playerState: PlayerState = PlayerState.STOP;
+  static loopMode = false;
+  static queue: { id: number; title: string }[] = [];
+  static history: { id: number; title: string }[] = [];
+  static sessionUsers: User[] = [];
+  static currentSong: Song;
+  static progression = 0;
+  static songTimeOffset = 0;
+  static songRating = 0;
+  static userSongRating = 0;
+
+  get sessionUsers() {
+    return PlayerComponent.sessionUsers;
+  }
+
+  get currentSong() {
+    return PlayerComponent.currentSong;
+  }
+
+  get userSongRating() {
+    return PlayerComponent.userSongRating;
+  }
+
+  get songRating() {
+    return PlayerComponent.songRating;
+  }
+
+  get playerState() {
+    return PlayerComponent.playerState;
+  }
+
+  get loopMode() {
+    return PlayerComponent.loopMode;
+  }
+
+  get history() {
+    return PlayerComponent.history;
+  }
+
+  get queue() {
+    return PlayerComponent.queue;
+  }
+
+  get progression() {
+    return PlayerComponent.progression;
+  }
 
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
   selectedTags: GenericDataObject[] = [];
 
-  @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
+  protected httpHelperService: HttpHelperService;
+  protected authenticationService: AuthenticationService;
+  protected audioService: AudioService;
+  protected wsService: WsService;
 
-  constructor(
-    private route: ActivatedRoute,
-    private httpHelperService: HttpHelperService,
-    private authenticationService: AuthenticationService,
-    private audioService: AudioService,
-    private wsConfigService: WsConfigService,
-    private sessionService: SessionService,
-    private wsService: WsService
-  ) {
-    const routeParams = this.route.snapshot.paramMap;
-    this.sessionService.joinSession(Number(routeParams.get('sessionId')));
-  }
-
-  ngOnInit(): void {
-    this.audioService.addProgressionListener(
-      (progression) => (this.progression = progression)
-    );
-    this.audioService.songEndedSubject.subscribe(() => {
-      this.publishCommand(`end/${this.currentSong.id}`);
-    });
-  }
-
-  ngAfterViewInit(): void {
-    this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
-  }
+  abstract getLatencyComponent(): LatencyComponent;
 
   publishCommand(name: string): void {
-    this.latencyComponent.startLatencyMeasurement();
+    this.getLatencyComponent().startLatencyMeasurement();
     this.wsService.publishSessionCommand(name, name);
   }
 
@@ -86,7 +92,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       this.updateQueueAndHistory(songId);
     }
     if (songId === -1) {
-      this.playerState = PlayerState.STOP;
+      PlayerComponent.playerState = PlayerState.STOP;
       return;
     }
     const basePath = `/songs/${songId}/data`;
@@ -95,7 +101,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         `${basePath}${offset === 0 ? '' : `/${offset}`}?X-NPE-PSU-Duration=PT1H`
       )
       .then((url) => {
-        this.songTimeOffset = offset;
+        PlayerComponent.songTimeOffset = offset;
         this.prepareSongStart(url, startTime, 0, directPlay);
       })
       .catch((error) => {
@@ -103,7 +109,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
           this.httpHelperService
             .getPlain(`${basePath}?X-NPE-PSU-Duration=PT1H`)
             .then((url) => {
-              this.songTimeOffset = 0;
+              PlayerComponent.songTimeOffset = 0;
               this.prepareSongStart(url, startTime, offset, directPlay);
             }, console.error);
           return;
@@ -123,7 +129,10 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   onRating(rating: number): void {
     this.httpHelperService
-      .put(`/ratings/${this.currentSong.id}/addUserRating/${rating}`, null)
+      .put(
+        `/ratings/${PlayerComponent.currentSong.id}/addUserRating/${rating}`,
+        null
+      )
       .then(() => {
         this.getRating();
       })
@@ -132,18 +141,18 @@ export class PlayerComponent implements AfterViewInit, OnInit {
 
   getRating(): void {
     this.httpHelperService
-      .getPlain(`/ratings/getSongRating/${this.currentSong.id}`)
+      .getPlain(`/ratings/getSongRating/${PlayerComponent.currentSong.id}`)
       .then((rating) => {
-        this.songRating = Number(rating);
+        PlayerComponent.songRating = Number(rating);
       })
       .catch(console.error);
   }
 
   getUserRating(): void {
     this.httpHelperService
-      .getPlain(`/ratings/getUserRating/${this.currentSong.id}`)
+      .getPlain(`/ratings/getUserRating/${PlayerComponent.currentSong.id}`)
       .then((rating) => {
-        this.userSongRating = Number(rating);
+        PlayerComponent.userSongRating = Number(rating);
       })
       .catch(console.error);
   }
@@ -151,12 +160,13 @@ export class PlayerComponent implements AfterViewInit, OnInit {
   getDisplayHistoryStartIndex(): number {
     return Math.max(
       0,
-      this.history.length - Math.max(5, 10 - this.queue.length)
+      PlayerComponent.history.length -
+        Math.max(5, 10 - PlayerComponent.queue.length)
     );
   }
 
   getDisplayQueueLength(): number {
-    return Math.max(5, 10 - this.history.length);
+    return Math.max(5, 10 - PlayerComponent.history.length);
   }
 
   removeSongFromQueueOrHistory(queueIndex: number, type: string): void {
@@ -182,20 +192,22 @@ export class PlayerComponent implements AfterViewInit, OnInit {
     this.audioService.setSrc(url);
     this.audioService.setCurrentTime(offset / 1000);
     if (directPlay) {
-      this.schedulePlay(startTime + this.latencyComponent.serverTimeOffset);
+      this.schedulePlay(
+        startTime + this.getLatencyComponent().serverTimeOffset
+      );
     }
   }
 
   private schedulePlay(startTime: number): void {
-    this.playerState = PlayerState.WAITING;
+    PlayerComponent.playerState = PlayerState.WAITING;
     setTimeout(() => {
       this.audioService.play().catch((reason) => console.error(reason));
-      this.playerState = PlayerState.PLAY;
+      PlayerComponent.playerState = PlayerState.PLAY;
     }, startTime - new Date().getTime());
   }
 
-  private processCommand(jsonString: string): void {
-    this.latencyComponent.endLatencyMeasurement();
+  protected processCommand(jsonString: string): void {
+    this.getLatencyComponent().endLatencyMeasurement();
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
@@ -204,34 +216,34 @@ export class PlayerComponent implements AfterViewInit, OnInit {
         break;
       case 'Pause':
         this.audioService.pauseAtPosition(
-          commandObject.position - this.songTimeOffset
+          commandObject.position - PlayerComponent.songTimeOffset
         );
-        this.playerState = PlayerState.PAUSE;
+        PlayerComponent.playerState = PlayerState.PAUSE;
         break;
       case 'Resume':
         this.schedulePlay(commandObject.time);
         break;
       case 'Stop':
         this.audioService.stop();
-        this.playerState = PlayerState.STOP;
+        PlayerComponent.playerState = PlayerState.STOP;
         break;
       case 'Leave':
-        const userIndex = this.sessionUsers.findIndex(
+        const userIndex = PlayerComponent.sessionUsers.findIndex(
           (value) => value.id === commandObject.userId
         );
         if (userIndex != -1) {
-          this.sessionUsers.splice(userIndex, 1);
+          PlayerComponent.sessionUsers.splice(userIndex, 1);
         }
         break;
       case 'Join':
-        this.sessionUsers = commandObject.sessionUsers;
+        PlayerComponent.sessionUsers = commandObject.sessionUsers;
         if (
           commandObject.userId ===
           this.authenticationService.currentUserValue.id
         ) {
-          this.queue = commandObject.queue;
-          this.history = commandObject.history;
-          this.loopMode = commandObject.loopMode;
+          PlayerComponent.queue = commandObject.queue;
+          PlayerComponent.history = commandObject.history;
+          PlayerComponent.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
               this.loadNewSong(
@@ -244,10 +256,11 @@ export class PlayerComponent implements AfterViewInit, OnInit {
               break;
             case 'STOP':
               this.audioService.stop();
-              this.currentSong = new Song();
-              this.currentSong.id = commandObject.currentSong.id;
-              this.currentSong.title = commandObject.currentSong.title;
-              this.playerState = PlayerState.STOP;
+              PlayerComponent.currentSong = new Song();
+              PlayerComponent.currentSong.id = commandObject.currentSong.id;
+              PlayerComponent.currentSong.title =
+                commandObject.currentSong.title;
+              PlayerComponent.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
               this.loadNewSong(
@@ -256,7 +269,7 @@ export class PlayerComponent implements AfterViewInit, OnInit {
                 commandObject.startOffset,
                 false
               );
-              this.playerState = PlayerState.STOP;
+              PlayerComponent.playerState = PlayerState.STOP;
               break;
           }
         }
@@ -264,17 +277,17 @@ export class PlayerComponent implements AfterViewInit, OnInit {
       case 'Update':
         switch (commandObject.updateType) {
           case 'LoopMode':
-            this.loopMode = commandObject.loopMode;
+            PlayerComponent.loopMode = commandObject.loopMode;
             break;
           case 'Queue':
-            this.queue = commandObject.queue;
+            PlayerComponent.queue = commandObject.queue;
             break;
           case 'History':
-            this.history = commandObject.history;
+            PlayerComponent.history = commandObject.history;
             break;
           case 'QueueAndHistory':
-            this.queue = commandObject.queue;
-            this.history = commandObject.history;
+            PlayerComponent.queue = commandObject.queue;
+            PlayerComponent.history = commandObject.history;
             break;
         }
         break;
@@ -286,45 +299,57 @@ export class PlayerComponent implements AfterViewInit, OnInit {
    * @param songId the song to be played
    */
   private updateQueueAndHistory(songId: number): void {
-    const queueIndex = this.queue.findIndex((value) => value.id === songId);
+    const queueIndex = PlayerComponent.queue.findIndex(
+      (value) => value.id === songId
+    );
     if (queueIndex !== -1) {
       // forward
-      if (this.currentSong) {
-        this.history.push({
-          id: this.currentSong.id,
-          title: this.currentSong.title,
+      if (PlayerComponent.currentSong) {
+        PlayerComponent.history.push({
+          id: PlayerComponent.currentSong.id,
+          title: PlayerComponent.currentSong.title,
         });
       }
-      this.currentSong.title = this.queue.splice(queueIndex, 1)[0].title;
+      PlayerComponent.currentSong.title = PlayerComponent.queue.splice(
+        queueIndex,
+        1
+      )[0].title;
       if (queueIndex !== 0) {
         // was actually backwards loop
-        this.history = this.history.concat(this.queue);
-        this.queue = [];
+        PlayerComponent.history = PlayerComponent.history.concat(
+          PlayerComponent.queue
+        );
+        PlayerComponent.queue = [];
       }
     } else {
-      const historyIndex = this.history.findIndex(
+      const historyIndex = PlayerComponent.history.findIndex(
         (value) => value.id === songId
       );
       if (historyIndex !== -1) {
         // backwards
-        if (this.currentSong) {
-          this.queue.unshift({
-            id: this.currentSong.id,
-            title: this.currentSong.title,
+        if (PlayerComponent.currentSong) {
+          PlayerComponent.queue.unshift({
+            id: PlayerComponent.currentSong.id,
+            title: PlayerComponent.currentSong.title,
           });
         }
-        this.currentSong.title = this.history.splice(historyIndex, 1)[0].title;
+        PlayerComponent.currentSong.title = PlayerComponent.history.splice(
+          historyIndex,
+          1
+        )[0].title;
         if (historyIndex === 0) {
           // was actually forwards loop
-          this.queue = this.history.concat(this.queue);
-          this.history = [];
+          PlayerComponent.queue = PlayerComponent.history.concat(
+            PlayerComponent.queue
+          );
+          PlayerComponent.history = [];
         }
       }
     }
   }
 
   private setNewSong(song: Song): void {
-    this.currentSong = song;
+    PlayerComponent.currentSong = song;
     this.selectedAlbum = [
       new GenericDataObject(song.album.id, song.album.name),
     ];

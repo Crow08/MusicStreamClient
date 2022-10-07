@@ -1,0 +1,46 @@
+<mat-toolbar *ngIf="displayMiniPlayer()" style="display: flex; background: transparent;">
+  <div style="display: flex">
+    <mat-card-title id="song-title">{{currentSong?.title || 'No current song'}}</mat-card-title>
+    <mat-card-subtitle>
+      {{currentSong?.artist?.name || 'Unknown Artist'}}<br/>
+    </mat-card-subtitle>
+  </div>
+  <div class="spacer"></div>
+  <div id="controls" style="display: flex">
+    <div>
+      <mat-progress-bar [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
+                        color="accent"></mat-progress-bar>
+      <div id="control-buttons">
+        <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
+          <mat-icon>skip_previous</mat-icon>
+        </button>
+        <button
+          (click)="publishCommand(playerState === 'STOP' ? 'start' : playerState === 'PAUSE' ? 'resume' : 'pause')"
+          class="player-controls" color="accent" mat-raised-button>
+          <mat-icon>{{playerState === 'PLAY' ? 'pause' : 'play_arrow'}}</mat-icon>
+        </button>
+        <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
+          <mat-icon>stop</mat-icon>
+        </button>
+        <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
+          <mat-icon>skip_next</mat-icon>
+        </button>
+        <button (click)="publishCommand('shuffle')" class="player-controls" color="accent" mat-raised-button>
+          <mat-icon>shuffle</mat-icon>
+        </button>
+        <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent"
+                mat-raised-button>
+          <mat-icon>{{loopMode ? 'repeat_on' : 'repeat'}}</mat-icon>
+        </button>
+        <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
+                    value="{{getVolume()}}"></mat-slider>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div style="display: flex">
+    <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
+                     [songRating]="songRating"></app-rating-star>
+    <app-latency #miniLatencyComponent id="mini-latency-component"></app-latency>
+  </div>
+</mat-toolbar>

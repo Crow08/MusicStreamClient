@@ -75,14 +75,12 @@
               ]
             },
             "development": {
-              "aot": false,
-              "outputHashing": "all",
               "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": false,
+              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": false
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"

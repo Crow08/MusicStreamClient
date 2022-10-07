@@ -1,0 +1,35 @@
+:host {
+  display: flex;
+  width: 100%;
+  overflow: auto;
+}
+
+.spacer {
+  flex: 1;
+}
+
+#controls {
+  position: fixed;
+  left: 50%;
+  bottom: 10px;
+  transform: translate(-50%, 15%) scale(0.75);
+  font-size: revert;
+}
+
+#song-title {
+  padding-right: 10px;
+}
+
+#mini-latency-component{
+  display: none;
+}
+
+mat-progress-bar {
+  margin: 5px 5px;
+  zoom: 1.2;
+  width: auto;
+}
+
+.player-controls {
+  margin: 6px;
+}
