@@ -1,6 +1,6 @@
-import {Component} from '@angular/core';
-import {ObjectSelectComponent} from '../object-select/object-select.component';
-import {GenericDataObject} from '../../../models/genericDataObject';
+import { Component } from '@angular/core';
+import { ObjectSelectComponent } from '../object-select/object-select.component';
+import { GenericDataObject } from '../../../models/genericDataObject';
 
 @Component({
   selector: 'app-object-multi-select',

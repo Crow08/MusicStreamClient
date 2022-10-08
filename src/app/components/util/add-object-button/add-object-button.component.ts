@@ -1,10 +1,13 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {CreationDialogInputData, NewObjectDialogComponent,} from '../../dialog/new-object-dialog/new-object-dialog.component';
-import {ServerResultSuccessSnackBarComponent} from '../../messages/server-result-success-snack-bar.component';
-import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatDialog} from '@angular/material/dialog';
-import {HttpHelperService} from '../../../services/http-helper.service';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  CreationDialogInputData,
+  NewObjectDialogComponent,
+} from '../../dialog/new-object-dialog/new-object-dialog.component';
+import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
+import { ServerResultErrorSnackBarComponent } from '../../messages/server-result-error-snack-bar.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { HttpHelperService } from '../../../services/http-helper.service';
 
 export class AddObjectInputData extends CreationDialogInputData {
   postPath: string;
@@ -32,8 +35,7 @@ export class AddObjectButtonComponent {
     private httpHelperService: HttpHelperService,
     private snackBar: MatSnackBar,
     public dialog: MatDialog
-  ) {
-  }
+  ) {}
 
   addObject(): void {
     this.createNewObjectDialog();

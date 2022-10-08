@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {RxStompService} from '@stomp/ng2-stompjs';
-import {User} from '../models/user';
-import {Subscription} from 'rxjs';
-import {WsConfigService} from './ws-config.service';
+import { Injectable } from '@angular/core';
+import { RxStompService } from '@stomp/ng2-stompjs';
+import { User } from '../models/user';
+import { Subscription } from 'rxjs';
+import { WsConfigService } from './ws-config.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,8 +14,7 @@ export class WsService {
   constructor(
     private wsConfigService: WsConfigService,
     private rxStompService: RxStompService
-  ) {
-  }
+  ) {}
 
   publishSessionCommand(name: string, body: string): void {
     if (this.wsConfigService.configParameter.session) {

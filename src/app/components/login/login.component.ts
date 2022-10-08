@@ -1,5 +1,5 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AbstractControl,
   FormGroupDirective,
@@ -9,10 +9,10 @@ import {
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
-import {first} from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
-import {AuthenticationService} from '../../services/authentication.service';
-import {ErrorStateMatcher} from '@angular/material/core';
+import { AuthenticationService } from '../../services/authentication.service';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 @Component({
   selector: 'app-login',
@@ -95,7 +95,7 @@ export class LoginComponent implements OnInit {
           this.error = 'Login failed.';
           this.matcher.error = true;
           this.loading = false;
-        }
+        },
       });
   }
 }

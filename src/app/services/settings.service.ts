@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 export class Theme {
   className: string;
@@ -28,7 +28,10 @@ export class SettingsService {
   }
 
   set currentTheme(theme: Theme) {
-    localStorage.setItem('msc_currentTheme', String(availableThemes.findIndex(t => t.className === theme.className)));
+    localStorage.setItem(
+      'msc_currentTheme',
+      String(availableThemes.findIndex((t) => t.className === theme.className))
+    );
   }
 
   get defaultVolume(): number {
@@ -40,5 +43,3 @@ export class SettingsService {
     localStorage.setItem('msc_defaultVolume', String(value));
   }
 }
-
-

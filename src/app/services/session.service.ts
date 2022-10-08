@@ -1,10 +1,10 @@
-import {Injectable} from '@angular/core';
-import {Router} from '@angular/router';
-import {WsConfigService} from './ws-config.service';
-import {RxStompService} from '@stomp/ng2-stompjs';
-import {AuthenticationService} from './authentication.service';
-import {WsService} from './ws.service';
-import {BehaviorSubject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { WsConfigService } from './ws-config.service';
+import { RxStompService } from '@stomp/ng2-stompjs';
+import { AuthenticationService } from './authentication.service';
+import { WsService } from './ws.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class SessionService {
   }
 
   joinSession(sessionId: number): void {
-    if(this.sessionId.getValue() !== sessionId) {
+    if (this.sessionId.getValue() !== sessionId) {
       this.leaveSession();
     }
     this.sessionId.next(sessionId);
@@ -50,10 +50,10 @@ export class SessionService {
   private leaveSession(): void {
     if (this.sessionId.getValue() !== undefined) {
       this.sessionId.next(undefined);
-        this.wsService.publishSessionCommand(
-          `leave/${this.authenticationService.currentUserValue.id}`,
-          'leave'
-        );
+      this.wsService.publishSessionCommand(
+        `leave/${this.authenticationService.currentUserValue.id}`,
+        'leave'
+      );
     }
   }
 }

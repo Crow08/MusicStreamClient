@@ -1,5 +1,5 @@
 <div [ngClass]="getCurrentThemeClassName()" id="app-theme-container">
-<!-- Header -->
+  <!-- Header -->
   <header color="primary" id="header">
     <mat-toolbar>
       <mat-toolbar-row>
@@ -19,7 +19,7 @@
       </mat-toolbar-row>
     </mat-toolbar>
   </header>
-<!-- sidenav -->
+  <!-- sidenav -->
   <div id="content">
     <mat-sidenav-container autosize hasBackdrop="false" id="home-sidenav-container">
       <mat-sidenav #sidenav id="sidenav">
@@ -42,11 +42,11 @@
           </a>
         </mat-nav-list>
       </mat-sidenav>
-<!-- router - content -->
-    <router-outlet id="router-content"></router-outlet>
+      <!-- router - content -->
+      <router-outlet id="router-content"></router-outlet>
     </mat-sidenav-container>
   </div>
-<!-- Footer -->
+  <!-- Footer -->
   <footer color="primary" id="footer">
     <mat-toolbar>
       <mat-toolbar-row>

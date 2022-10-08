@@ -1,12 +1,12 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
-import {AddObjectInputData} from '../../util/add-object-button/add-object-button.component';
-import {HttpHelperService} from '../../../services/http-helper.service';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
-import {InputObjectDirective} from '../input-object.directive';
-import {Playlist} from '../../../models/playlist';
-import {GenericDataObject} from '../../../models/genericDataObject';
+import { Component, Input, OnInit } from '@angular/core';
+import { ObjectSelectInputData } from '../../util/object-select/object-select.component';
+import { AddObjectInputData } from '../../util/add-object-button/add-object-button.component';
+import { HttpHelperService } from '../../../services/http-helper.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ServerResultErrorSnackBarComponent } from '../../messages/server-result-error-snack-bar.component';
+import { InputObjectDirective } from '../input-object.directive';
+import { Playlist } from '../../../models/playlist';
+import { GenericDataObject } from '../../../models/genericDataObject';
 
 @Component({
   selector: 'app-input-playlist',
@@ -26,7 +26,7 @@ export class PlaylistComponent extends InputObjectDirective implements OnInit {
   ngOnInit(): void {
     this.addObjectInputData = new AddObjectInputData(
       'Playlist',
-      [{displayName: 'Name', key: 'name', value: ''}],
+      [{ displayName: 'Name', key: 'name', value: '' }],
       '/playlists/'
     );
     this.getData();

@@ -1,5 +1,5 @@
-import {Component, Inject} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export class CreationDialogInputData {
   displayName: string;
@@ -23,8 +23,7 @@ export class NewObjectDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<NewObjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: CreationDialogInputData
-  ) {
-  }
+  ) {}
 
   onNoClick(): void {
     this.dialogRef.close();

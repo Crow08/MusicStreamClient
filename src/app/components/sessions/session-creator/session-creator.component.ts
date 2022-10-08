@@ -1,9 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators,} from '@angular/forms';
-import {Playlist} from '../../../models/playlist';
-import {Router} from '@angular/router';
-import {HttpHelperService} from '../../../services/http-helper.service';
-import {SessionService} from '../../../services/session.service';
+import { Component, OnInit } from '@angular/core';
+import {
+  AbstractControl,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
+import { Playlist } from '../../../models/playlist';
+import { Router } from '@angular/router';
+import { HttpHelperService } from '../../../services/http-helper.service';
+import { SessionService } from '../../../services/session.service';
 
 @Component({
   selector: 'app-session-creator',
@@ -23,8 +28,7 @@ export class SessionCreatorComponent implements OnInit {
     private formBuilder: UntypedFormBuilder,
     private httpHelperService: HttpHelperService,
     private sessionService: SessionService
-  ) {
-  }
+  ) {}
 
   // convenience getter for easy access to form fields
   get f(): { [key: string]: AbstractControl } {

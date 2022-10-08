@@ -1,10 +1,10 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {GenericDataObject} from 'src/app/models/genericDataObject';
-import {HttpHelperService} from '../../../services/http-helper.service';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {ServerResultSuccessSnackBarComponent} from '../../messages/server-result-success-snack-bar.component';
-import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
+import { Component, Inject, OnInit } from '@angular/core';
+import { GenericDataObject } from 'src/app/models/genericDataObject';
+import { HttpHelperService } from '../../../services/http-helper.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
+import { HttpCodeMessageGenerator } from '../../messages/http-code-message-generator';
 
 @Component({
   selector: 'app-add-to-playlist-dialog',
@@ -21,8 +21,7 @@ export class AddToPlaylistDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<AddToPlaylistDialogComponent>,
     private messageHandler: HttpCodeMessageGenerator,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.songIds = this.data.songIds;

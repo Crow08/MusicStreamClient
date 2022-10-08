@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import {User} from '../models/user';
-import {environment} from '../../environments/environment';
-import {WsConfigService} from './ws-config.service';
+import { User } from '../models/user';
+import { environment } from '../../environments/environment';
+import { WsConfigService } from './ws-config.service';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +33,7 @@ export class AuthenticationService {
   }
 
   private static getAuthHeaderForUser(user: User): HttpHeaders {
-    return new HttpHeaders({Authorization: `Basic ${user.authdata}`});
+    return new HttpHeaders({ Authorization: `Basic ${user.authdata}` });
   }
 
   public getAuthHeaderForCurrentUser(): HttpHeaders {

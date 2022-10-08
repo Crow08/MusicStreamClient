@@ -1,5 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ThemePalette} from '@angular/material/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-rating-star',

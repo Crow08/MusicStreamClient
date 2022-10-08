@@ -27,6 +27,14 @@ export abstract class PlayerComponent {
   static songTimeOffset = 0;
   static songRating = 0;
   static userSongRating = 0;
+  selectedArtist: GenericDataObject[] = [];
+  selectedAlbum: GenericDataObject[] = [];
+  selectedGenres: GenericDataObject[] = [];
+  selectedTags: GenericDataObject[] = [];
+  protected httpHelperService: HttpHelperService;
+  protected authenticationService: AuthenticationService;
+  protected audioService: AudioService;
+  protected wsService: WsService;
 
   get sessionUsers() {
     return PlayerComponent.sessionUsers;
@@ -63,16 +71,6 @@ export abstract class PlayerComponent {
   get progression() {
     return PlayerComponent.progression;
   }
-
-  selectedArtist: GenericDataObject[] = [];
-  selectedAlbum: GenericDataObject[] = [];
-  selectedGenres: GenericDataObject[] = [];
-  selectedTags: GenericDataObject[] = [];
-
-  protected httpHelperService: HttpHelperService;
-  protected authenticationService: AuthenticationService;
-  protected audioService: AudioService;
-  protected wsService: WsService;
 
   abstract getLatencyComponent(): LatencyComponent;
 
@@ -183,29 +181,6 @@ export abstract class PlayerComponent {
     return this.audioService.getVolume();
   }
 
-  private prepareSongStart(
-    url: string,
-    startTime: number,
-    offset: number,
-    directPlay: boolean
-  ): void {
-    this.audioService.setSrc(url);
-    this.audioService.setCurrentTime(offset / 1000);
-    if (directPlay) {
-      this.schedulePlay(
-        startTime + this.getLatencyComponent().serverTimeOffset
-      );
-    }
-  }
-
-  private schedulePlay(startTime: number): void {
-    PlayerComponent.playerState = PlayerState.WAITING;
-    setTimeout(() => {
-      this.audioService.play().catch((reason) => console.error(reason));
-      PlayerComponent.playerState = PlayerState.PLAY;
-    }, startTime - new Date().getTime());
-  }
-
   protected processCommand(jsonString: string): void {
     this.getLatencyComponent().endLatencyMeasurement();
     const commandObject = JSON.parse(jsonString);
@@ -292,6 +267,29 @@ export abstract class PlayerComponent {
         }
         break;
     }
+  }
+
+  private prepareSongStart(
+    url: string,
+    startTime: number,
+    offset: number,
+    directPlay: boolean
+  ): void {
+    this.audioService.setSrc(url);
+    this.audioService.setCurrentTime(offset / 1000);
+    if (directPlay) {
+      this.schedulePlay(
+        startTime + this.getLatencyComponent().serverTimeOffset
+      );
+    }
+  }
+
+  private schedulePlay(startTime: number): void {
+    PlayerComponent.playerState = PlayerState.WAITING;
+    setTimeout(() => {
+      this.audioService.play().catch((reason) => console.error(reason));
+      PlayerComponent.playerState = PlayerState.PLAY;
+    }, startTime - new Date().getTime());
   }
 
   /**

@@ -1,6 +1,6 @@
-import {Injectable} from '@angular/core';
-import {InjectableRxStompConfig} from '@stomp/ng2-stompjs';
-import {environment} from '../../environments/environment';
+import { Injectable } from '@angular/core';
+import { InjectableRxStompConfig } from '@stomp/ng2-stompjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +12,7 @@ export class WsConfigService {
     session: '0',
   };
 
-  constructor() {
-  }
+  constructor() {}
 
   updateWsConfig(config: {
     login?: string;

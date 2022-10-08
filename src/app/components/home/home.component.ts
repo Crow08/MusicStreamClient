@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {AuthenticationService} from '../../services/authentication.service';
+import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: 'app-home',
@@ -19,13 +19,12 @@ export class HomeComponent implements OnInit {
     'Hi {User}, you look dashing today!',
   ];
 
-  constructor(private authenticator: AuthenticationService) {
-  }
+  constructor(private authenticator: AuthenticationService) {}
 
   ngOnInit() {
     const username = this.authenticator.currentUserValue.username;
     this.greeting = this.welcomeMessages[
       Math.floor(Math.random() * this.welcomeMessages.length)
-      ].replace('{User}', `${username}`);
+    ].replace('{User}', `${username}`);
   }
 }

@@ -1,5 +1,5 @@
-import {EventEmitter, Injectable} from '@angular/core';
-import {SettingsService} from './settings.service';
+import { EventEmitter, Injectable } from '@angular/core';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root',
