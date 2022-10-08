@@ -1,25 +1,28 @@
 :host {
-  height: 100%;
-  width: 100%;
-  position: fixed;
-  overflow: auto;
 }
 
-.spacer {
-  flex: 1;
+#app-theme-container{
+  display: grid;
+  height: 100vh;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+        "header aside"
+        "body aside"
+        "footer aside";
 }
 
 #header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
+  grid-area: header;
 }
 
 #footer {
-  position: fixed;
-  bottom: 0;
-  z-index: 2;
-  height: fit-content;
+  grid-area: footer;
+}
+
+#content {
+  grid-area: body;
+  overflow-y: auto;
 }
 
 #main-headline {
@@ -28,6 +31,14 @@
   top: 32px;
   transform: translate(-50%, -50%);
   font-size: revert;
+}
+
+.spacer {
+  flex: 1;
+}
+
+#router-content {
+  overflow-y: auto;
 }
 
 a, a:visited {
@@ -42,19 +53,22 @@ a, a:visited {
 }
 
 #home-sidenav-container {
-  background: none;
+  background: transparent;
   height: 100%;
-  position: fixed;
-  width: 100%;
+}
+
+::ng-deep.mat-drawer-content {
+  overflow: overlay !important;
 }
 
 #sidenav {
   background: black;
   min-width: 150px;
-  box-shadow: 10px -5px 5px black;
+  box-shadow: 10px 0 5px black;
 }
 
 .navItem-text {
-  padding-top: 5px;
+  padding-top: 2px;
   padding-left: 15px;
+  font-size: 22px;
 }

@@ -1,50 +1,57 @@
 <div [ngClass]="getCurrentThemeClassName()" id="app-theme-container">
 <!-- Header -->
-  <mat-toolbar color="primary" id="header">
-    <mat-toolbar-row>
-      <button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu" mat-icon-button>
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      <div class="spacer"></div>
-      <h2 *ngIf="isDesktopLayout" id="main-headline">Music Stream Client</h2>
-      <div class="spacer"></div>
-      <span>{{sessionInfo}}</span>
-      <a (click)="logout()">
-        <button mat-icon-button>
-          <mat-icon>logout</mat-icon>
+  <header color="primary" id="header">
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu" mat-icon-button>
+          <mat-icon>menu</mat-icon>
         </button>
-      </a>
-    </mat-toolbar-row>
-  </mat-toolbar>
-<!-- sidenav -->
-  <mat-sidenav-container autosize hasBackdrop="false" id="home-sidenav-container">
-    <mat-sidenav #sidenav id="sidenav">
-      <mat-nav-list>
-        <a (click)="sidenav.toggle()" mat-list-item routerLink="/">
-          <mat-icon>home</mat-icon>
-          <span class="navItem-text">Home</span>
-        </a>
-        <a (click)="sidenav.toggle()" mat-list-item routerLink="database/browse">
-          <mat-icon>search</mat-icon>
-          <span class="navItem-text">Browse</span>
-        </a>
-        <a (click)="sidenav.toggle()" mat-list-item routerLink="upload">
-          <mat-icon>file_upload</mat-icon>
-          <span class="navItem-text">Upload</span>
-        </a>
-        <a (click)="openSettingsDialog();sidenav.toggle()" mat-list-item>
-          <mat-icon>settings</mat-icon>
-          <span class="navItem-text">Settings</span>
-        </a>
-      </mat-nav-list>
-    </mat-sidenav>
 
-<!-- content -->
-  <router-outlet></router-outlet>
-  </mat-sidenav-container>
+        <div class="spacer"></div>
+        <h2 *ngIf="isDesktopLayout" id="main-headline">Music Stream Client</h2>
+        <div class="spacer"></div>
+        <span>{{sessionInfo}}</span>
+        <a (click)="logout()">
+          <button mat-icon-button>
+            <mat-icon>logout</mat-icon>
+          </button>
+        </a>
+      </mat-toolbar-row>
+    </mat-toolbar>
+  </header>
+<!-- sidenav -->
+  <div id="content">
+    <mat-sidenav-container autosize hasBackdrop="false" id="home-sidenav-container">
+      <mat-sidenav #sidenav id="sidenav">
+        <mat-nav-list>
+          <a (click)="sidenav.toggle()" mat-list-item routerLink="/">
+            <mat-icon>home</mat-icon>
+            <span class="navItem-text">Home</span>
+          </a>
+          <a (click)="sidenav.toggle()" mat-list-item routerLink="database/browse">
+            <mat-icon>search</mat-icon>
+            <span class="navItem-text">Browse</span>
+          </a>
+          <a (click)="sidenav.toggle()" mat-list-item routerLink="upload">
+            <mat-icon>file_upload</mat-icon>
+            <span class="navItem-text">Upload</span>
+          </a>
+          <a (click)="openSettingsDialog();sidenav.toggle()" mat-list-item>
+            <mat-icon>settings</mat-icon>
+            <span class="navItem-text">Settings</span>
+          </a>
+        </mat-nav-list>
+      </mat-sidenav>
+<!-- router - content -->
+    <router-outlet id="router-content"></router-outlet>
+    </mat-sidenav-container>
+  </div>
 <!-- Footer -->
-  <mat-toolbar color="primary" id="footer">
-    <app-mini-player></app-mini-player>
-  </mat-toolbar>
+  <footer color="primary" id="footer">
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <app-mini-player></app-mini-player>
+      </mat-toolbar-row>
+    </mat-toolbar>
+  </footer>
 </div>
