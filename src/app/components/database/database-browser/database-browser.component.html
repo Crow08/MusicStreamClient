@@ -123,7 +123,7 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="genre">
-            <th *matHeaderCellDef mat-header-cell mat-sort-header="genres">Genre</th>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="genres.name">Genre</th>
             <td *matCellDef="let element" mat-cell>
               {{ displayGenreNames(element.genres) }}
             </td>
@@ -200,7 +200,8 @@
           ></tr>
           <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[50, 100, 500]"></mat-paginator>
+        <mat-paginator [length]="totalItems"
+                       [pageSizeOptions]="[5, 100, 500]"></mat-paginator>
       </div>
     </mat-card-footer>
   </form>

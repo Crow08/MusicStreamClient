@@ -1,26 +1,26 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup} from '@angular/forms';
-import {Song} from 'src/app/models/song';
-import {HttpHelperService} from '../../../services/http-helper.service';
-import {MatPaginator} from '@angular/material/paginator';
-import {ObjectSelectInputData} from '../../util/object-select/object-select.component';
-import {Artist} from 'src/app/models/artist';
-import {Genre} from 'src/app/models/genre';
-import {GenericDataObject} from 'src/app/models/genericDataObject';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {SelectionModel} from '@angular/cdk/collections';
-import {from, merge, Observable, of} from 'rxjs';
-import {catchError, delay, startWith, switchMap, tap} from 'rxjs/operators';
-import {MatSort} from '@angular/material/sort';
-import {ServerResultErrorSnackBarComponent} from '../../messages/server-result-error-snack-bar.component';
-import {MatDialog} from '@angular/material/dialog';
-import {AddToPlaylistDialogComponent} from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
-import {YesNoDialogComponent} from '../../dialog/yes-no-dialog/yes-no-dialog.component';
-import {CustomSnackBarComponent} from '../../messages/custom-snack-bar.component';
-import {HttpCodeMessageGenerator} from '../../messages/http-code-message-generator';
-import {EditSongDialogComponent} from '../../dialog/edit-song-dialog/edit-song-dialog.component';
-import {WsService} from 'src/app/services/ws.service';
-import {SessionService} from 'src/app/services/session.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { Song } from 'src/app/models/song';
+import { HttpHelperService } from '../../../services/http-helper.service';
+import { MatPaginator } from '@angular/material/paginator';
+import { ObjectSelectInputData } from '../../util/object-select/object-select.component';
+import { Artist } from 'src/app/models/artist';
+import { Genre } from 'src/app/models/genre';
+import { GenericDataObject } from 'src/app/models/genericDataObject';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
+import { from, merge, Observable, of } from 'rxjs';
+import { catchError, delay, startWith, switchMap, tap } from 'rxjs/operators';
+import { MatSort } from '@angular/material/sort';
+import { ServerResultErrorSnackBarComponent } from '../../messages/server-result-error-snack-bar.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AddToPlaylistDialogComponent } from '../../dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
+import { YesNoDialogComponent } from '../../dialog/yes-no-dialog/yes-no-dialog.component';
+import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
+import { HttpCodeMessageGenerator } from '../../messages/http-code-message-generator';
+import { EditSongDialogComponent } from '../../dialog/edit-song-dialog/edit-song-dialog.component';
+import { WsService } from 'src/app/services/ws.service';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-database-browser',
@@ -47,9 +47,10 @@ export class DatabaseBrowserComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   searchQuery: UntypedFormGroup = this.formBuilder.group({
-    searchObject: ['song', {updateOn: 'change'}],
-    searchKeyword: [undefined, {updateOn: 'change'}],
+    searchObject: ['song', { updateOn: 'change' }],
+    searchKeyword: [undefined, { updateOn: 'change' }],
   });
+  totalItems: number;
 
   constructor(
     private formBuilder: UntypedFormBuilder,
@@ -61,8 +62,7 @@ export class DatabaseBrowserComponent implements OnInit {
     private messageHandler: HttpCodeMessageGenerator,
     private wsService: WsService,
     private sessionService: SessionService
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.sessionService.sessionId.subscribe((id) => {
@@ -119,7 +119,7 @@ export class DatabaseBrowserComponent implements OnInit {
       delay(0),
       switchMap(() => {
         this.isLoadingResults = true;
-        let searchQuery: Promise<Song[]>;
+        let songList: Promise<Song[]>;
         let searchArray = this.selectedOptions.map((song) => song.id);
         switch (this.searchQuery.value.searchObject) {
           case 'song':
@@ -127,34 +127,42 @@ export class DatabaseBrowserComponent implements OnInit {
               this.searchQuery.value.searchKeyword !== null &&
               this.searchQuery.value.searchKeyword !== ''
             ) {
-              searchQuery = this.httpHelperService.getArray(
-                `/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+              songList = this.httpHelperService.getArray(
+                `/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pageSize=${this.paginator.pageSize}`,
                 Song
               );
             } else {
-              searchQuery = this.httpHelperService.getArray(
-                `/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+              const page = this.httpHelperService.getPage(
+                `/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pageSize=${this.paginator.pageSize}`,
                 Song
+              );
+              songList = new Promise((resolve, reject) =>
+                page
+                  .then((value) => {
+                    resolve(value.content);
+                    this.totalItems = value.numberOfElements;
+                  })
+                  .catch(reject)
               );
             }
             break;
           case 'artist':
             searchArray = this.selectedOptions.map((song) => song.id);
-            searchQuery = this.httpHelperService.getArray(
+            songList = this.httpHelperService.getArray(
               `/songs/getSongsByArtist/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
               Song
             );
             break;
           case 'genre':
             searchArray = this.selectedOptions.map((song) => song.id);
-            searchQuery = this.httpHelperService.getArray(
+            songList = this.httpHelperService.getArray(
               `/songs/getSongsByGenre/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
               Song
             );
             break;
           default:
         }
-        return from(searchQuery);
+        return from(songList);
       }),
       tap((songs) => {
         // Flip flag to show that loading has finished.
@@ -163,7 +171,7 @@ export class DatabaseBrowserComponent implements OnInit {
             this.snackBar.openFromComponent(CustomSnackBarComponent, {
               data: {
                 message:
-                  'Didn\'t find the thing you were looking for. Feel free to add it!',
+                  "Didn't find the thing you were looking for. Feel free to add it!",
               },
               duration: 4000,
             });
@@ -201,7 +209,7 @@ export class DatabaseBrowserComponent implements OnInit {
 
   openEditSongDialog(song: any): void {
     const dialogRef = this.editSongDialog.open(EditSongDialogComponent, {
-      data: {song},
+      data: { song },
     });
     dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog result: ${result}`);
