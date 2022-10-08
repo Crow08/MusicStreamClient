@@ -1,13 +1,13 @@
-import {Component} from '@angular/core';
-import {SettingsService, Theme} from '../../../services/settings.service';
-import {MatSliderChange} from '@angular/material/slider';
+import { Component, OnInit } from '@angular/core';
+import { SettingsService, Theme } from '../../services/settings.service';
+import { MatSliderChange } from '@angular/material/slider';
 
 @Component({
-  selector: 'app-site-options-dialog',
-  templateUrl: './site-options-dialog.component.html',
-  styleUrls: ['./site-options-dialog.component.scss'],
+  selector: 'app-settings',
+  templateUrl: './settings.component.html',
+  styleUrls: ['./settings.component.scss'],
 })
-export class SiteOptionsDialogComponent {
+export class SettingsComponent {
   availableThemes: Theme[];
 
   constructor(private settingsService: SettingsService) {

@@ -33,9 +33,9 @@ import { AddObjectButtonComponent } from './components/util/add-object-button/ad
 import { AddToPlaylistDialogComponent } from './components/dialog/add-to-playlist-dialog/add-to-playlist-dialog.component';
 import { YesNoDialogComponent } from './components/dialog/yes-no-dialog/yes-no-dialog.component';
 import { EditSongDialogComponent } from './components/dialog/edit-song-dialog/edit-song-dialog.component';
-import { SiteOptionsDialogComponent } from './components/dialog/site-options-dialog/site-options-dialog.component';
 import { MiniPlayerComponent } from './components/player/mini-player/mini-player.component';
 import { FullPlayerComponent } from './components/player/full-player/full-player.component';
+import { SettingsComponent } from './components/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -63,9 +63,9 @@ import { FullPlayerComponent } from './components/player/full-player/full-player
     AddToPlaylistDialogComponent,
     YesNoDialogComponent,
     EditSongDialogComponent,
-    SiteOptionsDialogComponent,
     MiniPlayerComponent,
     FullPlayerComponent,
+    SettingsComponent,
   ],
   imports: [
     FormsModule,
@@ -99,6 +99,11 @@ import { FullPlayerComponent } from './components/player/full-player/full-player
         {
           path: 'sessions/:sessionId/lobby',
           component: FullPlayerComponent,
+          canActivate: [AuthGuard],
+        },
+        {
+          path: 'settings',
+          component: SettingsComponent,
           canActivate: [AuthGuard],
         },
         { path: '**', redirectTo: '' },
