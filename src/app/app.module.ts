@@ -36,6 +36,7 @@ import { EditSongDialogComponent } from './components/dialog/edit-song-dialog/ed
 import { MiniPlayerComponent } from './components/player/mini-player/mini-player.component';
 import { FullPlayerComponent } from './components/player/full-player/full-player.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { SpotifyDelegateComponent } from './components/player/spotify-delegate/spotify-delegate.component';
 
 @NgModule({
   declarations: [
@@ -66,6 +67,7 @@ import { SettingsComponent } from './components/settings/settings.component';
     MiniPlayerComponent,
     FullPlayerComponent,
     SettingsComponent,
+    SpotifyDelegateComponent,
   ],
   imports: [
     FormsModule,
@@ -104,6 +106,11 @@ import { SettingsComponent } from './components/settings/settings.component';
         {
           path: 'settings',
           component: SettingsComponent,
+          canActivate: [AuthGuard],
+        },
+        {
+          path: 'spotify/redirect',
+          component: SpotifyDelegateComponent,
           canActivate: [AuthGuard],
         },
         { path: '**', redirectTo: '' },

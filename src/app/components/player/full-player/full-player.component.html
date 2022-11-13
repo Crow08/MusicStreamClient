@@ -32,6 +32,8 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
+        <video [hidden]="!isVideoMode()" #videoPlayer></video>
+        <button (click)="fs()">FULLSCREEN</button>
         <mat-progress-bar [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
                           color="accent"></mat-progress-bar>
         <div id="control-buttons">

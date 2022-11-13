@@ -7,7 +7,7 @@ export class Song {
   id: number;
   title: string;
   artist: Artist;
-  path: string;
+  uri: string;
   album: Album;
   genres: Genre[];
   tags: Tag[];

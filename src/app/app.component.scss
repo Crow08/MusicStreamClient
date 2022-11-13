@@ -18,6 +18,12 @@
 
 #footer {
   grid-area: footer;
+  mat-toolbar{
+    min-height: 0;
+    mat-toolbar-row{
+      height: initial;
+    }
+  }
 }
 
 #content {
@@ -64,7 +70,7 @@ a, a:visited {
 #sidenav {
   background: black;
   min-width: 150px;
-  box-shadow: 10px 0 5px black;
+  box-shadow: 10px 0 0 black;
 }
 
 .navItem-text {

@@ -3,7 +3,7 @@ import { PlayerComponent } from '../player.component';
 import { Router } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
 import { AuthenticationService } from '../../../services/authentication.service';
-import { AudioService } from '../../../services/audio.service';
+import { MediaService } from '../../../services/media.service';
 import { WsService } from '../../../services/ws.service';
 import { LatencyComponent } from '../../latency/latency.component';
 
@@ -22,21 +22,21 @@ export class MiniPlayerComponent
     private router: Router,
     httpHelperService: HttpHelperService,
     authenticationService: AuthenticationService,
-    audioService: AudioService,
+    mediaService: MediaService,
     wsService: WsService
   ) {
     super();
     this.httpHelperService = httpHelperService;
     this.authenticationService = authenticationService;
-    this.audioService = audioService;
+    this.mediaService = mediaService;
     this.wsService = wsService;
   }
 
   ngOnInit(): void {
-    this.audioService.addProgressionListener(
+    this.mediaService.addProgressionListener(
       (progression) => (PlayerComponent.progression = progression)
     );
-    this.audioService.songEndedSubject.subscribe(() => {
+    this.mediaService.mediaEndedSubject.subscribe(() => {
       this.publishCommand(`end/${PlayerComponent.currentSong.id}`);
     });
   }
@@ -50,6 +50,8 @@ export class MiniPlayerComponent
   }
 
   displayMiniPlayer() {
-    return !this.router.url.endsWith('lobby');
+    return (
+      !this.router.url.endsWith('lobby') && !this.router.url.endsWith('login')
+    );
   }
 }

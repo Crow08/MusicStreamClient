@@ -2,7 +2,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { LatencyComponent } from '../latency/latency.component';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Song } from '../../models/song';
-import { AudioService } from '../../services/audio.service';
+import { MediaService } from '../../services/media.service';
 import { MatSliderChange } from '@angular/material/slider';
 import { HttpHelperService } from '../../services/http-helper.service';
 import { User } from '../../models/user';
@@ -27,13 +27,14 @@ export abstract class PlayerComponent {
   static songTimeOffset = 0;
   static songRating = 0;
   static userSongRating = 0;
+  static videoElement: HTMLVideoElement;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
   selectedTags: GenericDataObject[] = [];
   protected httpHelperService: HttpHelperService;
   protected authenticationService: AuthenticationService;
-  protected audioService: AudioService;
+  protected mediaService: MediaService;
   protected wsService: WsService;
 
   get sessionUsers() {
@@ -83,6 +84,7 @@ export abstract class PlayerComponent {
     songId: number,
     startTime: number,
     offset: number,
+    isVideo = false,
     directPlay = true,
     updateQueueAndHistory = true
   ): void {
@@ -93,6 +95,9 @@ export abstract class PlayerComponent {
       PlayerComponent.playerState = PlayerState.STOP;
       return;
     }
+    isVideo
+      ? this.mediaService.activateVideoMode(PlayerComponent.videoElement)
+      : this.mediaService.activateAudioMode();
     const basePath = `/songs/${songId}/data`;
     this.httpHelperService
       .getPlain(
@@ -122,7 +127,7 @@ export abstract class PlayerComponent {
   }
 
   setVolume(event: MatSliderChange): void {
-    this.audioService.setVolume(event.value);
+    this.mediaService.setVolume(event.value);
   }
 
   onRating(rating: number): void {
@@ -178,7 +183,7 @@ export abstract class PlayerComponent {
   }
 
   getVolume(): number {
-    return this.audioService.getVolume();
+    return this.mediaService.getVolume();
   }
 
   protected processCommand(jsonString: string): void {
@@ -186,11 +191,16 @@ export abstract class PlayerComponent {
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
-        this.audioService.stop();
-        this.loadNewSong(commandObject.songId, commandObject.time, 0);
+        this.mediaService.stop();
+        this.loadNewSong(
+          commandObject.songId,
+          commandObject.time,
+          0,
+          commandObject.isVideo
+        );
         break;
       case 'Pause':
-        this.audioService.pauseAtPosition(
+        this.mediaService.pauseAtPosition(
           commandObject.position - PlayerComponent.songTimeOffset
         );
         PlayerComponent.playerState = PlayerState.PAUSE;
@@ -199,7 +209,7 @@ export abstract class PlayerComponent {
         this.schedulePlay(commandObject.time);
         break;
       case 'Stop':
-        this.audioService.stop();
+        this.mediaService.stop();
         PlayerComponent.playerState = PlayerState.STOP;
         break;
       case 'Leave':
@@ -225,12 +235,13 @@ export abstract class PlayerComponent {
                 commandObject.currentSong.id,
                 commandObject.time,
                 commandObject.startOffset,
+                commandObject.isVideo,
                 true,
                 false
               );
               break;
             case 'STOP':
-              this.audioService.stop();
+              this.mediaService.stop();
               PlayerComponent.currentSong = new Song();
               PlayerComponent.currentSong.id = commandObject.currentSong.id;
               PlayerComponent.currentSong.title =
@@ -242,6 +253,7 @@ export abstract class PlayerComponent {
                 commandObject.currentSong.id,
                 commandObject.time,
                 commandObject.startOffset,
+                commandObject.isVideo,
                 false
               );
               PlayerComponent.playerState = PlayerState.STOP;
@@ -275,8 +287,8 @@ export abstract class PlayerComponent {
     offset: number,
     directPlay: boolean
   ): void {
-    this.audioService.setSrc(url);
-    this.audioService.setCurrentTime(offset / 1000);
+    this.mediaService.setSrc(url);
+    this.mediaService.setCurrentTime(offset / 1000);
     if (directPlay) {
       this.schedulePlay(
         startTime + this.getLatencyComponent().serverTimeOffset
@@ -287,7 +299,7 @@ export abstract class PlayerComponent {
   private schedulePlay(startTime: number): void {
     PlayerComponent.playerState = PlayerState.WAITING;
     setTimeout(() => {
-      this.audioService.play().catch((reason) => console.error(reason));
+      this.mediaService.play().catch((reason) => console.error(reason));
       PlayerComponent.playerState = PlayerState.PLAY;
     }, startTime - new Date().getTime());
   }

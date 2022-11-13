@@ -68,7 +68,7 @@ export class UploadComponent implements OnInit {
     );
 
     this.httpHelperService
-      .post('/songs/', formData)
+      .post('/songs/upload/', formData)
       .then(() => {
         this.loading = false;
         const inputNode: HTMLInputElement = document.querySelector('#file');

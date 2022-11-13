@@ -4,12 +4,16 @@ import { SettingsService } from './settings.service';
 @Injectable({
   providedIn: 'root',
 })
-export class AudioService {
-  songEndedSubject = new EventEmitter<void>();
+export class MediaService {
+  mediaEndedSubject = new EventEmitter<void>();
   private audio = new Audio();
+  private video: HTMLVideoElement | null = null;
+  private media: HTMLAudioElement | HTMLVideoElement;
+
   private progressionListeners: ((p: number) => void)[] = [];
 
   constructor(private settingsService: SettingsService) {
+    this.media = this.audio;
     this.setVolume(settingsService.defaultVolume);
     this.audio.addEventListener('timeupdate', () => {
       this.progressionListeners.forEach((value) =>
@@ -17,44 +21,66 @@ export class AudioService {
       );
     });
     this.audio.addEventListener('ended', () => {
-      this.songEndedSubject.emit();
+      this.mediaEndedSubject.emit();
     });
   }
 
   play(): Promise<void> {
-    return this.audio.play();
+    return this.media.play();
   }
 
   pause(): void {
-    this.audio.pause();
+    this.media.pause();
   }
 
   stop(): void {
-    this.audio.src = '';
+    this.media.src = '';
   }
 
   setVolume(volume: number): void {
-    this.audio.volume = volume;
+    this.media.volume = volume;
   }
 
   getVolume(): number {
-    return this.audio.volume;
+    return this.media.volume;
   }
 
   setSrc(src: string): void {
-    this.audio.src = src;
+    this.media.src = src;
   }
 
   setCurrentTime(currentTime: number): void {
-    this.audio.currentTime = currentTime;
+    this.media.currentTime = currentTime;
   }
 
   pauseAtPosition(position: number): void {
-    this.audio.pause();
+    this.media.pause();
     this.setCurrentTime(position / 1000);
   }
 
   addProgressionListener(callback: (p: number) => void): void {
     this.progressionListeners.push(callback);
+  }
+
+  activateVideoMode(video: HTMLVideoElement) {
+    this.video = video;
+    this.media = this.video;
+    this.video.addEventListener('timeupdate', () => {
+      this.progressionListeners.forEach((value) =>
+        value((this.video.currentTime / this.video.duration) * 100)
+      );
+    });
+    this.video.addEventListener('ended', () => {
+      this.mediaEndedSubject.emit();
+    });
+  }
+
+  activateAudioMode() {
+    this.video = null;
+    this.media = this.audio;
+  }
+
+  isVideoMode() {
+    return this.video !== null;
   }
 }
