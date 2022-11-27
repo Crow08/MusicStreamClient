@@ -1,0 +1,26 @@
+:host {
+
+  .progress-wrapper {
+    position: relative;
+    .time-display {
+      width: 8em;
+      display: inline-block;
+    }
+    .progress-bar {
+      position: absolute;
+      top: 0.5em;
+      left: 8em;
+      width: calc(100% - 8em);
+    }
+    .overlay-slider {
+      position: absolute;
+      top: -1.1em;
+      left: 7.5em;
+      width: calc(100% - 7em);
+      ::ng-deep .mat-slider-track-background,
+      ::ng-deep .mat-slider-track-fill{
+        background: transparent;
+      }
+    }
+  }
+}

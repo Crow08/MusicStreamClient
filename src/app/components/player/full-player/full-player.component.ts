@@ -24,6 +24,12 @@ export class FullPlayerComponent
   implements AfterViewInit, OnInit
 {
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
+  @ViewChild('videoWrapper') videoWrapper: ElementRef;
+
+  get isFullscreen(): boolean {
+    return document.fullscreenElement != null;
+  }
+
   @ViewChild('videoPlayer') set videoPlayer(videoPlayer: ElementRef) {
     PlayerComponent.videoElement = videoPlayer.nativeElement;
   }
@@ -46,11 +52,8 @@ export class FullPlayerComponent
   }
 
   ngOnInit(): void {
-    this.mediaService.addProgressionListener(
-      (progression) => (PlayerComponent.progression = progression)
-    );
     this.mediaService.mediaEndedSubject.subscribe(() => {
-      this.publishCommand(`end/${PlayerComponent.currentSong.id}`);
+      this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
     });
   }
 
@@ -66,7 +69,48 @@ export class FullPlayerComponent
     return this.mediaService.isVideoMode();
   }
 
-  fs() {
-    PlayerComponent.videoElement.requestFullscreen();
+  private hideCursorTimeout: NodeJS.Timeout | null = null;
+
+  fullscreen() {
+    this.videoWrapper.nativeElement.requestFullscreen();
+    document.onmousemove = () => {
+      if (!!this.hideCursorTimeout) {
+        clearTimeout(this.hideCursorTimeout);
+      }
+      this.videoWrapper.nativeElement.style.cursor = 'default';
+      this.hideCursorTimeout = setTimeout(() => {
+        this.videoWrapper.nativeElement.style.cursor = 'none';
+      }, 1000);
+    };
+  }
+
+  exitFullscreen() {
+    document.onmousemove = undefined;
+    clearTimeout(this.hideCursorTimeout);
+    this.videoWrapper.nativeElement.style.cursor = 'default';
+    document.exitFullscreen().catch(console.error);
+  }
+
+  private singleVideoClickTimeout: NodeJS.Timeout | null = null;
+
+  onVideoClick() {
+    if (!!this.singleVideoClickTimeout) {
+      // double click
+      clearTimeout(this.singleVideoClickTimeout);
+      this.singleVideoClickTimeout = null;
+      this.isFullscreen ? this.exitFullscreen() : this.fullscreen();
+    } else {
+      // single click
+      this.singleVideoClickTimeout = setTimeout(() => {
+        this.publishCommand(
+          this.playerState === 'STOP'
+            ? 'start'
+            : this.playerState === 'PAUSE'
+            ? 'resume'
+            : 'pause'
+        );
+        this.singleVideoClickTimeout = null;
+      }, 250);
+    }
   }
 }

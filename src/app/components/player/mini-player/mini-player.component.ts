@@ -12,10 +12,7 @@ import { LatencyComponent } from '../../latency/latency.component';
   templateUrl: './mini-player.component.html',
   styleUrls: ['./mini-player.component.scss'],
 })
-export class MiniPlayerComponent
-  extends PlayerComponent
-  implements AfterViewInit, OnInit
-{
+export class MiniPlayerComponent extends PlayerComponent implements AfterViewInit, OnInit {
   @ViewChild('miniLatencyComponent') latencyComponent: LatencyComponent;
 
   constructor(
@@ -33,11 +30,8 @@ export class MiniPlayerComponent
   }
 
   ngOnInit(): void {
-    this.mediaService.addProgressionListener(
-      (progression) => (PlayerComponent.progression = progression)
-    );
     this.mediaService.mediaEndedSubject.subscribe(() => {
-      this.publishCommand(`end/${PlayerComponent.currentSong.id}`);
+      this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
     });
   }
 
@@ -50,8 +44,6 @@ export class MiniPlayerComponent
   }
 
   displayMiniPlayer() {
-    return (
-      !this.router.url.endsWith('lobby') && !this.router.url.endsWith('login')
-    );
+    return !this.router.url.endsWith('lobby') && !this.router.url.endsWith('login');
   }
 }

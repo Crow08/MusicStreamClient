@@ -1,14 +1,11 @@
-import { Album } from './album';
 import { Artist } from './artist';
+import { Album } from './album';
+import { Media } from './media';
 import { Genre } from './genre';
-import { Tag } from './tag';
 
-export class Song {
-  id: number;
-  title: string;
+export class Song extends Media {
   artist: Artist;
-  uri: string;
   album: Album;
   genres: Genre[];
-  tags: Tag[];
+  spotify: boolean;
 }

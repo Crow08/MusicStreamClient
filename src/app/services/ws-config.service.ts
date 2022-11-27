@@ -33,7 +33,7 @@ export class WsConfigService {
   myRxStompConfig(): InjectableRxStompConfig {
     return {
       // Which server?
-      brokerURL: `ws://${environment.dbServer}/ws`,
+      brokerURL: `${environment.wsServer}/ws`,
 
       // Headers
       // Typical keys: login, passcode, host

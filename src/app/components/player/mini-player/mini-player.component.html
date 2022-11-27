@@ -1,15 +1,14 @@
 <mat-toolbar *ngIf="displayMiniPlayer()" style="display: flex; background: transparent;">
   <div style="display: flex">
-    <mat-card-title id="song-title">{{currentSong?.title || 'No current song'}}</mat-card-title>
+    <mat-card-title id="song-title">{{currentMedia?.title || 'No current song'}}</mat-card-title>
     <mat-card-subtitle>
-      {{currentSong?.artist?.name || 'Unknown Artist'}}<br/>
+      {{currentMedia?.artist?.name || 'Unknown Artist'}}<br/>
     </mat-card-subtitle>
   </div>
   <div class="spacer"></div>
   <div id="controls" style="display: flex">
     <div>
-      <mat-progress-bar [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
-                        color="accent"></mat-progress-bar>
+      <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"></app-player-track>
       <div id="control-buttons">
         <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
           <mat-icon>skip_previous</mat-icon>

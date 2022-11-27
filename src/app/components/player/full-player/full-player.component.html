@@ -23,19 +23,46 @@
         <mat-icon *ngIf="!drawerRight.opened">chevron_right</mat-icon>
       </button>
       <mat-card-header>
-        <mat-card-title>{{currentSong?.title || 'No current song'}}</mat-card-title>
+        <mat-card-title>{{currentMedia?.title || 'No current song'}}</mat-card-title>
         <mat-card-subtitle>
-          {{currentSong?.artist?.name || 'Unknown Artist'}}<br/>
+          {{(currentMedia && (currentMedia["artist"]?.["name"] || currentMedia["series"]?.["name"])) || 'Unknown Artist'}}<br/>
           <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
                            [songRating]="songRating"></app-rating-star>
           <app-latency #latencyComponent id="latency-component"></app-latency>
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <video [hidden]="!isVideoMode()" #videoPlayer></video>
-        <button (click)="fs()">FULLSCREEN</button>
-        <mat-progress-bar [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
-                          color="accent"></mat-progress-bar>
+        <div [hidden]="!isVideoMode()" #videoWrapper>
+          <video #videoPlayer class="video-player"
+                 (click)="onVideoClick()"></video>
+          <div *ngIf="isFullscreen" class="fullscreen-controls">
+            <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"></app-player-track>
+            <div id="fullscreen-control-buttons">
+              <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
+                <mat-icon>skip_previous</mat-icon>
+              </button>
+              <button
+                (click)="publishCommand(playerState === 'STOP' ? 'start' : playerState === 'PAUSE' ? 'resume' : 'pause')"
+                class="player-controls" color="accent" mat-raised-button>
+                <mat-icon>{{playerState === 'PLAY' ? 'pause' : 'play_arrow'}}</mat-icon>
+              </button>
+              <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
+                <mat-icon>stop</mat-icon>
+              </button>
+              <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
+                <mat-icon>skip_next</mat-icon>
+              </button>
+              <mat-slider (input)="setVolume($event)" class="volume-slider" max="0.4" min="0" step="0.004"
+                          value="{{getVolume()}}"></mat-slider>
+              <div class="spacer"></div>
+              <button (click)="exitFullscreen()" class="player-controls" color="accent"
+                      mat-raised-button>
+                <mat-icon>fullscreen_exit</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+          <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"></app-player-track>
         <div id="control-buttons">
           <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
             <mat-icon>skip_previous</mat-icon>
@@ -58,8 +85,13 @@
                   mat-raised-button>
             <mat-icon>{{loopMode ? 'repeat_on' : 'repeat'}}</mat-icon>
           </button>
-          <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
+          <mat-slider (input)="setVolume($event)" class="volume-slider" max="0.4" min="0" step="0.004"
                       value="{{getVolume()}}"></mat-slider>
+          <div class="spacer"></div>
+          <button [hidden]="!isVideoMode()" (click)="fullscreen()" class="player-controls" color="accent"
+                  mat-raised-button>
+            <mat-icon>fullscreen</mat-icon>
+          </button>
         </div>
         <div (cdkDropListDropped)="drop($event)" cdkDropList id="queue-container">
           <mat-list role="list">
@@ -77,7 +109,7 @@
             <mat-list-item cdkDrag cdkDragDisabled>
               <mat-chip-list>
                 <mat-chip color="primary" selected>
-                  {{currentSong?.title}}
+                  {{currentMedia?.title}}
                   <!-- TODO: Maybe add "*ngIf" so that it appears after the song title loaded. Looks weird otherwise-->
                 </mat-chip>
               </mat-chip-list>

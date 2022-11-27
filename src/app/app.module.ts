@@ -37,6 +37,7 @@ import { MiniPlayerComponent } from './components/player/mini-player/mini-player
 import { FullPlayerComponent } from './components/player/full-player/full-player.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { SpotifyDelegateComponent } from './components/player/spotify-delegate/spotify-delegate.component';
+import { PlayerTrackComponent } from './components/player/player-track/player-track.component';
 
 @NgModule({
   declarations: [
@@ -68,6 +69,7 @@ import { SpotifyDelegateComponent } from './components/player/spotify-delegate/s
     FullPlayerComponent,
     SettingsComponent,
     SpotifyDelegateComponent,
+    PlayerTrackComponent,
   ],
   imports: [
     FormsModule,

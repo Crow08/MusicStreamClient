@@ -48,7 +48,7 @@ export class AuthenticationService {
     user.password = password;
     user.authdata = window.btoa(username + ':' + password);
     return this.http
-      .get<any>(`http://${environment.dbServer}/users/login`, {
+      .get<any>(`${environment.dbServer}/users/login`, {
         headers: AuthenticationService.getAuthHeaderForUser(user),
       })
       .pipe(

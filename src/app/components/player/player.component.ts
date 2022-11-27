@@ -1,15 +1,18 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { LatencyComponent } from '../latency/latency.component';
 import { AuthenticationService } from '../../services/authentication.service';
-import { Song } from '../../models/song';
+import { Media } from '../../models/media';
 import { MediaService } from '../../services/media.service';
 import { MatSliderChange } from '@angular/material/slider';
 import { HttpHelperService } from '../../services/http-helper.service';
 import { User } from '../../models/user';
 import { GenericDataObject } from '../../models/genericDataObject';
 import { WsService } from '../../services/ws.service';
+import { MinimalMedia } from '../../models/minimalMedia';
+import { Song } from '../../models/song';
+import { Video } from '../../models/video';
 
-enum PlayerState {
+export enum PlayerState {
   WAITING = 'WAITING',
   PLAY = 'PLAY',
   PAUSE = 'PAUSE',
@@ -22,9 +25,7 @@ export abstract class PlayerComponent {
   static queue: { id: number; title: string }[] = [];
   static history: { id: number; title: string }[] = [];
   static sessionUsers: User[] = [];
-  static currentSong: Song;
-  static progression = 0;
-  static songTimeOffset = 0;
+  static currentMedia: Media;
   static songRating = 0;
   static userSongRating = 0;
   static videoElement: HTMLVideoElement;
@@ -41,8 +42,8 @@ export abstract class PlayerComponent {
     return PlayerComponent.sessionUsers;
   }
 
-  get currentSong() {
-    return PlayerComponent.currentSong;
+  get currentMedia() {
+    return PlayerComponent.currentMedia;
   }
 
   get userSongRating() {
@@ -69,61 +70,45 @@ export abstract class PlayerComponent {
     return PlayerComponent.queue;
   }
 
-  get progression() {
-    return PlayerComponent.progression;
-  }
-
   abstract getLatencyComponent(): LatencyComponent;
 
   publishCommand(name: string): void {
-    this.getLatencyComponent().startLatencyMeasurement();
+    this.getLatencyComponent()?.startLatencyMeasurement();
     this.wsService.publishSessionCommand(name, name);
   }
 
-  loadNewSong(
-    songId: number,
-    startTime: number,
-    offset: number,
-    isVideo = false,
-    directPlay = true,
-    updateQueueAndHistory = true
-  ): void {
-    if (updateQueueAndHistory) {
-      this.updateQueueAndHistory(songId);
-    }
-    if (songId === -1) {
+  loadNewSong(media: MinimalMedia, startMediaTime: number, startServerTime: number | null): void {
+    if (!media || media.id === -1) {
       PlayerComponent.playerState = PlayerState.STOP;
       return;
     }
-    isVideo
+    const isVideo = media.type.toUpperCase() == 'VIDEO';
+    media.type.toUpperCase() == 'VIDEO'
       ? this.mediaService.activateVideoMode(PlayerComponent.videoElement)
       : this.mediaService.activateAudioMode();
-    const basePath = `/songs/${songId}/data`;
+
     this.httpHelperService
-      .getPlain(
-        `${basePath}${offset === 0 ? '' : `/${offset}`}?X-NPE-PSU-Duration=PT1H`
-      )
+      .getPlain(`/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
       .then((url) => {
-        PlayerComponent.songTimeOffset = offset;
-        this.prepareSongStart(url, startTime, 0, directPlay);
-      })
-      .catch((error) => {
-        if (error.status === 422) {
-          this.httpHelperService
-            .getPlain(`${basePath}?X-NPE-PSU-Duration=PT1H`)
-            .then((url) => {
-              PlayerComponent.songTimeOffset = 0;
-              this.prepareSongStart(url, startTime, offset, directPlay);
-            }, console.error);
-          return;
-        }
-      });
-    this.httpHelperService
-      .get(`/songs/${songId}`, Song)
-      .then((song) => {
-        this.setNewSong(song);
+        this.prepareSongStart(url, startMediaTime, startServerTime);
       })
       .catch(console.error);
+
+    if (isVideo) {
+      this.httpHelperService
+        .get(`/media/video/${media.id}`, Video)
+        .then((video) => {
+          this.setNewMedia(video);
+        })
+        .catch(console.error);
+    } else {
+      this.httpHelperService
+        .get(`/media/song/${media.id}`, Song)
+        .then((song) => {
+          this.setNewMedia(song);
+        })
+        .catch(console.error);
+    }
   }
 
   setVolume(event: MatSliderChange): void {
@@ -132,10 +117,7 @@ export abstract class PlayerComponent {
 
   onRating(rating: number): void {
     this.httpHelperService
-      .put(
-        `/ratings/${PlayerComponent.currentSong.id}/addUserRating/${rating}`,
-        null
-      )
+      .put(`/ratings/${PlayerComponent.currentMedia.id}/addUserRating/${rating}`, null)
       .then(() => {
         this.getRating();
       })
@@ -144,7 +126,7 @@ export abstract class PlayerComponent {
 
   getRating(): void {
     this.httpHelperService
-      .getPlain(`/ratings/getSongRating/${PlayerComponent.currentSong.id}`)
+      .getPlain(`/ratings/getSongRating/${PlayerComponent.currentMedia.id}`)
       .then((rating) => {
         PlayerComponent.songRating = Number(rating);
       })
@@ -153,7 +135,7 @@ export abstract class PlayerComponent {
 
   getUserRating(): void {
     this.httpHelperService
-      .getPlain(`/ratings/getUserRating/${PlayerComponent.currentSong.id}`)
+      .getPlain(`/ratings/getUserRating/${PlayerComponent.currentMedia.id}`)
       .then((rating) => {
         PlayerComponent.userSongRating = Number(rating);
       })
@@ -161,11 +143,7 @@ export abstract class PlayerComponent {
   }
 
   getDisplayHistoryStartIndex(): number {
-    return Math.max(
-      0,
-      PlayerComponent.history.length -
-        Math.max(5, 10 - PlayerComponent.queue.length)
-    );
+    return Math.max(0, PlayerComponent.history.length - Math.max(5, 10 - PlayerComponent.queue.length));
   }
 
   getDisplayQueueLength(): number {
@@ -177,9 +155,7 @@ export abstract class PlayerComponent {
   }
 
   drop(event: CdkDragDrop<string[]>): void {
-    this.publishCommand(
-      `movedSong/${event.previousIndex}/to/${event.currentIndex}`
-    );
+    this.publishCommand(`movedSong/${event.previousIndex}/to/${event.currentIndex}`);
   }
 
   getVolume(): number {
@@ -192,70 +168,52 @@ export abstract class PlayerComponent {
     switch (commandObject.type) {
       case 'Start':
         this.mediaService.stop();
-        this.loadNewSong(
-          commandObject.songId,
-          commandObject.time,
-          0,
-          commandObject.isVideo
-        );
+        this.loadNewSong(commandObject.currentMedia, 0, commandObject.startServerTime);
+        this.updateQueueAndHistory(commandObject.currentMedia.id);
         break;
       case 'Pause':
-        this.mediaService.pauseAtPosition(
-          commandObject.position - PlayerComponent.songTimeOffset
-        );
+        this.mediaService.pauseAtPosition(commandObject.mediaStopTime);
         PlayerComponent.playerState = PlayerState.PAUSE;
         break;
       case 'Resume':
-        this.schedulePlay(commandObject.time);
+        this.schedulePlay(commandObject.startServerTime);
         break;
       case 'Stop':
         this.mediaService.stop();
         PlayerComponent.playerState = PlayerState.STOP;
         break;
       case 'Leave':
-        const userIndex = PlayerComponent.sessionUsers.findIndex(
-          (value) => value.id === commandObject.userId
-        );
+        const userIndex = PlayerComponent.sessionUsers.findIndex((value) => value.id === commandObject.userId);
         if (userIndex != -1) {
           PlayerComponent.sessionUsers.splice(userIndex, 1);
         }
         break;
+      case 'Jump':
+        this.prepareSongStart(
+          null,
+          commandObject.startMediaTime,
+          PlayerComponent.playerState == PlayerState.PLAY ? commandObject.startServerTime : null
+        );
+        break;
       case 'Join':
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
-        if (
-          commandObject.userId ===
-          this.authenticationService.currentUserValue.id
-        ) {
+        if (commandObject.userId === this.authenticationService.currentUserValue.id) {
           PlayerComponent.queue = commandObject.queue;
           PlayerComponent.history = commandObject.history;
           PlayerComponent.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
-              this.loadNewSong(
-                commandObject.currentSong.id,
-                commandObject.time,
-                commandObject.startOffset,
-                commandObject.isVideo,
-                true,
-                false
-              );
+              this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime, commandObject.startServerTime);
               break;
             case 'STOP':
               this.mediaService.stop();
-              PlayerComponent.currentSong = new Song();
-              PlayerComponent.currentSong.id = commandObject.currentSong.id;
-              PlayerComponent.currentSong.title =
-                commandObject.currentSong.title;
+              PlayerComponent.currentMedia = new Media();
+              PlayerComponent.currentMedia.id = commandObject.currentMedia.id;
+              PlayerComponent.currentMedia.title = commandObject.currentMedia.title;
               PlayerComponent.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
-              this.loadNewSong(
-                commandObject.currentSong.id,
-                commandObject.time,
-                commandObject.startOffset,
-                commandObject.isVideo,
-                false
-              );
+              this.loadNewSong(commandObject.currentMedia, commandObject.mediaStopTime, null);
               PlayerComponent.playerState = PlayerState.STOP;
               break;
           }
@@ -281,18 +239,14 @@ export abstract class PlayerComponent {
     }
   }
 
-  private prepareSongStart(
-    url: string,
-    startTime: number,
-    offset: number,
-    directPlay: boolean
-  ): void {
-    this.mediaService.setSrc(url);
-    this.mediaService.setCurrentTime(offset / 1000);
-    if (directPlay) {
-      this.schedulePlay(
-        startTime + this.getLatencyComponent().serverTimeOffset
-      );
+  private prepareSongStart(url: string | null, startMediaTime: number, startServerTime: number | null): void {
+    if (!!url) {
+      this.mediaService.setSrc(url);
+    }
+    this.mediaService.setCurrentTime(startMediaTime / 1000);
+    if (startServerTime !== null) {
+      this.mediaService.pause();
+      this.schedulePlay(startServerTime + this.getLatencyComponent().serverTimeOffset);
     }
   }
 
@@ -309,71 +263,59 @@ export abstract class PlayerComponent {
    * @param songId the song to be played
    */
   private updateQueueAndHistory(songId: number): void {
-    const queueIndex = PlayerComponent.queue.findIndex(
-      (value) => value.id === songId
-    );
+    const queueIndex = PlayerComponent.queue.findIndex((value) => value.id === songId);
     if (queueIndex !== -1) {
       // forward
-      if (PlayerComponent.currentSong) {
+      if (PlayerComponent.currentMedia) {
         PlayerComponent.history.push({
-          id: PlayerComponent.currentSong.id,
-          title: PlayerComponent.currentSong.title,
+          id: PlayerComponent.currentMedia.id,
+          title: PlayerComponent.currentMedia.title,
         });
       }
-      PlayerComponent.currentSong.title = PlayerComponent.queue.splice(
-        queueIndex,
-        1
-      )[0].title;
+      PlayerComponent.currentMedia.title = PlayerComponent.queue.splice(queueIndex, 1)[0].title;
       if (queueIndex !== 0) {
         // was actually backwards loop
-        PlayerComponent.history = PlayerComponent.history.concat(
-          PlayerComponent.queue
-        );
+        PlayerComponent.history = PlayerComponent.history.concat(PlayerComponent.queue);
         PlayerComponent.queue = [];
       }
     } else {
-      const historyIndex = PlayerComponent.history.findIndex(
-        (value) => value.id === songId
-      );
+      const historyIndex = PlayerComponent.history.findIndex((value) => value.id === songId);
       if (historyIndex !== -1) {
         // backwards
-        if (PlayerComponent.currentSong) {
+        if (PlayerComponent.currentMedia) {
           PlayerComponent.queue.unshift({
-            id: PlayerComponent.currentSong.id,
-            title: PlayerComponent.currentSong.title,
+            id: PlayerComponent.currentMedia.id,
+            title: PlayerComponent.currentMedia.title,
           });
         }
-        PlayerComponent.currentSong.title = PlayerComponent.history.splice(
-          historyIndex,
-          1
-        )[0].title;
+        PlayerComponent.currentMedia.title = PlayerComponent.history.splice(historyIndex, 1)[0].title;
         if (historyIndex === 0) {
           // was actually forwards loop
-          PlayerComponent.queue = PlayerComponent.history.concat(
-            PlayerComponent.queue
-          );
+          PlayerComponent.queue = PlayerComponent.history.concat(PlayerComponent.queue);
           PlayerComponent.history = [];
         }
       }
     }
   }
 
-  private setNewSong(song: Song): void {
-    PlayerComponent.currentSong = song;
-    this.selectedAlbum = [
-      new GenericDataObject(song.album.id, song.album.name),
-    ];
-    this.selectedArtist = [
-      new GenericDataObject(song.artist.id, song.artist.name),
-    ];
-    this.selectedGenres = song.genres.map(
-      (value) => new GenericDataObject(value.id, value.name)
-    );
-    this.selectedTags = song.tags.map(
-      (value) => new GenericDataObject(value.id, value.name)
-    );
+  private setNewMedia(media: Media): void {
+    PlayerComponent.currentMedia = media;
+    if (media.type == 'SONG') {
+      this.selectedAlbum = [new GenericDataObject((media as Song).album.id, (media as Song).album.name)];
+      this.selectedArtist = [new GenericDataObject((media as Song).artist.id, (media as Song).artist.name)];
+      this.selectedGenres = (media as Song).genres.map((value) => new GenericDataObject(value.id, value.name));
+    } else {
+      // TODO: dont assign video values to song variables
+      this.selectedAlbum = [new GenericDataObject((media as Video).season.id, (media as Video).season.name)];
+      this.selectedArtist = [new GenericDataObject((media as Video).series.id, (media as Video).series.name)];
+    }
+    this.selectedTags = media.tags.map((value) => new GenericDataObject(value.id, value.name));
 
     this.getRating();
     this.getUserRating();
+  }
+
+  protected jumpOffset(offset) {
+    this.publishCommand(`jump/${offset}`);
   }
 }

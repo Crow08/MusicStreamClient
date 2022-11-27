@@ -2,10 +2,10 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GenericDataObject } from 'src/app/models/genericDataObject';
-import { Song } from 'src/app/models/song';
 import { HttpHelperService } from 'src/app/services/http-helper.service';
 import { CustomSnackBarComponent } from '../../messages/custom-snack-bar.component';
 import { HttpCodeMessageGenerator } from '../../messages/http-code-message-generator';
+import { Song } from '../../../models/song';
 
 @Component({
   selector: 'app-edit-song-dialog',

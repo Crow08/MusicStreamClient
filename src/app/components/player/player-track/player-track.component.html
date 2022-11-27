@@ -1,0 +1,10 @@
+<div class="progress-wrapper">
+  <div class="time-display">
+    {{getTimeDisplay()}}
+  </div>
+  <mat-slider class="overlay-slider" [max]=100 [min]=0 [step]=0.1 [ngModel]="progression"
+              (input)="onSeek($event)">
+  </mat-slider>
+  <mat-progress-bar class="progress-bar" [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
+                    color="accent"></mat-progress-bar>
+</div>

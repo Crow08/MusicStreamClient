@@ -2,8 +2,10 @@
 import { Injectable } from '@angular/core';
 import { HttpHelperService } from './http-helper.service';
 import { HttpParams } from '@angular/common/http';
-import { Song } from '../models/song';
+import { Media } from '../models/media';
 import { Tag } from '../models/tag';
+import { environment } from '../../environments/environment';
+import { Song } from '../models/song';
 
 interface LoginToken {
   token: string;
@@ -15,7 +17,7 @@ interface LoginToken {
   providedIn: 'root',
 })
 export class SpotifyService {
-  clientHost = 'http://localhost:4200';
+  clientHost = environment.frontendServer;
   redirectPath = '/spotify/redirect';
   spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
   spotifyClientId = 'e81973b027b3414f82a39cb0527b7fc2';
@@ -143,8 +145,8 @@ export class SpotifyService {
    * @param {string} url - Url to get song from.
    * @param {number} offset - Offset for playlist entries and paging.
    * @param {number} limit - Playlist entries(max is 100)
-   * @param {Song[]} songs - optional initial song list.
-   * @returns {Promise<Song[]>} - Songs from playlist url.
+   * @param {Media[]} songs - optional initial song list.
+   * @returns {Promise<Media[]>} - Songs from playlist url.
    */
   getSongsViaPlaylistUrl(url, offset = 0, limit = 100, songs = []) {
     return new Promise((resolve, reject) => {
@@ -217,7 +219,7 @@ export class SpotifyService {
   /**
    * Get song via url (without url).
    * @param {string} url - Url to get song from.
-   * @returns {Promise<Song>} - Song from url.
+   * @returns {Promise<Media>} - Song from url.
    */
   getSongViaUrl(url) {
     return new Promise((resolve, reject) => {
@@ -255,7 +257,7 @@ export class SpotifyService {
    * Get songs via query (without url).
    * @param {string} query - Url to get song from.
    * @param {number} limit - Number of songs to be fetched.
-   * @returns {Promise<Song[]>} - Array of songs from url.
+   * @returns {Promise<Media[]>} - Array of songs from url.
    */
   getSongsViaSearchQuery(query, limit = 10) {
     return new Promise((resolve, reject) => {

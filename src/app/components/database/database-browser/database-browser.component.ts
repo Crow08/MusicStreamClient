@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
-import { Song } from 'src/app/models/song';
+import { Media } from 'src/app/models/media';
 import { HttpHelperService } from '../../../services/http-helper.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { ObjectSelectInputData } from '../../util/object-select/object-select.component';
@@ -29,8 +29,8 @@ import { SessionService } from 'src/app/services/session.service';
 })
 export class DatabaseBrowserComponent implements OnInit {
   isLoadingResults = false;
-  currentSongData: Song[] = [];
-  dataSource: Observable<Song[]>;
+  currentSongData: Media[] = [];
+  dataSource: Observable<Media[]>;
   displayedColumns: string[] = [
     'select',
     'title',
@@ -42,7 +42,7 @@ export class DatabaseBrowserComponent implements OnInit {
   modeSelect;
   dataBaseData: ObjectSelectInputData;
   selectedOptions: GenericDataObject[] = [];
-  selection = new SelectionModel<Song>(true, []);
+  selection = new SelectionModel<Media>(true, []);
   inSession: Boolean;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -113,13 +113,13 @@ export class DatabaseBrowserComponent implements OnInit {
   }
 
   submitSearch(): void {
-    this.selection = new SelectionModel<Song>(true, []);
+    this.selection = new SelectionModel<Media>(true, []);
     this.dataSource = merge(this.sort.sortChange, this.paginator.page).pipe(
       startWith({}),
       delay(0),
       switchMap(() => {
         this.isLoadingResults = true;
-        let songList: Promise<Song[]>;
+        let songList: Promise<Media[]>;
         let searchArray = this.selectedOptions.map((song) => song.id);
         switch (this.searchQuery.value.searchObject) {
           case 'song':
@@ -128,13 +128,13 @@ export class DatabaseBrowserComponent implements OnInit {
               this.searchQuery.value.searchKeyword !== ''
             ) {
               songList = this.httpHelperService.getArray(
-                `/songs/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pageSize=${this.paginator.pageSize}`,
-                Song
+                `/media/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pageSize=${this.paginator.pageSize}`,
+                Media
               );
             } else {
               const page = this.httpHelperService.getPage(
-                `/songs/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pageSize=${this.paginator.pageSize}`,
-                Song
+                `/media/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pageSize=${this.paginator.pageSize}`,
+                Media
               );
               songList = new Promise((resolve, reject) =>
                 page
@@ -149,15 +149,15 @@ export class DatabaseBrowserComponent implements OnInit {
           case 'artist':
             searchArray = this.selectedOptions.map((song) => song.id);
             songList = this.httpHelperService.getArray(
-              `/songs/getSongsByArtist/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
-              Song
+              `/media/getSongsByArtist/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+              Media
             );
             break;
           case 'genre':
             searchArray = this.selectedOptions.map((song) => song.id);
             songList = this.httpHelperService.getArray(
-              `/songs/getSongsByGenre/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
-              Song
+              `/media/getSongsByGenre/${searchArray}?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pagesize=${this.paginator.pageSize}`,
+              Media
             );
             break;
           default:
@@ -196,7 +196,7 @@ export class DatabaseBrowserComponent implements OnInit {
     return genres.map((value) => value.name).join(', ');
   }
 
-  openPlaylistDialog(songs: Song[]): void {
+  openPlaylistDialog(songs: Media[]): void {
     const dialogRef = this.playlistDialog.open(AddToPlaylistDialogComponent, {
       data: {
         songIds: songs.map((song) => song.id),
@@ -232,7 +232,7 @@ export class DatabaseBrowserComponent implements OnInit {
     dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
         this.httpHelperService
-          .put(`/songs/deleteSongById/${song.id}`, null)
+          .put(`/media/deleteSongById/${song.id}`, null)
           .then(() => {
             this.submitSearch();
             this.snackBar.openFromComponent(CustomSnackBarComponent, {
@@ -254,7 +254,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  deleteSongs(songs: Song[]): void {
+  deleteSongs(songs: Media[]): void {
     console.log(songs);
     const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
       maxWidth: '400px',
@@ -268,7 +268,7 @@ export class DatabaseBrowserComponent implements OnInit {
     dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
         this.httpHelperService
-          .put(`/songs/deleteSongs`, songs)
+          .put(`/media/deleteSongs`, songs)
           .then(() => {
             this.submitSearch();
             this.snackBar.openFromComponent(CustomSnackBarComponent, {
@@ -290,7 +290,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  addSongToQueue(song: Song): void {
+  addSongToQueue(song: Media): void {
     this.wsService.publishSessionCommand(
       `addSongToQueue`,
       JSON.stringify(song)
@@ -304,7 +304,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  addSongsToQueue(songs: Song[]): void {
+  addSongsToQueue(songs: Media[]): void {
     this.wsService.publishSessionCommand(
       `addSongsToQueue`,
       JSON.stringify(songs)
@@ -318,7 +318,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  playSongNext(song: Song): void {
+  playSongNext(song: Media): void {
     this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
     //this needs work, we cant just claim that it works everytime! #Arrow-function
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
@@ -329,7 +329,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  playSongNow(song: Song): void {
+  playSongNow(song: Media): void {
     this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
     setTimeout(
       () => this.wsService.publishSessionCommand(`skip`, `skip`),

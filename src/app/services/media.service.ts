@@ -53,6 +53,14 @@ export class MediaService {
     this.media.currentTime = currentTime;
   }
 
+  getCurrentTime(): number {
+    return this.media.currentTime;
+  }
+
+  getDuration(): number {
+    return this.media.duration;
+  }
+
   pauseAtPosition(position: number): void {
     this.media.pause();
     this.setCurrentTime(position / 1000);
@@ -73,6 +81,12 @@ export class MediaService {
     this.video.addEventListener('ended', () => {
       this.mediaEndedSubject.emit();
     });
+  }
+
+  getProgressionOffsetInSeconds(progressionPercent) {
+    return (
+      progressionPercent * (this.media.duration / 100) - this.media.currentTime
+    );
   }
 
   activateAudioMode() {

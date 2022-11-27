@@ -58,15 +58,13 @@ export class HttpHelperService {
       headers: this.authenticationService.getAuthHeaderForCurrentUser(),
     };
     return new Promise<T>((resolve, reject) => {
-      this.http
-        .get(`http://${environment.dbServer}${path}`, options)
-        .subscribe({
-          next: (value) => {
-            const result = plainToInstance(clazz, value);
-            resolve(result);
-          },
-          error: reject,
-        });
+      this.http.get(`${environment.dbServer}${path}`, options).subscribe({
+        next: (value) => {
+          const result = plainToInstance(clazz, value);
+          resolve(result);
+        },
+        error: reject,
+      });
     });
   }
 
@@ -77,7 +75,7 @@ export class HttpHelperService {
     };
     return new Promise<string>((resolve, reject) => {
       this.http
-        .get(`http://${environment.dbServer}${path}`, options)
+        .get(`${environment.dbServer}${path}`, options)
         .subscribe({ next: resolve, error: reject });
     });
   }
@@ -87,18 +85,16 @@ export class HttpHelperService {
       headers: this.authenticationService.getAuthHeaderForCurrentUser(),
     };
     return new Promise<T[]>((resolve, reject) => {
-      this.http
-        .get(`http://${environment.dbServer}${path}`, options)
-        .subscribe({
-          next: (valueArray) => {
-            const resultArray: T[] = [];
-            (valueArray as any[]).forEach((rawObject) =>
-              resultArray.push(plainToInstance(clazz, rawObject))
-            );
-            resolve(resultArray);
-          },
-          error: reject,
-        });
+      this.http.get(`${environment.dbServer}${path}`, options).subscribe({
+        next: (valueArray) => {
+          const resultArray: T[] = [];
+          (valueArray as any[]).forEach((rawObject) =>
+            resultArray.push(plainToInstance(clazz, rawObject))
+          );
+          resolve(resultArray);
+        },
+        error: reject,
+      });
     });
   }
 
@@ -107,20 +103,18 @@ export class HttpHelperService {
       headers: this.authenticationService.getAuthHeaderForCurrentUser(),
     };
     return new Promise<Page<T>>((resolve, reject) => {
-      this.http
-        .get(`http://${environment.dbServer}${path}`, options)
-        .subscribe({
-          next: (restPage: RestPage) => {
-            const resultPage = new Page<T>(
-              restPage.content.map((rawObject) =>
-                plainToInstance(clazz, rawObject)
-              ),
-              restPage.totalElements
-            );
-            resolve(resultPage);
-          },
-          error: reject,
-        });
+      this.http.get(`${environment.dbServer}${path}`, options).subscribe({
+        next: (restPage: RestPage) => {
+          const resultPage = new Page<T>(
+            restPage.content.map((rawObject) =>
+              plainToInstance(clazz, rawObject)
+            ),
+            restPage.totalElements
+          );
+          resolve(resultPage);
+        },
+        error: reject,
+      });
     });
   }
 
@@ -130,7 +124,7 @@ export class HttpHelperService {
     };
     return new Promise<T>((resolve, reject) => {
       this.http
-        .post(`http://${environment.dbServer}${path}`, body, options)
+        .post(`${environment.dbServer}${path}`, body, options)
         .subscribe({ next: resolve, error: reject });
     });
   }
@@ -141,7 +135,7 @@ export class HttpHelperService {
     };
     return new Promise<T>((resolve, reject) => {
       this.http
-        .put(`http://${environment.dbServer}${path}`, body, options)
+        .put(`${environment.dbServer}${path}`, body, options)
         .subscribe({ next: resolve, error: reject });
     });
   }
@@ -153,7 +147,7 @@ export class HttpHelperService {
     };
     return new Promise<string>((resolve, reject) => {
       this.http
-        .put(`http://${environment.dbServer}${path}`, body, options)
+        .put(`${environment.dbServer}${path}`, body, options)
         .subscribe({ next: resolve, error: reject });
     });
   }
