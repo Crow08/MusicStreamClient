@@ -12,8 +12,8 @@ import { SettingsService } from './services/settings.service';
 })
 export class AppComponent implements OnInit {
   isDesktopLayout = true;
-  inSession: boolean;
-  sessionInfo = 'Join a session!';
+  inSession = false;
+  sessionInfo = '';
 
   constructor(
     private router: Router,

@@ -1,10 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { Component } from '@angular/core';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Playlist } from '../../../models/playlist';
 import { Router } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
@@ -15,7 +10,7 @@ import { SessionService } from '../../../services/session.service';
   templateUrl: './session-creator.component.html',
   styleUrls: ['./session-creator.component.scss'],
 })
-export class SessionCreatorComponent implements OnInit {
+export class SessionCreatorComponent {
   sessionForm: UntypedFormGroup;
   loading = false;
   submitted = false;
@@ -28,14 +23,7 @@ export class SessionCreatorComponent implements OnInit {
     private formBuilder: UntypedFormBuilder,
     private httpHelperService: HttpHelperService,
     private sessionService: SessionService
-  ) {}
-
-  // convenience getter for easy access to form fields
-  get f(): { [key: string]: AbstractControl } {
-    return this.sessionForm.controls;
-  }
-
-  ngOnInit(): void {
+  ) {
     this.sessionForm = this.formBuilder.group({
       name: ['', Validators.required],
       playlist: ['', Validators.required],
@@ -45,6 +33,11 @@ export class SessionCreatorComponent implements OnInit {
       .getArray('/playlists/all', Playlist)
       .then((value) => (this.playlists = value))
       .catch(console.error);
+  }
+
+  // convenience getter for easy access to form fields
+  get getField(): { [key: string]: AbstractControl } {
+    return this.sessionForm.controls;
   }
 
   onSubmit(): void {
@@ -59,14 +52,14 @@ export class SessionCreatorComponent implements OnInit {
     this.loading = true;
 
     this.httpHelperService
-      .post('/sessions/', this.f.name.value)
+      .post('/sessions/', this.getField['name'].value)
       .then((sessionId) => this.addSongs(Number(sessionId)))
       .catch(console.error);
   }
 
   private addSongs(sessionId: number): void {
     this.httpHelperService
-      .put(`/sessions/${sessionId}/addpl`, this.f.playlist.value)
+      .put(`/sessions/${sessionId}/addpl`, this.getField['playlist'].value)
       .then(() => this.sessionService.joinSession(sessionId))
       .catch(console.error);
   }

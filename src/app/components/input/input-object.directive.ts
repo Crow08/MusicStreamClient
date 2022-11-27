@@ -9,13 +9,13 @@ import { GenericDataObject } from '../../models/genericDataObject';
 export class InputObjectDirective {
   multiMode: boolean;
 
-  @Input() selectedOptions: GenericDataObject[];
+  @Input() selectedOptions!: GenericDataObject[];
   @Output() selectedOptionsChange = new EventEmitter<GenericDataObject[]>();
 
-  addObjectInputData: AddObjectInputData;
-  selectObjectData: ObjectSelectInputData;
+  addObjectInputData: AddObjectInputData = new AddObjectInputData('', [], '');
+  selectObjectData: ObjectSelectInputData = new ObjectSelectInputData('', []);
 
-  constructor(private httpHelperService: HttpHelperService, multiMode) {
+  constructor(private httpHelperService: HttpHelperService, multiMode: boolean) {
     this.multiMode = multiMode;
   }
 

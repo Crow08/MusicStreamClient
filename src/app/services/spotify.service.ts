@@ -6,6 +6,8 @@ import { Media } from '../models/media';
 import { Tag } from '../models/tag';
 import { environment } from '../../environments/environment';
 import { Song } from '../models/song';
+import { Album } from '../models/album';
+import { Artist } from '../models/artist';
 
 interface LoginToken {
   token: string;
@@ -17,19 +19,24 @@ interface LoginToken {
   providedIn: 'root',
 })
 export class SpotifyService {
+  private static refreshJob: NodeJS.Timeout;
   clientHost = environment.frontendServer;
   redirectPath = '/spotify/redirect';
   spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
   spotifyClientId = 'e81973b027b3414f82a39cb0527b7fc2';
-  private static _loginToken: LoginToken = {
-    token: undefined,
-    refreshToken: undefined,
-    expiresIn: undefined,
-  };
-  private static _deviceId: string;
-  private static refreshJob: NodeJS.Timeout;
 
   constructor(private httpHelper: HttpHelperService) {}
+
+  private static _loginToken: LoginToken = {
+    token: '',
+    refreshToken: '',
+    expiresIn: 0,
+  };
+
+  get loginToken(): LoginToken {
+    console.log(SpotifyService._loginToken);
+    return SpotifyService._loginToken;
+  }
 
   set loginToken(loginToken: LoginToken) {
     console.log(loginToken);
@@ -46,10 +53,7 @@ export class SpotifyService {
     }, (loginToken.expiresIn - 60) * 1000);
   }
 
-  get loginToken(): LoginToken {
-    console.log(SpotifyService._loginToken);
-    return SpotifyService._loginToken;
-  }
+  private static _deviceId: string;
 
   get deviceId(): string {
     return SpotifyService._deviceId;
@@ -108,9 +112,7 @@ export class SpotifyService {
       .connect()
       .then((success) => {
         if (success) {
-          console.log(
-            'The Web Playback SDK successfully connected to Spotify!'
-          );
+          console.log('The Web Playback SDK successfully connected to Spotify!');
         }
       })
       .catch(console.error);
@@ -127,17 +129,14 @@ export class SpotifyService {
       position_ms: 0,
     });
 
-    return fetch(
-      `https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`,
-      {
-        body,
-        headers: {
-          Authorization: `Bearer ${this.loginToken.token}`,
-          'Content-Type': 'application/json',
-        },
-        method: 'PUT',
-      }
-    );
+    return fetch(`https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`, {
+      body,
+      headers: {
+        Authorization: `Bearer ${this.loginToken.token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'PUT',
+    });
   }
 
   /**
@@ -148,13 +147,9 @@ export class SpotifyService {
    * @param {Media[]} songs - optional initial song list.
    * @returns {Promise<Media[]>} - Songs from playlist url.
    */
-  getSongsViaPlaylistUrl(url, offset = 0, limit = 100, songs = []) {
+  getSongsViaPlaylistUrl(url: string, offset = 0, limit = 100, songs: Media[] = []): Promise<Media[]> {
     return new Promise((resolve, reject) => {
-      const playlistId = url
-        .toString()
-        .split('playlist/')[1]
-        .split('/')[0]
-        .split('?')[0];
+      const playlistId = url.toString().split('playlist/')[1].split('/')[0].split('?')[0];
 
       fetch(
         `https://api.spotify.com/v1/playlists/${playlistId}/tracks?` +
@@ -177,37 +172,30 @@ export class SpotifyService {
           if (typeof data === 'undefined') {
             reject(new Error('Something went wrong. Try again! [SP]'));
             return;
-          } else if (
-            typeof data.items === 'undefined' ||
-            data.items.length <= 0
-          ) {
-            reject(
-              new Error(
-                'Playlist cannot be read, make sure the playlist is public! [SP]'
-              )
-            );
+          } else if (typeof data.items === 'undefined' || data.items.length <= 0) {
+            reject(new Error('Playlist cannot be read, make sure the playlist is public! [SP]'));
             return;
           }
 
-          data.items.forEach((info) => {
-            const song = new Song();
-            song.title = info.track.name;
-            song.album = info.track.album.name;
-            song.artist = info.track.artists[0].name;
-            song.tags = [new Tag(1, 'spotify')];
-            song.uri = info.track.uri;
+          data.items.forEach((info: any) => {
+            const song = new Song(
+              -1,
+              'SONG',
+              info.track.name,
+              info.track.uri,
+              [new Tag(1, 'spotify')],
+              new Artist(-1, info.track.artists[0].name),
+              new Album(-1, info.track.album.name),
+              [],
+              true
+            );
             songs.push(song);
           });
 
           if (data.next === null) {
             resolve(songs);
           } else {
-            this.getSongsViaPlaylistUrl(
-              url,
-              data.next.split('offset=')[1],
-              data.next.split('limit=')[1],
-              songs
-            )
+            this.getSongsViaPlaylistUrl(url, data.next.split('offset=')[1], data.next.split('limit=')[1], songs)
               .then(resolve)
               .catch(reject);
           }
@@ -219,9 +207,9 @@ export class SpotifyService {
   /**
    * Get song via url (without url).
    * @param {string} url - Url to get song from.
-   * @returns {Promise<Media>} - Song from url.
+   * @returns {Promise<Media>[]} - Song from url.
    */
-  getSongViaUrl(url) {
+  getSongViaUrl(url: string): Promise<Media[]> {
     return new Promise((resolve, reject) => {
       const trackId = url.split('track/')[1].split('/')[0].split('?')[0];
       fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
@@ -241,12 +229,17 @@ export class SpotifyService {
           if (typeof data === 'undefined') {
             return reject(new Error('Something went wrong. Try again! [SP]'));
           }
-          const song = new Song();
-          song.title = data.name;
-          song.album = data.album.name;
-          song.artist = data.artists[0].name;
-          song.tags = [new Tag(1, 'spotify')];
-          song.uri = data.uri;
+          const song = new Song(
+            -1,
+            'SONG',
+            data.name,
+            data.uri,
+            [new Tag(1, 'spotify')],
+            new Artist(-1, data.artists[0].name),
+            new Album(-1, data.album.name),
+            [],
+            true
+          );
           return resolve([song]);
         })
         .catch(reject);
@@ -259,11 +252,9 @@ export class SpotifyService {
    * @param {number} limit - Number of songs to be fetched.
    * @returns {Promise<Media[]>} - Array of songs from url.
    */
-  getSongsViaSearchQuery(query, limit = 10) {
+  getSongsViaSearchQuery(query: string, limit = 10): Promise<Media[]> {
     return new Promise((resolve, reject) => {
-      fetch(
-        `https://api.spotify.com/v1/search?q=${query}&type=track&limit=${limit}&offset=0`
-      )
+      fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=${limit}&offset=0`)
         .then((response) => response.text())
         .then((text) => {
           if (typeof text === 'undefined') {
@@ -271,24 +262,25 @@ export class SpotifyService {
             return;
           }
           const data = JSON.parse(text);
-          if (
-            typeof data === 'undefined' ||
-            typeof data.tracks === 'undefined' ||
-            typeof data.tracks.items === 'undefined'
-          ) {
+          if (typeof data === 'undefined' || typeof data.tracks === 'undefined' || typeof data.tracks.items === 'undefined') {
             return reject(new Error('Something went wrong. Try again! [SP]'));
           }
           if (data.tracks.items.length < 1) {
             return reject(new Error(`No results for Query: "${query}"! [SP]`));
           }
-          const songs = [];
-          data.tracks.items.forEach((item) => {
-            const song = new Song();
-            song.title = item.name;
-            song.album = item.album.name;
-            song.artist = item.artists[0].name;
-            song.tags = [new Tag(1, 'spotify')];
-            song.uri = item.uri;
+          const songs: Media[] = [];
+          data.tracks.items.forEach((item: any) => {
+            const song = new Song(
+              -1,
+              'SONG',
+              item.name,
+              item.uri,
+              [new Tag(1, 'spotify')],
+              new Artist(-1, item.artists[0].name),
+              new Album(-1, item.album.name),
+              [],
+              true
+            );
             songs.push(song);
           });
           return resolve(songs);

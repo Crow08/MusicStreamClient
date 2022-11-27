@@ -22,8 +22,10 @@ export class SettingsComponent {
     this.settingsService.currentTheme = theme;
   }
 
-  setVolume(event: MatSliderChange): void {
-    this.settingsService.defaultVolume = event.value;
+  setVolume({ value }: MatSliderChange): void {
+    if (value !== null) {
+      this.settingsService.defaultVolume = value;
+    }
   }
 
   getCurrentTheme(): Theme {

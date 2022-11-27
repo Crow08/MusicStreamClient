@@ -14,19 +14,12 @@ import { GenericDataObject } from '../../../models/genericDataObject';
   styleUrls: ['../input-object.component.scss'],
 })
 export class TagComponent extends InputObjectDirective implements OnInit {
-  constructor(
-    httpHelperService: HttpHelperService,
-    private snackBar: MatSnackBar
-  ) {
+  constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
     super(httpHelperService, true);
   }
 
   ngOnInit(): void {
-    this.addObjectInputData = new AddObjectInputData(
-      'Tags',
-      [{ displayName: 'Name', key: 'name', value: '' }],
-      '/tags/'
-    );
+    this.addObjectInputData = new AddObjectInputData('Tags', [{ displayName: 'Name', key: 'name', value: '' }], '/tags/');
     this.getData();
   }
 

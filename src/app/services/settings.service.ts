@@ -23,15 +23,13 @@ export class SettingsService {
   public availableThemes = availableThemes;
 
   get currentTheme(): Theme {
-    const index = localStorage.getItem('msc_currentTheme');
-    return availableThemes[index === null ? 0 : index];
+    const storedIndex = localStorage.getItem('msc_currentTheme');
+    const index = storedIndex === null ? 0 : Number(storedIndex);
+    return availableThemes[index];
   }
 
   set currentTheme(theme: Theme) {
-    localStorage.setItem(
-      'msc_currentTheme',
-      String(availableThemes.findIndex((t) => t.className === theme.className))
-    );
+    localStorage.setItem('msc_currentTheme', String(availableThemes.findIndex((t) => t.className === theme.className)));
   }
 
   get defaultVolume(): number {

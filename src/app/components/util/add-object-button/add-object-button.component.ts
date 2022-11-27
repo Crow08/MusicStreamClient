@@ -1,8 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {
-  CreationDialogInputData,
-  NewObjectDialogComponent,
-} from '../../dialog/new-object-dialog/new-object-dialog.component';
+import { CreationDialogInputData, NewObjectDialogComponent } from '../../dialog/new-object-dialog/new-object-dialog.component';
 import { ServerResultSuccessSnackBarComponent } from '../../messages/server-result-success-snack-bar.component';
 import { ServerResultErrorSnackBarComponent } from '../../messages/server-result-error-snack-bar.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,11 +9,7 @@ import { HttpHelperService } from '../../../services/http-helper.service';
 export class AddObjectInputData extends CreationDialogInputData {
   postPath: string;
 
-  constructor(
-    displayName: string,
-    stringProperties: { displayName: string; key: string; value: string }[],
-    postPath: string
-  ) {
+  constructor(displayName: string, stringProperties: { displayName: string; key: string; value: string }[], postPath: string) {
     super(displayName, stringProperties);
     this.postPath = postPath;
   }
@@ -29,13 +22,9 @@ export class AddObjectInputData extends CreationDialogInputData {
 })
 export class AddObjectButtonComponent {
   @Output() objectAdded = new EventEmitter<any>();
-  @Input() private objectInputData: AddObjectInputData;
+  @Input() objectInputData!: AddObjectInputData;
 
-  constructor(
-    private httpHelperService: HttpHelperService,
-    private snackBar: MatSnackBar,
-    public dialog: MatDialog
-  ) {}
+  constructor(private httpHelperService: HttpHelperService, private snackBar: MatSnackBar, public dialog: MatDialog) {}
 
   addObject(): void {
     this.createNewObjectDialog();
@@ -54,12 +43,9 @@ export class AddObjectButtonComponent {
       this.httpHelperService
         .post(this.objectInputData.postPath, result.name)
         .then(() => {
-          this.snackBar.openFromComponent(
-            ServerResultSuccessSnackBarComponent,
-            {
-              duration: 2000,
-            }
-          );
+          this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
+            duration: 2000,
+          });
           this.objectAdded.emit(result);
         })
         .catch(() =>

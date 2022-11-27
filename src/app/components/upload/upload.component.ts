@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ServerResultSuccessSnackBarComponent } from '../messages/server-result-success-snack-bar.component';
@@ -13,10 +13,9 @@ import { GenericDataObject } from '../../models/genericDataObject';
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.scss'],
 })
-export class UploadComponent implements OnInit {
+export class UploadComponent {
   loading = false;
-  files: FileList;
-
+  files: FileList | null = null;
   uploadForm: UntypedFormGroup;
 
   selectedArtist: GenericDataObject[] = [];
@@ -31,17 +30,17 @@ export class UploadComponent implements OnInit {
     private formBuilder: UntypedFormBuilder,
     private snackBar: MatSnackBar,
     public dialog: MatDialog
-  ) {}
-
-  ngOnInit(): void {
-    this.uploadForm = this.formBuilder.group({
+  ) {
+    this.uploadForm = this.uploadForm = this.formBuilder.group({
       files: [undefined],
     });
   }
 
   onFilesSelected(): void {
-    const inputNode: HTMLInputElement = document.querySelector('#file');
-    this.files = inputNode.files;
+    const inputNode: HTMLInputElement | null = document.querySelector('#file');
+    if (inputNode) {
+      this.files = inputNode.files;
+    }
   }
 
   upload(): void {
@@ -54,7 +53,9 @@ export class UploadComponent implements OnInit {
     const formData: FormData = new FormData();
     for (let i = 0; i < this.files.length; i++) {
       const file = this.files.item(i);
-      formData.append('files', file, file.name);
+      if (file) {
+        formData.append('files', file, file.name);
+      }
     }
     formData.append(
       'data',
@@ -71,9 +72,11 @@ export class UploadComponent implements OnInit {
       .post('/songs/upload/', formData)
       .then(() => {
         this.loading = false;
-        const inputNode: HTMLInputElement = document.querySelector('#file');
-        inputNode.files = undefined;
-        this.files = undefined;
+        const inputNode: HTMLInputElement | null = document.querySelector('#file');
+        if (inputNode) {
+          inputNode.files = null;
+        }
+        this.files = null;
         this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
           duration: 2000,
         });

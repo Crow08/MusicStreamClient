@@ -8,17 +8,14 @@ import { WsService } from '../../services/ws.service';
   styleUrls: ['./latency.component.scss'],
 })
 export class LatencyComponent implements AfterViewInit {
-  latency: number;
-  serverTimeOffset: number;
+  latency: number = 0;
+  serverTimeOffset: number = 0;
 
-  private pingStart: number;
+  private pingStart: number = 0;
   private latencySamples: number[] = [];
   private isMeasurementPending = false;
 
-  constructor(
-    private wsService: WsService,
-    private authenticationService: AuthenticationService
-  ) {}
+  constructor(private wsService: WsService, private authenticationService: AuthenticationService) {}
 
   ngAfterViewInit(): void {
     this.initWebsocketLatency();
@@ -47,24 +44,22 @@ export class LatencyComponent implements AfterViewInit {
   }
 
   private initWebsocketLatency(): void {
-    this.wsService.subscribeToUtilLatencyTopic(
-      this.authenticationService.currentUserValue,
-      (body) => this.receivePong(body)
-    );
-    this.pingServer();
+    if (!!this.authenticationService.currentUserValue) {
+      this.wsService.subscribeToUtilLatencyTopic(this.authenticationService.currentUserValue, (body) => this.receivePong(body));
+      this.pingServer();
+    }
   }
 
   private pingServer(): void {
-    this.startLatencyMeasurement();
-    this.wsService.publishUtilCommand(
-      `latency/${this.authenticationService.currentUserValue.id}`,
-      'ping'
-    );
+    if (!!this.authenticationService.currentUserValue) {
+      this.startLatencyMeasurement();
+      this.wsService.publishUtilCommand(`latency/${this.authenticationService.currentUserValue.id}`, 'ping');
+    }
   }
 
-  private receivePong(body): void {
+  private receivePong(value: string): void {
     if (this.endLatencyMeasurement()) {
-      this.calculateServerTimeOffset(Number(body));
+      this.calculateServerTimeOffset(Number(value));
       this.wsService.unsubscribeFromUtilLatencyTopic();
     } else {
       this.pingServer();

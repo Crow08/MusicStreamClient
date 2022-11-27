@@ -30,34 +30,25 @@ export class EditSongDialogComponent {
     this.currentSong = data.song;
 
     this.selectedTitle = this.currentSong.title;
-    this.selectedAlbum = [
-      new GenericDataObject(
-        this.currentSong.album.id,
-        this.currentSong.album.name
-      ),
-    ];
-    this.selectedArtist = [
-      new GenericDataObject(
-        this.currentSong.artist.id,
-        this.currentSong.artist.name
-      ),
-    ];
-    this.selectedGenres = this.currentSong.genres.map(
-      (value) => new GenericDataObject(value.id, value.name)
-    );
-    this.selectedTags = this.currentSong.tags.map(
-      (value) => new GenericDataObject(value.id, value.name)
-    );
+    this.selectedAlbum = [new GenericDataObject(this.currentSong.album.id, this.currentSong.album.name)];
+    this.selectedArtist = [new GenericDataObject(this.currentSong.artist.id, this.currentSong.artist.name)];
+    this.selectedGenres = this.currentSong.genres.map((value) => new GenericDataObject(value.id, value.name));
+    this.selectedTags = this.currentSong.tags.map((value) => new GenericDataObject(value.id, value.name));
   }
 
   saveSong(): void {
-    const alteredSong = new Song();
-    alteredSong.id = this.currentSong.id;
-    alteredSong.title = this.selectedTitle;
-    alteredSong.album = this.selectedAlbum[0];
-    alteredSong.artist = this.selectedArtist[0];
-    alteredSong.genres = this.selectedGenres;
-    alteredSong.tags = this.selectedTags;
+    const alteredSong = new Song(
+      this.currentSong.id,
+      'SONG',
+      this.selectedTitle,
+      this.currentSong.uri,
+      this.selectedTags,
+      this.selectedArtist[0],
+      this.selectedAlbum[0],
+      this.selectedGenres,
+      this.currentSong.spotify
+    );
+
     this.httpHelperService
       .put(`/songs/editSong`, alteredSong)
       .then(() => {

@@ -20,23 +20,23 @@ export class ObjectMultiSelectComponent extends ObjectSelectComponent {
   }
 
   toggleSelection(option: GenericDataObject): void {
-    if (this.isSelected(option)) {
-      this.selectedOptions.splice(
-        this.selectedOptions.findIndex((value) => value.id === option.id),
-        1
-      );
-    } else {
-      this.selectedOptions.push(option);
+    if (!!this.selectedOptions) {
+      if (this.isSelected(option)) {
+        this.selectedOptions.splice(
+          this.selectedOptions.findIndex((value) => value.id === option.id),
+          1
+        );
+      } else {
+        this.selectedOptions.push(option);
+      }
+      this.setOptionsSelected(this.selectedOptions);
     }
-    this.setOptionsSelected(this.selectedOptions);
     this.objectControl.reset();
   }
 
-  display = (): string | undefined => '';
+  override display = (_: number): string => '';
 
   isSelected(option: GenericDataObject): boolean {
-    return (
-      this.selectedOptions.findIndex((value) => value.id === option.id) !== -1
-    );
+    return this.selectedOptions?.findIndex((value) => value.id === option.id) !== -1;
   }
 }

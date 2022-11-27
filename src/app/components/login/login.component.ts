@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AbstractControl,
@@ -19,20 +19,13 @@ import { ErrorStateMatcher } from '@angular/material/core';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   static InputErrorStateMatcher = class implements ErrorStateMatcher {
-    error: boolean;
+    error: boolean = false;
 
-    isErrorState(
-      control: UntypedFormControl | null,
-      form: FormGroupDirective | NgForm | null
-    ): boolean {
+    isErrorState(control: UntypedFormControl | null, form: FormGroupDirective | NgForm | null): boolean {
       const isSubmitted = form && form.submitted;
-      return !!(
-        control &&
-        (control.invalid || this.error) &&
-        (control.dirty || control.touched || isSubmitted)
-      );
+      return !!(control && (control.invalid || this.error) && (control.dirty || control.touched || isSubmitted));
     }
   };
 
@@ -42,7 +35,6 @@ export class LoginComponent implements OnInit {
   returnUrl: string;
   error = '';
   matcher = new LoginComponent.InputErrorStateMatcher();
-  @ViewChild('console') fmDebug;
 
   constructor(
     private formBuilder: UntypedFormBuilder,
@@ -54,21 +46,17 @@ export class LoginComponent implements OnInit {
     if (this.authenticationService.currentUserValue) {
       this.router.navigate(['/']).catch(console.error);
     }
-  }
-
-  // convenience getter for easy access to form fields
-  get f(): { [key: string]: AbstractControl } {
-    return this.loginForm.controls;
-  }
-
-  ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
     });
-
     // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams.returnUrl || '/';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+  }
+
+  // convenience getter for easy access to form fields
+  get getField(): { [key: string]: AbstractControl } {
+    return this.loginForm.controls;
   }
 
   onSubmit(): void {
@@ -83,7 +71,7 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
     this.authenticationService
-      .login(this.f.username.value, this.f.password.value)
+      .login(this.getField['username'].value, this.getField['password'].value)
       .pipe(first())
       .subscribe({
         next: () => {
@@ -91,7 +79,6 @@ export class LoginComponent implements OnInit {
         },
         error: (error) => {
           console.error(error);
-          this.fmDebug.html = error;
           this.error = 'Login failed.';
           this.matcher.error = true;
           this.loading = false;

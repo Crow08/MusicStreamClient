@@ -11,10 +11,7 @@ import { SessionService } from '../../../services/session.service';
 export class SessionBrowserComponent implements OnInit {
   sessions: Session[] = [];
 
-  constructor(
-    private httpHelperService: HttpHelperService,
-    private sessionService: SessionService
-  ) {}
+  constructor(private httpHelperService: HttpHelperService, private sessionService: SessionService) {}
 
   ngOnInit(): void {
     this.httpHelperService

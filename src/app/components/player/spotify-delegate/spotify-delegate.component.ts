@@ -9,20 +9,13 @@ import { SpotifyService } from '../../../services/spotify.service';
 })
 export class SpotifyDelegateComponent implements AfterViewInit {
   @ViewChild('playerContainer')
-  playerContainer: ElementRef;
+  playerContainer: ElementRef | undefined;
   private spotifyPlayerLoaded: boolean = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private spotifyService: SpotifyService
-  ) {
+  constructor(private route: ActivatedRoute, private router: Router, private spotifyService: SpotifyService) {
     route.queryParams.subscribe((urlQueryParams) => {
-      if (
-        router.url.startsWith(spotifyService.redirectPath) &&
-        !!urlQueryParams?.code
-      ) {
-        spotifyService.exchangeAuthCodeForToken(urlQueryParams.code);
+      if (router.url.startsWith(spotifyService.redirectPath) && !!urlQueryParams?.['code']) {
+        spotifyService.exchangeAuthCodeForToken(urlQueryParams['code']);
         router.navigateByUrl('/').catch(console.error);
       }
     });
@@ -35,19 +28,21 @@ export class SpotifyDelegateComponent implements AfterViewInit {
     };
   }
 
-  private initDelegatePlayer() {
-    const scriptTag = document.createElement('script');
-    scriptTag.src = 'https://sdk.scdn.co/spotify-player.js';
-    scriptTag.type = 'text/javascript';
-    scriptTag.async = false;
-    this.playerContainer.nativeElement.appendChild(scriptTag);
-  }
-
   getAuthUrl() {
     return this.spotifyService.getAuthUrl();
   }
 
   testPlay() {
     this.spotifyService.testPlay();
+  }
+
+  private initDelegatePlayer() {
+    const scriptTag = document.createElement('script');
+    scriptTag.src = 'https://sdk.scdn.co/spotify-player.js';
+    scriptTag.type = 'text/javascript';
+    scriptTag.async = false;
+    if (!!this.playerContainer) {
+      this.playerContainer.nativeElement.appendChild(scriptTag);
+    }
   }
 }

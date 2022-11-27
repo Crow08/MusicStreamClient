@@ -8,10 +8,7 @@ import { Injectable } from '@angular/core';
 export class HttpCodeMessageGenerator {
   constructor(private snackBar: MatSnackBar) {}
 
-  public calculateReturnCodeMessage(
-    httpCode: number,
-    customMessages?: any
-  ): void {
+  public calculateReturnCodeMessage(httpCode: number, customMessages?: any): void {
     let message: string;
     // ok, which component needs that message?
     switch (httpCode) {
@@ -22,9 +19,7 @@ export class HttpCodeMessageGenerator {
         message = customMessages?.e404 ? customMessages.e404 : 'Not found!';
         break;
       case 500:
-        message = customMessages?.e500
-          ? customMessages.e500
-          : 'Something went terribly wrong!';
+        message = customMessages?.e500 ? customMessages.e500 : 'Something went terribly wrong!';
         break;
       default:
         message = 'There was an Error, but I dont know, what it means!';

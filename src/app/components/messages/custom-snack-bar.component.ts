@@ -13,8 +13,7 @@ import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
         font-weight: bold;
       }
 
-      ::ng-deep
-        .mat-snack-bar-container.mat-snack-bar-center.http-error-notification {
+      ::ng-deep .mat-snack-bar-container.mat-snack-bar-center.http-error-notification {
         background: rgb(255, 47, 47);
       }
     `,
@@ -55,20 +54,14 @@ export class CustomSnackBarComponent {
     'You monster!',
   ];
 
-  constructor(@Inject(MAT_SNACK_BAR_DATA) { message }) {
+  constructor(@Inject(MAT_SNACK_BAR_DATA) { message }: { message: string }) {
     // set message at the start. message is always there
     switch (message) {
       case 'successMessage':
-        this.message =
-          this.successMessages[
-            Math.floor(Math.random() * this.successMessages.length)
-          ];
+        this.message = this.successMessages[Math.floor(Math.random() * this.successMessages.length)];
         break;
       case 'deleteMessage':
-        this.message =
-          this.deleteMessages[
-            Math.floor(Math.random() * this.deleteMessages.length)
-          ];
+        this.message = this.deleteMessages[Math.floor(Math.random() * this.deleteMessages.length)];
         break;
       default:
         this.message = message;

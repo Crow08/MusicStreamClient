@@ -14,19 +14,12 @@ import { GenericDataObject } from '../../../models/genericDataObject';
   styleUrls: ['../input-object.component.scss'],
 })
 export class GenreComponent extends InputObjectDirective implements OnInit {
-  constructor(
-    httpHelperService: HttpHelperService,
-    private snackBar: MatSnackBar
-  ) {
+  constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
     super(httpHelperService, true);
   }
 
   ngOnInit(): void {
-    this.addObjectInputData = new AddObjectInputData(
-      'Genre',
-      [{ displayName: 'Name', key: 'name', value: '' }],
-      '/genres/'
-    );
+    this.addObjectInputData = new AddObjectInputData('Genre', [{ displayName: 'Name', key: 'name', value: '' }], '/genres/');
     this.getData();
   }
 

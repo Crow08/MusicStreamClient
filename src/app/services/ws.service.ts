@@ -8,13 +8,10 @@ import { WsConfigService } from './ws-config.service';
   providedIn: 'root',
 })
 export class WsService {
-  private static utilLatencyTopic: Subscription;
-  private static SessionControlsTopic: Subscription;
+  private static utilLatencyTopic: Subscription | undefined;
+  private static SessionControlsTopic: Subscription | undefined;
 
-  constructor(
-    private wsConfigService: WsConfigService,
-    private rxStompService: RxStompService
-  ) {}
+  constructor(private wsConfigService: WsConfigService, private rxStompService: RxStompService) {}
 
   publishSessionCommand(name: string, body: string): void {
     if (this.wsConfigService.configParameter.session) {
@@ -45,18 +42,13 @@ export class WsService {
       });
   }
 
-  subscribeToUtilLatencyTopic(
-    user: User,
-    callback: (body: string) => void
-  ): void {
+  subscribeToUtilLatencyTopic(user: User, callback: (body: string) => void): void {
     if (WsService.utilLatencyTopic) {
       WsService.utilLatencyTopic.unsubscribe();
     }
-    WsService.utilLatencyTopic = this.rxStompService
-      .watch(`/topic/util/latency/${user.id}`)
-      .subscribe((message: any) => {
-        callback(message.body);
-      });
+    WsService.utilLatencyTopic = this.rxStompService.watch(`/topic/util/latency/${user.id}`).subscribe((message: any) => {
+      callback(message.body);
+    });
   }
 
   unsubscribeFromSessionTopic(): void {

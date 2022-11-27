@@ -16,9 +16,7 @@ export class MediaService {
     this.media = this.audio;
     this.setVolume(settingsService.defaultVolume);
     this.audio.addEventListener('timeupdate', () => {
-      this.progressionListeners.forEach((value) =>
-        value((this.audio.currentTime / this.audio.duration) * 100)
-      );
+      this.progressionListeners.forEach((value) => value((this.audio.currentTime / this.audio.duration) * 100));
     });
     this.audio.addEventListener('ended', () => {
       this.mediaEndedSubject.emit();
@@ -74,19 +72,19 @@ export class MediaService {
     this.video = video;
     this.media = this.video;
     this.video.addEventListener('timeupdate', () => {
-      this.progressionListeners.forEach((value) =>
-        value((this.video.currentTime / this.video.duration) * 100)
-      );
+      this.progressionListeners.forEach((value) => {
+        if (!!this.video) {
+          value((this.video.currentTime / this.video.duration) * 100);
+        }
+      });
     });
     this.video.addEventListener('ended', () => {
       this.mediaEndedSubject.emit();
     });
   }
 
-  getProgressionOffsetInSeconds(progressionPercent) {
-    return (
-      progressionPercent * (this.media.duration / 100) - this.media.currentTime
-    );
+  getProgressionOffsetInSeconds(progressionPercent: number) {
+    return progressionPercent * (this.media.duration / 100) - this.media.currentTime;
   }
 
   activateAudioMode() {

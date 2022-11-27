@@ -11,15 +11,11 @@ import { WsConfigService } from './ws-config.service';
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private currentUserSubject: BehaviorSubject<User>;
+  private currentUserSubject: BehaviorSubject<User | null>;
 
-  constructor(
-    private http: HttpClient,
-    private wsConfigService: WsConfigService
-  ) {
-    this.currentUserSubject = new BehaviorSubject<User>(
-      JSON.parse(localStorage.getItem('currentUser'))
-    );
+  constructor(private http: HttpClient, private wsConfigService: WsConfigService) {
+    const storedUser = localStorage.getItem('currentUser');
+    this.currentUserSubject = new BehaviorSubject<User | null>(storedUser ? JSON.parse(storedUser) : null);
     this.currentUserSubject.subscribe((value) =>
       this.wsConfigService.updateWsConfig({
         login: value?.username,
@@ -28,25 +24,24 @@ export class AuthenticationService {
     );
   }
 
-  public get currentUserValue(): User {
+  public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
   }
 
-  private static getAuthHeaderForUser(user: User): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Basic ${user.authdata}` });
+  private static getAuthHeaderForUser(user: User | null): HttpHeaders {
+    if (user) {
+      return new HttpHeaders({ Authorization: `Basic ${user.authdata}` });
+    } else {
+      return new HttpHeaders();
+    }
   }
 
   public getAuthHeaderForCurrentUser(): HttpHeaders {
-    return AuthenticationService.getAuthHeaderForUser(
-      this.currentUserSubject.value
-    );
+    return AuthenticationService.getAuthHeaderForUser(this.currentUserSubject.value);
   }
 
   login(username: string, password: string): Observable<User> {
-    const user = new User();
-    user.username = username;
-    user.password = password;
-    user.authdata = window.btoa(username + ':' + password);
+    const user = new User(-1, username, password, window.btoa(username + ':' + password));
     return this.http
       .get<any>(`${environment.dbServer}/users/login`, {
         headers: AuthenticationService.getAuthHeaderForUser(user),

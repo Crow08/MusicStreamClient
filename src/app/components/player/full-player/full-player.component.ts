@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PlayerComponent } from '../player.component';
 import { ActivatedRoute } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
@@ -19,20 +13,11 @@ import { LatencyComponent } from '../../latency/latency.component';
   templateUrl: './full-player.component.html',
   styleUrls: ['./full-player.component.scss'],
 })
-export class FullPlayerComponent
-  extends PlayerComponent
-  implements AfterViewInit, OnInit
-{
-  @ViewChild('latencyComponent') latencyComponent: LatencyComponent;
-  @ViewChild('videoWrapper') videoWrapper: ElementRef;
-
-  get isFullscreen(): boolean {
-    return document.fullscreenElement != null;
-  }
-
-  @ViewChild('videoPlayer') set videoPlayer(videoPlayer: ElementRef) {
-    PlayerComponent.videoElement = videoPlayer.nativeElement;
-  }
+export class FullPlayerComponent extends PlayerComponent implements AfterViewInit, OnInit {
+  @ViewChild('latencyComponent') latencyComponent: LatencyComponent | undefined;
+  @ViewChild('videoWrapper') videoWrapper: ElementRef | undefined;
+  private hideCursorTimeout: NodeJS.Timeout | null = null;
+  private singleVideoClickTimeout: NodeJS.Timeout | null = null;
 
   constructor(
     route: ActivatedRoute,
@@ -51,6 +36,14 @@ export class FullPlayerComponent
     sessionService.joinSession(Number(routeParams.get('sessionId')));
   }
 
+  get isFullscreen(): boolean {
+    return document.fullscreenElement != null;
+  }
+
+  @ViewChild('videoPlayer') set videoPlayer(videoPlayer: ElementRef) {
+    PlayerComponent.videoElement = videoPlayer.nativeElement;
+  }
+
   ngOnInit(): void {
     this.mediaService.mediaEndedSubject.subscribe(() => {
       this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
@@ -61,7 +54,7 @@ export class FullPlayerComponent
     this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
   }
 
-  getLatencyComponent(): LatencyComponent {
+  getLatencyComponent(): LatencyComponent | undefined {
     return this.latencyComponent;
   }
 
@@ -69,29 +62,37 @@ export class FullPlayerComponent
     return this.mediaService.isVideoMode();
   }
 
-  private hideCursorTimeout: NodeJS.Timeout | null = null;
-
   fullscreen() {
+    if (!this.videoWrapper) {
+      console.error('Page not loaded properly!');
+      return;
+    }
     this.videoWrapper.nativeElement.requestFullscreen();
     document.onmousemove = () => {
       if (!!this.hideCursorTimeout) {
         clearTimeout(this.hideCursorTimeout);
       }
-      this.videoWrapper.nativeElement.style.cursor = 'default';
+      if (!!this.videoWrapper) {
+        this.videoWrapper.nativeElement.style.cursor = 'default';
+      }
       this.hideCursorTimeout = setTimeout(() => {
-        this.videoWrapper.nativeElement.style.cursor = 'none';
+        if (!!this.videoWrapper) {
+          this.videoWrapper.nativeElement.style.cursor = 'none';
+        }
       }, 1000);
     };
   }
 
   exitFullscreen() {
-    document.onmousemove = undefined;
-    clearTimeout(this.hideCursorTimeout);
-    this.videoWrapper.nativeElement.style.cursor = 'default';
+    document.onmousemove = () => undefined;
+    if (!!this.hideCursorTimeout) {
+      clearTimeout(this.hideCursorTimeout);
+    }
+    if (!!this.videoWrapper) {
+      this.videoWrapper.nativeElement.style.cursor = 'default';
+    }
     document.exitFullscreen().catch(console.error);
   }
-
-  private singleVideoClickTimeout: NodeJS.Timeout | null = null;
 
   onVideoClick() {
     if (!!this.singleVideoClickTimeout) {
@@ -102,13 +103,7 @@ export class FullPlayerComponent
     } else {
       // single click
       this.singleVideoClickTimeout = setTimeout(() => {
-        this.publishCommand(
-          this.playerState === 'STOP'
-            ? 'start'
-            : this.playerState === 'PAUSE'
-            ? 'resume'
-            : 'pause'
-        );
+        this.publishCommand(this.playerState === 'STOP' ? 'start' : this.playerState === 'PAUSE' ? 'resume' : 'pause');
         this.singleVideoClickTimeout = null;
       }, 250);
     }

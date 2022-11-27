@@ -14,12 +14,9 @@ import { GenericDataObject } from '../../../models/genericDataObject';
   styleUrls: ['../input-object.component.scss'],
 })
 export class PlaylistComponent extends InputObjectDirective implements OnInit {
-  @Input() multiMode = true;
+  @Input() override multiMode = true;
 
-  constructor(
-    httpHelperService: HttpHelperService,
-    private snackBar: MatSnackBar
-  ) {
+  constructor(httpHelperService: HttpHelperService, private snackBar: MatSnackBar) {
     super(httpHelperService, true);
   }
 

@@ -14,11 +14,7 @@ export class WsConfigService {
 
   constructor() {}
 
-  updateWsConfig(config: {
-    login?: string;
-    auth?: string;
-    session?: number;
-  }): void {
+  updateWsConfig(config: { login?: string; auth?: string; session?: number }): void {
     if (config.session) {
       this.configParameter.session = String(config.session);
     }

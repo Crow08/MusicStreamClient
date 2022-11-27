@@ -7,8 +7,8 @@ import { ThemePalette } from '@angular/material/core';
   styleUrls: ['./rating-star.component.scss'],
 })
 export class RatingStarComponent implements OnInit {
-  @Input() currentRating;
-  @Input() songRating;
+  @Input() currentRating!: number;
+  @Input() songRating!: number;
   @Output() rating = new EventEmitter<number>();
 
   maxRating = 5;
@@ -30,8 +30,8 @@ export class RatingStarComponent implements OnInit {
     }
   }
 
-  endHover(e): void {
-    if (!!e && e.relatedTarget.localName !== 'mat-icon') {
+  endHover(e: MouseEvent): void {
+    if (!!e && !!e.relatedTarget && (e.relatedTarget as Element).localName !== 'mat-icon') {
       this.resetColors();
     }
   }

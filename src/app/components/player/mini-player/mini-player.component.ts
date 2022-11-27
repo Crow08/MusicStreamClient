@@ -13,7 +13,7 @@ import { LatencyComponent } from '../../latency/latency.component';
   styleUrls: ['./mini-player.component.scss'],
 })
 export class MiniPlayerComponent extends PlayerComponent implements AfterViewInit, OnInit {
-  @ViewChild('miniLatencyComponent') latencyComponent: LatencyComponent;
+  @ViewChild('miniLatencyComponent') latencyComponent: LatencyComponent | undefined;
 
   constructor(
     private router: Router,
@@ -39,11 +39,12 @@ export class MiniPlayerComponent extends PlayerComponent implements AfterViewIni
     this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
   }
 
-  getLatencyComponent(): LatencyComponent {
+  getLatencyComponent(): LatencyComponent | undefined {
     return this.latencyComponent;
   }
 
   displayMiniPlayer() {
-    return !this.router.url.endsWith('lobby') && !this.router.url.endsWith('login');
+    const url = this.router.url.substring(0, this.router.url.indexOf('?'));
+    return !url.endsWith('lobby') && !url.endsWith('login');
   }
 }

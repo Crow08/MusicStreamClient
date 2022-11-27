@@ -13,7 +13,7 @@ import { HttpCodeMessageGenerator } from '../../messages/http-code-message-gener
 })
 export class AddToPlaylistDialogComponent implements OnInit {
   selectedOptions: GenericDataObject[] = [];
-  songIds: number[];
+  songIds: number[] = [];
 
   constructor(
     private httpHelperService: HttpHelperService,

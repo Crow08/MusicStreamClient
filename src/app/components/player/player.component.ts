@@ -25,7 +25,7 @@ export abstract class PlayerComponent {
   static queue: { id: number; title: string }[] = [];
   static history: { id: number; title: string }[] = [];
   static sessionUsers: User[] = [];
-  static currentMedia: Media;
+  static currentMedia: Media = new Media(-1, 'SONG', '', '', []);
   static songRating = 0;
   static userSongRating = 0;
   static videoElement: HTMLVideoElement;
@@ -33,10 +33,10 @@ export abstract class PlayerComponent {
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
   selectedTags: GenericDataObject[] = [];
-  protected httpHelperService: HttpHelperService;
-  protected authenticationService: AuthenticationService;
-  protected mediaService: MediaService;
-  protected wsService: WsService;
+  protected httpHelperService!: HttpHelperService;
+  protected authenticationService!: AuthenticationService;
+  protected mediaService!: MediaService;
+  protected wsService!: WsService;
 
   get sessionUsers() {
     return PlayerComponent.sessionUsers;
@@ -70,10 +70,9 @@ export abstract class PlayerComponent {
     return PlayerComponent.queue;
   }
 
-  abstract getLatencyComponent(): LatencyComponent;
+  abstract getLatencyComponent(): LatencyComponent | undefined;
 
   publishCommand(name: string): void {
-    this.getLatencyComponent()?.startLatencyMeasurement();
     this.wsService.publishSessionCommand(name, name);
   }
 
@@ -111,8 +110,10 @@ export abstract class PlayerComponent {
     }
   }
 
-  setVolume(event: MatSliderChange): void {
-    this.mediaService.setVolume(event.value);
+  setVolume({ value }: MatSliderChange): void {
+    if (value !== null) {
+      this.mediaService.setVolume(value);
+    }
   }
 
   onRating(rating: number): void {
@@ -163,7 +164,6 @@ export abstract class PlayerComponent {
   }
 
   protected processCommand(jsonString: string): void {
-    this.getLatencyComponent().endLatencyMeasurement();
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
@@ -197,7 +197,7 @@ export abstract class PlayerComponent {
         break;
       case 'Join':
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
-        if (commandObject.userId === this.authenticationService.currentUserValue.id) {
+        if (commandObject.userId === this.authenticationService.currentUserValue?.id) {
           PlayerComponent.queue = commandObject.queue;
           PlayerComponent.history = commandObject.history;
           PlayerComponent.loopMode = commandObject.loopMode;
@@ -207,9 +207,9 @@ export abstract class PlayerComponent {
               break;
             case 'STOP':
               this.mediaService.stop();
-              PlayerComponent.currentMedia = new Media();
-              PlayerComponent.currentMedia.id = commandObject.currentMedia.id;
-              PlayerComponent.currentMedia.title = commandObject.currentMedia.title;
+              const media = commandObject.currentMedia;
+              const mediaType = media.type.toUpperCase() as 'VIDEO' | 'SONG';
+              PlayerComponent.currentMedia = new Media(media.id, mediaType, media.title, '', []);
               PlayerComponent.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
@@ -239,6 +239,16 @@ export abstract class PlayerComponent {
     }
   }
 
+  protected jumpOffset(offset: number) {
+    this.publishCommand(`jump/${offset}`);
+  }
+
+  protected getSubTitle() {
+    return this.currentMedia.type == 'SONG'
+      ? (this.currentMedia as Song).artist?.name
+      : (this.currentMedia as Video).series?.name;
+  }
+
   private prepareSongStart(url: string | null, startMediaTime: number, startServerTime: number | null): void {
     if (!!url) {
       this.mediaService.setSrc(url);
@@ -246,7 +256,8 @@ export abstract class PlayerComponent {
     this.mediaService.setCurrentTime(startMediaTime / 1000);
     if (startServerTime !== null) {
       this.mediaService.pause();
-      this.schedulePlay(startServerTime + this.getLatencyComponent().serverTimeOffset);
+      const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
+      this.schedulePlay(startServerTime + timeOffset);
     }
   }
 
@@ -313,9 +324,5 @@ export abstract class PlayerComponent {
 
     this.getRating();
     this.getUserRating();
-  }
-
-  protected jumpOffset(offset) {
-    this.publishCommand(`jump/${offset}`);
   }
 }

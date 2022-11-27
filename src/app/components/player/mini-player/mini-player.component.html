@@ -1,8 +1,8 @@
 <mat-toolbar *ngIf="displayMiniPlayer()" style="display: flex; background: transparent;">
   <div style="display: flex">
-    <mat-card-title id="song-title">{{currentMedia?.title || 'No current song'}}</mat-card-title>
+    <mat-card-title id="song-title">{{currentMedia.title || 'No current song'}}</mat-card-title>
     <mat-card-subtitle>
-      {{currentMedia?.artist?.name || 'Unknown Artist'}}<br/>
+      {{getSubTitle() || 'Unknown Artist'}}<br/>
     </mat-card-subtitle>
   </div>
   <div class="spacer"></div>

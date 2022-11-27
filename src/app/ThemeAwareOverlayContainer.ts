@@ -5,24 +5,21 @@ import { Platform } from '@angular/cdk/platform';
 import { availableThemes } from './services/settings.service';
 
 @Injectable({ providedIn: 'root' })
-export class ThemeAwareOverlayContainer
-  extends OverlayContainer
-  implements OnDestroy
-{
+export class ThemeAwareOverlayContainer extends OverlayContainer implements OnDestroy {
   constructor(@Inject(DOCUMENT) document: any, platform: Platform) {
     super(document, platform);
   }
 
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
     super.ngOnDestroy();
   }
 
-  getContainerElement(): HTMLElement {
+  override getContainerElement(): HTMLElement {
     this.appendTheme();
     return super.getContainerElement();
   }
 
-  protected _createContainer(): void {
+  protected override _createContainer(): void {
     super._createContainer();
     this.appendTheme();
   }
@@ -31,21 +28,16 @@ export class ThemeAwareOverlayContainer
     if (!this._containerElement) {
       return;
     }
-    const toBeRemoved = [];
+    const toBeRemoved: string[] = [];
     this._containerElement.classList.forEach((containerClass) => {
-      if (
-        !!availableThemes.find(
-          (themeClass) => themeClass.className === containerClass
-        )
-      ) {
+      if (!!availableThemes.find((themeClass) => themeClass.className === containerClass)) {
         toBeRemoved.push(containerClass);
       }
     });
-    toBeRemoved.forEach((themeClass) =>
-      this._containerElement.classList.remove(themeClass)
-    );
-    this._containerElement.classList.add(
-      document.querySelector('#app-theme-container').className
-    );
+    toBeRemoved.forEach((themeClass) => this._containerElement.classList.remove(themeClass));
+    const themeContainer = document.querySelector('#app-theme-container');
+    if (!!themeContainer) {
+      this._containerElement.classList.add(themeContainer.className);
+    }
   }
 }

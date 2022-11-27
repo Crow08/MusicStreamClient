@@ -10,9 +10,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class SessionService {
-  public sessionId: BehaviorSubject<number> = new BehaviorSubject<number>(
-    undefined
-  );
+  public sessionId: BehaviorSubject<number | null> = new BehaviorSubject<number | null>(null);
 
   constructor(
     private router: Router,
@@ -29,31 +27,23 @@ export class SessionService {
       this.leaveSession();
     }
     this.sessionId.next(sessionId);
-    this.router
-      .navigateByUrl(`/sessions/${sessionId}/lobby`)
-      .catch(console.error);
+    this.router.navigateByUrl(`/sessions/${sessionId}/lobby`).catch(console.error);
     this.wsConfigService.updateWsConfig({
-      session: this.sessionId.getValue(),
+      session: sessionId,
     });
     this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
 
-    setTimeout(
-      () =>
-        this.wsService.publishSessionCommand(
-          `join/${this.authenticationService.currentUserValue.id}`,
-          'join'
-        ),
-      1000
-    );
+    setTimeout(() => {
+      if (!!this.authenticationService.currentUserValue) {
+        this.wsService.publishSessionCommand(`join/${this.authenticationService.currentUserValue.id}`, 'join');
+      }
+    }, 1000);
   }
 
   private leaveSession(): void {
-    if (this.sessionId.getValue() !== undefined) {
-      this.sessionId.next(undefined);
-      this.wsService.publishSessionCommand(
-        `leave/${this.authenticationService.currentUserValue.id}`,
-        'leave'
-      );
+    if (this.sessionId.getValue() !== undefined && !!this.authenticationService.currentUserValue) {
+      this.sessionId.next(null);
+      this.wsService.publishSessionCommand(`leave/${this.authenticationService.currentUserValue.id}`, 'leave');
     }
   }
 }

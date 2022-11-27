@@ -1,5 +1,5 @@
 <div *ngIf="selectObjectData">
-  <mat-form-field appearance="{{appearance}}">
+  <mat-form-field [appearance]="appearance">
     <mat-label>{{selectObjectData.displayName}}:</mat-label>
     <input (change)="selectionChanged()" [formControl]="objectControl" [matAutocomplete]="objectAC" matInput
            type="text" value="selectedOptions[0]?.name">

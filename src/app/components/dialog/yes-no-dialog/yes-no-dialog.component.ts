@@ -14,15 +14,10 @@ export interface DialogData {
   styleUrls: ['./yes-no-dialog.component.scss'],
 })
 export class YesNoDialogComponent {
-  title: string;
-  message: string;
   yesButton: string = 'Yes';
   noButton: string = 'No';
 
-  constructor(
-    public dialogRef: MatDialogRef<YesNoDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {
+  constructor(public dialogRef: MatDialogRef<YesNoDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogData) {
     if (data.yesButton) {
       this.yesButton = data.yesButton;
     }

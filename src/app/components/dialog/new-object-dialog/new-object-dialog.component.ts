@@ -5,10 +5,7 @@ export class CreationDialogInputData {
   displayName: string;
   stringProperties: { displayName: string; key: string; value: string }[];
 
-  constructor(
-    displayName: string,
-    stringProperties: { displayName: string; key: string; value: string }[]
-  ) {
+  constructor(displayName: string, stringProperties: { displayName: string; key: string; value: string }[]) {
     this.displayName = displayName;
     this.stringProperties = stringProperties;
   }
@@ -30,7 +27,7 @@ export class NewObjectDialogComponent {
   }
 
   getData(): object {
-    return this.data.stringProperties.reduce((obj, prop) => {
+    return this.data.stringProperties.reduce((obj: any, prop) => {
       obj[prop.key] = prop.value;
       return obj;
     }, {});

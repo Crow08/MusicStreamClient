@@ -19,7 +19,7 @@
       </mat-form-field>
       <br/>
       <mat-form-field
-        *ngIf="searchQuery.get('searchObject').value === 'song'"
+        *ngIf="searchQuery.get('searchObject')?.value === 'song'"
         appearance="fill"
       >
         <mat-label>Keyword...</mat-label>
@@ -30,7 +30,7 @@
         />
       </mat-form-field>
       <app-object-multi-select
-        *ngIf="!(searchQuery.get('searchObject').value === 'song')"
+        *ngIf="!(searchQuery.get('searchObject')?.value === 'song')"
         [(selectedOptions)]="selectedOptions"
         [appearance]="'fill'"
         [selectObjectData]="dataBaseData"

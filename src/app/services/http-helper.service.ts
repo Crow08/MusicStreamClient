@@ -48,10 +48,7 @@ export class Page<T> {
   providedIn: 'root',
 })
 export class HttpHelperService {
-  constructor(
-    private http: HttpClient,
-    private authenticationService: AuthenticationService
-  ) {}
+  constructor(private http: HttpClient, private authenticationService: AuthenticationService) {}
 
   public get<T>(path: string, clazz: ClassConstructor<T>): Promise<T> {
     const options = {
@@ -74,9 +71,7 @@ export class HttpHelperService {
       responseType: 'text' as 'text',
     };
     return new Promise<string>((resolve, reject) => {
-      this.http
-        .get(`${environment.dbServer}${path}`, options)
-        .subscribe({ next: resolve, error: reject });
+      this.http.get(`${environment.dbServer}${path}`, options).subscribe({ next: resolve, error: reject });
     });
   }
 
@@ -88,9 +83,7 @@ export class HttpHelperService {
       this.http.get(`${environment.dbServer}${path}`, options).subscribe({
         next: (valueArray) => {
           const resultArray: T[] = [];
-          (valueArray as any[]).forEach((rawObject) =>
-            resultArray.push(plainToInstance(clazz, rawObject))
-          );
+          (valueArray as any[]).forEach((rawObject) => resultArray.push(plainToInstance(clazz, rawObject)));
           resolve(resultArray);
         },
         error: reject,
@@ -104,11 +97,10 @@ export class HttpHelperService {
     };
     return new Promise<Page<T>>((resolve, reject) => {
       this.http.get(`${environment.dbServer}${path}`, options).subscribe({
-        next: (restPage: RestPage) => {
+        next: (value) => {
+          const restPage = value as RestPage;
           const resultPage = new Page<T>(
-            restPage.content.map((rawObject) =>
-              plainToInstance(clazz, rawObject)
-            ),
+            restPage.content.map((rawObject) => plainToInstance(clazz, rawObject)),
             restPage.totalElements
           );
           resolve(resultPage);
@@ -123,9 +115,12 @@ export class HttpHelperService {
       headers: this.authenticationService.getAuthHeaderForCurrentUser(),
     };
     return new Promise<T>((resolve, reject) => {
-      this.http
-        .post(`${environment.dbServer}${path}`, body, options)
-        .subscribe({ next: resolve, error: reject });
+      this.http.post(`${environment.dbServer}${path}`, body, options).subscribe({
+        next: (value) => {
+          resolve(value as T);
+        },
+        error: reject,
+      });
     });
   }
 
@@ -134,9 +129,12 @@ export class HttpHelperService {
       headers: this.authenticationService.getAuthHeaderForCurrentUser(),
     };
     return new Promise<T>((resolve, reject) => {
-      this.http
-        .put(`${environment.dbServer}${path}`, body, options)
-        .subscribe({ next: resolve, error: reject });
+      this.http.put(`${environment.dbServer}${path}`, body, options).subscribe({
+        next: (value) => {
+          resolve(value as T);
+        },
+        error: reject,
+      });
     });
   }
 
@@ -146,9 +144,7 @@ export class HttpHelperService {
       responseType: 'text' as 'text',
     };
     return new Promise<string>((resolve, reject) => {
-      this.http
-        .put(`${environment.dbServer}${path}`, body, options)
-        .subscribe({ next: resolve, error: reject });
+      this.http.put(`${environment.dbServer}${path}`, body, options).subscribe({ next: resolve, error: reject });
     });
   }
 }

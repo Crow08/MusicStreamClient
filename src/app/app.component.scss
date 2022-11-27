@@ -18,9 +18,11 @@
 
 #footer {
   grid-area: footer;
-  mat-toolbar{
+
+  mat-toolbar {
     min-height: 0;
-    mat-toolbar-row{
+
+    mat-toolbar-row {
       height: initial;
     }
   }
