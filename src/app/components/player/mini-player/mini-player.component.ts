@@ -44,7 +44,8 @@ export class MiniPlayerComponent extends PlayerComponent implements AfterViewIni
   }
 
   displayMiniPlayer() {
-    const url = this.router.url.substring(0, this.router.url.indexOf('?'));
-    return !url.endsWith('lobby') && !url.endsWith('login');
+    let url = this.router.url;
+    url = url.substring(0, url.indexOf('?') != -1 ? url.indexOf('?') : this.router.url.length);
+    return !url.endsWith('lobby') && !url.endsWith('login') && !url.endsWith('register');
   }
 }

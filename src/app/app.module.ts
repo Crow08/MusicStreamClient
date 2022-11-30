@@ -38,6 +38,8 @@ import { FullPlayerComponent } from './components/player/full-player/full-player
 import { SettingsComponent } from './components/settings/settings.component';
 import { SpotifyDelegateComponent } from './components/player/spotify-delegate/spotify-delegate.component';
 import { PlayerTrackComponent } from './components/player/player-track/player-track.component';
+import { RegisterComponent } from './components/register/register.component';
+import { InviteComponent } from './components/invite/invite.component';
 
 @NgModule({
   declarations: [
@@ -70,6 +72,8 @@ import { PlayerTrackComponent } from './components/player/player-track/player-tr
     SettingsComponent,
     SpotifyDelegateComponent,
     PlayerTrackComponent,
+    RegisterComponent,
+    InviteComponent,
   ],
   imports: [
     FormsModule,
@@ -80,6 +84,7 @@ import { PlayerTrackComponent } from './components/player/player-track/player-tr
       [
         { path: '', component: HomeComponent, canActivate: [AuthGuard] },
         { path: 'login', component: LoginComponent },
+        { path: 'register', component: RegisterComponent },
         {
           path: 'sessions/browse',
           component: SessionBrowserComponent,

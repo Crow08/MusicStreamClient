@@ -1,23 +1,19 @@
 <div [ngClass]="getCurrentThemeClassName()" id="app-theme-container">
   <!-- Header -->
   <header color="primary" id="header">
-    <mat-toolbar>
-      <mat-toolbar-row>
-        <button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu" mat-icon-button>
-          <mat-icon>menu</mat-icon>
-        </button>
+    <button (click)="sidenav.toggle()" aria-label="Example icon-button with a menu" mat-icon-button>
+      <mat-icon>menu</mat-icon>
+    </button>
 
-        <div class="spacer"></div>
-        <h2 *ngIf="isDesktopLayout" id="main-headline">Music Stream Client</h2>
-        <div class="spacer"></div>
-        <span>{{sessionInfo}}</span>
-        <a (click)="logout()">
-          <button mat-icon-button>
-            <mat-icon>logout</mat-icon>
-          </button>
-        </a>
-      </mat-toolbar-row>
-    </mat-toolbar>
+    <div class="spacer"></div>
+    <h2 *ngIf="isDesktopLayout" id="main-headline">Music Stream Client</h2>
+    <div class="spacer"></div>
+    <span>{{sessionInfo}}</span>
+    <a (click)="logout()">
+      <button mat-icon-button>
+        <mat-icon>logout</mat-icon>
+      </button>
+    </a>
   </header>
   <!-- sidenav -->
   <div id="content">
@@ -48,10 +44,6 @@
   </div>
   <!-- Footer -->
   <footer color="primary" id="footer">
-    <mat-toolbar>
-      <mat-toolbar-row>
-        <app-mini-player></app-mini-player>
-      </mat-toolbar-row>
-    </mat-toolbar>
+    <app-mini-player></app-mini-player>
   </footer>
 </div>

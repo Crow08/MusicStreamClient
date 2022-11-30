@@ -63,13 +63,16 @@ export class SpotifyService {
     SpotifyService._deviceId = value;
   }
 
-  exchangeAuthCodeForToken(authCode: string) {
-    this.httpHelper
-      .post('/spotify/login', authCode)
-      .then((loginToken) => {
-        this.loginToken = loginToken as LoginToken;
-      })
-      .catch(console.error);
+  exchangeAuthCodeForToken(authCode: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.httpHelper
+        .post('/spotify/login', authCode)
+        .then((loginToken) => {
+          this.loginToken = loginToken as LoginToken;
+          resolve();
+        })
+        .catch(reject);
+    });
   }
 
   refreshToken() {
@@ -100,27 +103,34 @@ export class SpotifyService {
     return this.spotifyAuthUrl + '?' + params.toString();
   }
 
+  createPlayer(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const player = new Spotify.Player({
+        name: 'Spotify delegate Player',
+        getOAuthToken: (cb) => {
+          cb(this.loginToken.token);
+        },
+        volume: 0.5,
+      });
+      player
+        .connect()
+        .then((success) => {
+          if (success) {
+            console.log('The Web Playback SDK successfully connected to Spotify!');
+            return;
+          }
+        })
+        .catch(reject);
+      player.addListener('ready', ({ device_id }) => {
+        resolve(`Ready with Device ID: ${device_id}`);
+        this.deviceId = device_id;
+      });
+      player.addListener('initialization_error', reject);
+    });
+  }
+
   testPlay() {
-    const player = new Spotify.Player({
-      name: 'Spotify delegate Player',
-      getOAuthToken: (cb) => {
-        cb(this.loginToken.token);
-      },
-      volume: 0.5,
-    });
-    player
-      .connect()
-      .then((success) => {
-        if (success) {
-          console.log('The Web Playback SDK successfully connected to Spotify!');
-        }
-      })
-      .catch(console.error);
-    player.addListener('ready', ({ device_id }) => {
-      console.log('Ready with Device ID', device_id);
-      this.deviceId = device_id;
-      this.play('spotify:track:0gkVD2tr14wCfJhqhdE94L').catch(console.error);
-    });
+    this.play('spotify:track:0gkVD2tr14wCfJhqhdE94L').catch(console.error);
   }
 
   play(uri: string) {

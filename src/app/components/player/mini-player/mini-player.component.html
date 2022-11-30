@@ -1,4 +1,4 @@
-<mat-toolbar *ngIf="displayMiniPlayer()" style="display: flex; background: transparent;">
+<div *ngIf="displayMiniPlayer()">
   <div style="display: flex">
     <mat-card-title id="song-title">{{currentMedia.title || 'No current song'}}</mat-card-title>
     <mat-card-subtitle>
@@ -42,4 +42,4 @@
                      [songRating]="songRating"></app-rating-star>
     <app-latency #miniLatencyComponent id="mini-latency-component"></app-latency>
   </div>
-</mat-toolbar>
+</div>

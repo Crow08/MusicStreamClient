@@ -1,6 +1,10 @@
-<p>spotify-delegate works!</p>
-<div #playerContainer></div>
+<div #playerContainer>
+  {{info}}
+</div>
 <a href="{{getAuthUrl()}}">
+  <button mat-raised-button>
   Login With Spotify
+  </button>
 </a>
-<button (click)="testPlay()">TEST</button>
+<button mat-raised-button (click)="createPlayer()">Connect</button>
+<button mat-raised-button (click)="testPlay()">Test Play</button>

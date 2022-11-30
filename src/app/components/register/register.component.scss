@@ -1,0 +1,30 @@
+:host {
+  display: flex;
+  justify-content: center;
+}
+
+.error-text {
+  color: red
+}
+
+.indicator-icon,
+.submit-button {
+  float: right;
+  margin-right: 20px;
+  &.indicator-icon {
+    height: 35px;
+    width: 35px;
+    font-size: 35px;
+  }
+}
+
+mat-card-title {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 30px;
+}
+
+.mat-form-field {
+  width: 100%;
+  min-width: 300px;
+}

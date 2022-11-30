@@ -1,0 +1,6 @@
+<button mat-raised-button (click)="getInviteLink()">Invite someone</button>
+<br>
+<input type="text" [disabled]="true" matInput [value]="link">
+<button mat-icon-button [cdkCopyToClipboard]="link" [disabled]="link===''">
+  <mat-icon>file_copy</mat-icon>
+</button>

@@ -20,11 +20,12 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #333;
+  background: rgba(33, 33, 33, 0.8);;
+
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #181818;
+  background: #333;
 }
 
 ::-webkit-scrollbar-thumb:hover {

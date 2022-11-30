@@ -1,0 +1,37 @@
+<mat-card id="register-card">
+  <mat-card-title>Register</mat-card-title>
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit()" [formGroup]="registerForm">
+      <p *ngIf="error" class="error-text">
+        {{error}}
+      </p>
+      <p>
+        <mat-form-field>
+          <input [errorStateMatcher]="matcher" matInput formControlName="username" id="username"
+                 placeholder="Username" type="text"/>
+        </mat-form-field>
+      </p>
+      <p>
+        <mat-form-field>
+          <input [errorStateMatcher]="matcher" matInput formControlName="password" id="password"
+                 placeholder="Password" type="password"/>
+        </mat-form-field>
+      </p>
+      <p>
+        <mat-form-field>
+          <input [errorStateMatcher]="matcher" matInput formControlName="password_confirm" id="password_confirm"
+                 placeholder="Confirm Password" type="password"/>
+        </mat-form-field>
+      </p>
+      <button *ngIf="!registrationSuccessful" [disabled]="loading" mat-raised-button
+              color="accent" class="submit-button" type="submit">Register
+      </button>
+      <mat-spinner *ngIf="!registrationSuccessful && loading" diameter="35" class="indicator-icon"></mat-spinner>
+      <button *ngIf="registrationSuccessful" [disabled]="loading" [routerLink]="'/'" mat-raised-button
+              color="accent" class="submit-button" type="button" >
+        Go to Login
+      </button>
+      <mat-icon *ngIf="registrationSuccessful" class="indicator-icon">check_circle_outline</mat-icon>
+    </form>
+  </mat-card-content>
+</mat-card>
