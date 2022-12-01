@@ -69,8 +69,10 @@ export class MediaService {
   }
 
   activateVideoMode(video: HTMLVideoElement) {
+    const oldVolume = this.getVolume();
     this.video = video;
     this.media = this.video;
+    this.setVolume(oldVolume);
     this.video.addEventListener('timeupdate', () => {
       this.progressionListeners.forEach((value) => {
         if (!!this.video) {
@@ -89,7 +91,9 @@ export class MediaService {
 
   activateAudioMode() {
     this.video = null;
+    const oldVolume = this.getVolume();
     this.media = this.audio;
+    this.setVolume(oldVolume);
   }
 
   isVideoMode() {
