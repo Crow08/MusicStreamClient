@@ -50,7 +50,7 @@ export class EditSongDialogComponent {
     );
 
     this.httpHelperService
-      .put(`/songs/editSong`, alteredSong)
+      .put(`/api/v1/songs/editSong`, alteredSong)
       .then(() => {
         this.snackBar.openFromComponent(CustomSnackBarComponent, {
           data: {

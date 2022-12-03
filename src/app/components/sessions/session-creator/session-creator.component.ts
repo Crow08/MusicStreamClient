@@ -30,7 +30,7 @@ export class SessionCreatorComponent {
     });
 
     this.httpHelperService
-      .getArray('/playlists/all', Playlist)
+      .getArray('/api/v1/playlists/all', Playlist)
       .then((value) => (this.playlists = value))
       .catch(console.error);
   }
@@ -52,14 +52,14 @@ export class SessionCreatorComponent {
     this.loading = true;
 
     this.httpHelperService
-      .post('/sessions/', this.getField['name'].value)
+      .post('/api/v1/sessions/', this.getField['name'].value)
       .then((sessionId) => this.addSongs(Number(sessionId)))
       .catch(console.error);
   }
 
   private addSongs(sessionId: number): void {
     this.httpHelperService
-      .put(`/sessions/${sessionId}/addpl`, this.getField['playlist'].value)
+      .put(`/api/v1/sessions/${sessionId}/addpl`, this.getField['playlist'].value)
       .then(() => this.sessionService.joinSession(sessionId))
       .catch(console.error);
   }

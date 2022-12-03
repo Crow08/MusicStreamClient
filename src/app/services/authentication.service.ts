@@ -43,7 +43,7 @@ export class AuthenticationService {
   login(username: string, password: string): Observable<User> {
     const user = new User(-1, username, password, window.btoa(username + ':' + password));
     return this.http
-      .get<any>(`${environment.dbServer}/users/login`, {
+      .get<any>(`${environment.dbServer}/api/v1/users/login`, {
         headers: AuthenticationService.getAuthHeaderForUser(user),
       })
       .pipe(

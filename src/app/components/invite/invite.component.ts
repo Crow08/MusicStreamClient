@@ -13,7 +13,7 @@ export class InviteComponent {
 
   getInviteLink() {
     this.httpHelperService
-      .putPlain('/users/register?X-NPE-PSU-Duration=PT1H', null)
+      .putPlain('/api/v1/users/register?X-NPE-PSU-Duration=PT1H', null)
       .then((value) => {
         let psu = value as string;
         psu = psu.substring(environment.dbServer.length, psu.length);

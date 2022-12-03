@@ -19,7 +19,11 @@ export class GenreComponent extends InputObjectDirective implements OnInit {
   }
 
   ngOnInit(): void {
-    this.addObjectInputData = new AddObjectInputData('Genre', [{ displayName: 'Name', key: 'name', value: '' }], '/genres/');
+    this.addObjectInputData = new AddObjectInputData(
+      'Genre',
+      [{ displayName: 'Name', key: 'name', value: '' }],
+      '/api/v1/genres/'
+    );
     this.getData();
   }
 
@@ -29,7 +33,7 @@ export class GenreComponent extends InputObjectDirective implements OnInit {
 
   private getData(): void {
     super
-      .getDataForSelect('/genres/all', Genre)
+      .getDataForSelect('/api/v1/genres/all', Genre)
       .then((value) => {
         this.selectObjectData = new ObjectSelectInputData(
           'Genre',

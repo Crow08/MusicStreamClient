@@ -66,7 +66,7 @@ export class SpotifyService {
   exchangeAuthCodeForToken(authCode: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.httpHelper
-        .post('/spotify/login', authCode)
+        .post('/api/v1/spotify/login', authCode)
         .then((loginToken) => {
           this.loginToken = loginToken as LoginToken;
           resolve();
@@ -78,7 +78,7 @@ export class SpotifyService {
   refreshToken() {
     console.log(this.loginToken);
     this.httpHelper
-      .post('/spotify/refresh', this.loginToken.refreshToken)
+      .post('/api/v1/spotify/refresh', this.loginToken.refreshToken)
       .then((loginToken) => {
         this.loginToken = loginToken as LoginToken;
       })

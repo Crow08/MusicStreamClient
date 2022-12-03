@@ -68,7 +68,7 @@ export class DatabaseBrowserComponent implements OnInit {
     this.selectedOptions = [];
     switch (this.modeSelect) {
       case 'artist':
-        this.httpHelperService.getArray('/artists/all', Artist).then((artists) => {
+        this.httpHelperService.getArray('/api/v1/artists/all', Artist).then((artists) => {
           this.dataBaseData = new ObjectSelectInputData(
             'Artist',
             artists.map((artist) => new GenericDataObject(artist.id, artist.name))
@@ -76,7 +76,7 @@ export class DatabaseBrowserComponent implements OnInit {
         });
         break;
       case 'genre':
-        this.httpHelperService.getArray('/genres/all', Genre).then((genres) => {
+        this.httpHelperService.getArray('/api/v1/genres/all', Genre).then((genres) => {
           this.dataBaseData = new ObjectSelectInputData(
             'Genre',
             genres.map((genre) => new GenericDataObject(genre.id, genre.name))
@@ -120,13 +120,13 @@ export class DatabaseBrowserComponent implements OnInit {
             }
             if (this.searchQuery.value.searchKeyword !== null && this.searchQuery.value.searchKeyword !== '') {
               songList = this.httpHelperService.getArray(
-                `/media/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}` +
+                `/api/v1/media/getSongsByKeyword/${this.searchQuery.value.searchKeyword}?sort=${this.sort.active}` +
                   `&order=${this.sort.direction}&page=${this.paginator.pageIndex}&pageSize=${this.paginator.pageSize}`,
                 Media
               );
             } else {
               const page = this.httpHelperService.getPage(
-                `/media/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}` +
+                `/api/v1/media/all?sort=${this.sort.active}&order=${this.sort.direction}&page=${this.paginator.pageIndex}` +
                   `&pageSize=${this.paginator.pageSize}`,
                 Media
               );
@@ -237,7 +237,7 @@ export class DatabaseBrowserComponent implements OnInit {
     dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
         this.httpHelperService
-          .put(`/media/deleteSongById/${song.id}`, null)
+          .put(`/api/v1/media/deleteSongById/${song.id}`, null)
           .then(() => {
             this.submitSearch();
             this.snackBar.openFromComponent(CustomSnackBarComponent, {
@@ -270,7 +270,7 @@ export class DatabaseBrowserComponent implements OnInit {
     dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
         this.httpHelperService
-          .put(`/media/deleteSongs`, songs)
+          .put(`/api/v1/media/deleteSongs`, songs)
           .then(() => {
             this.submitSearch();
             this.snackBar.openFromComponent(CustomSnackBarComponent, {

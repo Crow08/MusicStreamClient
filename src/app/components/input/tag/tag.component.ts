@@ -19,7 +19,11 @@ export class TagComponent extends InputObjectDirective implements OnInit {
   }
 
   ngOnInit(): void {
-    this.addObjectInputData = new AddObjectInputData('Tags', [{ displayName: 'Name', key: 'name', value: '' }], '/tags/');
+    this.addObjectInputData = new AddObjectInputData(
+      'Tags',
+      [{ displayName: 'Name', key: 'name', value: '' }],
+      '/api/v1/tags/'
+    );
     this.getData();
   }
 
@@ -29,7 +33,7 @@ export class TagComponent extends InputObjectDirective implements OnInit {
 
   private getData(): void {
     super
-      .getDataForSelect('/tags/all', Tag)
+      .getDataForSelect('/api/v1/tags/all', Tag)
       .then((value) => {
         this.selectObjectData = new ObjectSelectInputData(
           'Tag',

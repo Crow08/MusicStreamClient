@@ -39,7 +39,7 @@ export class AddToPlaylistDialogComponent implements OnInit {
 
   addSongToPlaylist(songId: number, playlistId: number): void {
     this.httpHelperService
-      .put(`/playlists/${playlistId}/addSongToPlaylist/${songId}`, null)
+      .put(`/api/v1/playlists/${playlistId}/addSongToPlaylist/${songId}`, null)
       .then(() => {
         this.snackBar.openFromComponent(ServerResultSuccessSnackBarComponent, {
           duration: 2000,
@@ -56,7 +56,7 @@ export class AddToPlaylistDialogComponent implements OnInit {
 
   addSongsToPlaylist(songIds: number[], playlistId: number): void {
     this.httpHelperService
-      .putPlain(`/playlists/${playlistId}/addSongsToPlaylist/`, songIds)
+      .putPlain(`/api/v1/playlists/${playlistId}/addSongsToPlaylist/`, songIds)
       .then((result) => {
         this.messageHandler.customMessage(result);
       })

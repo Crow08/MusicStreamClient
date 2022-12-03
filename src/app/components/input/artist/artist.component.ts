@@ -19,7 +19,11 @@ export class ArtistComponent extends InputObjectDirective implements OnInit {
   }
 
   ngOnInit(): void {
-    this.addObjectInputData = new AddObjectInputData('Artist', [{ displayName: 'Name', key: 'name', value: '' }], '/artists/');
+    this.addObjectInputData = new AddObjectInputData(
+      'Artist',
+      [{ displayName: 'Name', key: 'name', value: '' }],
+      '/api/v1/artists/'
+    );
     this.getData();
   }
 
@@ -29,7 +33,7 @@ export class ArtistComponent extends InputObjectDirective implements OnInit {
 
   private getData(): void {
     super
-      .getDataForSelect('/artists/all', Artist)
+      .getDataForSelect('/api/v1/artists/all', Artist)
       .then((value) => {
         this.selectObjectData = new ObjectSelectInputData(
           'Artist',

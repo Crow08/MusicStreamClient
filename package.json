@@ -6,7 +6,7 @@
     "start": "ng serve --host 0.0.0.0 --watch --configuration development",
     "startProd": "ng serve --host 0.0.0.0 --disable-host-check --configuration production",
     "startPreProd": "ng serve --host 0.0.0.0 --disable-host-check --configuration preProd",
-    "build": "ng build --disable-host-check --configuration production --base-href /music-stream-server/",
+    "build": "ng build --configuration production --base-href /music-stream-server/",
     "lint": "ng lint"
   },
   "private": true,

@@ -87,7 +87,7 @@ export abstract class PlayerComponent {
       : this.mediaService.activateAudioMode();
 
     this.httpHelperService
-      .getPlain(`/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
+      .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
       .then((url) => {
         this.prepareSongStart(url, startMediaTime, startServerTime);
       })
@@ -95,14 +95,14 @@ export abstract class PlayerComponent {
 
     if (isVideo) {
       this.httpHelperService
-        .get(`/media/video/${media.id}`, Video)
+        .get(`/api/v1/media/video/${media.id}`, Video)
         .then((video) => {
           this.setNewMedia(video);
         })
         .catch(console.error);
     } else {
       this.httpHelperService
-        .get(`/media/song/${media.id}`, Song)
+        .get(`/api/v1/media/song/${media.id}`, Song)
         .then((song) => {
           this.setNewMedia(song);
         })
@@ -118,7 +118,7 @@ export abstract class PlayerComponent {
 
   onRating(rating: number): void {
     this.httpHelperService
-      .put(`/ratings/${PlayerComponent.currentMedia.id}/addUserRating/${rating}`, null)
+      .put(`api/v1/ratings/${PlayerComponent.currentMedia.id}/addUserRating/${rating}`, null)
       .then(() => {
         this.getRating();
       })
@@ -127,7 +127,7 @@ export abstract class PlayerComponent {
 
   getRating(): void {
     this.httpHelperService
-      .getPlain(`/ratings/getSongRating/${PlayerComponent.currentMedia.id}`)
+      .getPlain(`/api/v1/ratings/getSongRating/${PlayerComponent.currentMedia.id}`)
       .then((rating) => {
         PlayerComponent.songRating = Number(rating);
       })
@@ -136,7 +136,7 @@ export abstract class PlayerComponent {
 
   getUserRating(): void {
     this.httpHelperService
-      .getPlain(`/ratings/getUserRating/${PlayerComponent.currentMedia.id}`)
+      .getPlain(`/api/v1/ratings/getUserRating/${PlayerComponent.currentMedia.id}`)
       .then((rating) => {
         PlayerComponent.userSongRating = Number(rating);
       })

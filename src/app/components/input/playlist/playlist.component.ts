@@ -24,7 +24,7 @@ export class PlaylistComponent extends InputObjectDirective implements OnInit {
     this.addObjectInputData = new AddObjectInputData(
       'Playlist',
       [{ displayName: 'Name', key: 'name', value: '' }],
-      '/playlists/'
+      '/api/v1/playlists/'
     );
     this.getData();
   }
@@ -35,7 +35,7 @@ export class PlaylistComponent extends InputObjectDirective implements OnInit {
 
   private getData(): void {
     super
-      .getDataForSelect('/playlists/all', Playlist)
+      .getDataForSelect('/api/v1/playlists/all', Playlist)
       .then((value) => {
         this.selectObjectData = new ObjectSelectInputData(
           'Playlist',

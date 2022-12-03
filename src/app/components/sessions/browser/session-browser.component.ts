@@ -15,7 +15,7 @@ export class SessionBrowserComponent implements OnInit {
 
   ngOnInit(): void {
     this.httpHelperService
-      .getArray('/sessions/all', Session)
+      .getArray('/api/v1/sessions/all', Session)
       .then((value) => (this.sessions = value))
       .catch(console.error);
   }

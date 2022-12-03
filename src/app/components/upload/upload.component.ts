@@ -69,7 +69,7 @@ export class UploadComponent {
     );
 
     this.httpHelperService
-      .post('/songs/upload/', formData)
+      .post('/api/v1/songs/upload/', formData)
       .then(() => {
         this.loading = false;
         const inputNode: HTMLInputElement | null = document.querySelector('#file');
