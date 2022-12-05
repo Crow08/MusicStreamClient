@@ -6,21 +6,31 @@ import { SettingsService } from './settings.service';
 })
 export class MediaService {
   mediaEndedSubject = new EventEmitter<void>();
+  mediaCanPlayThrough = new EventEmitter<void>();
   private audio = new Audio();
   private video: HTMLVideoElement | null = null;
   private media: HTMLAudioElement | HTMLVideoElement;
 
   private progressionListeners: ((p: number) => void)[] = [];
 
+  private canplaythroughListener = () => this.mediaCanPlayThrough.emit();
+
+  private endedListener = () => this.mediaEndedSubject.emit();
+
+  private timeUpdateListener = () => {
+    this.progressionListeners.forEach((value) => {
+      if (!!this.media) {
+        value((this.media.currentTime / this.media.duration) * 100);
+      }
+    });
+  };
+
   constructor(private settingsService: SettingsService) {
     this.media = this.audio;
     this.setVolume(settingsService.defaultVolume);
-    this.audio.addEventListener('timeupdate', () => {
-      this.progressionListeners.forEach((value) => value((this.audio.currentTime / this.audio.duration) * 100));
-    });
-    this.audio.addEventListener('ended', () => {
-      this.mediaEndedSubject.emit();
-    });
+    this.audio.addEventListener('timeupdate', this.timeUpdateListener);
+    this.audio.addEventListener('ended', this.endedListener);
+    this.audio.addEventListener('canplaythrough', this.canplaythroughListener);
   }
 
   play(): Promise<void> {
@@ -73,16 +83,12 @@ export class MediaService {
     this.video = video;
     this.media = this.video;
     this.setVolume(oldVolume);
-    this.video.addEventListener('timeupdate', () => {
-      this.progressionListeners.forEach((value) => {
-        if (!!this.video) {
-          value((this.video.currentTime / this.video.duration) * 100);
-        }
-      });
-    });
-    this.video.addEventListener('ended', () => {
-      this.mediaEndedSubject.emit();
-    });
+    this.video.removeEventListener('timeupdate', this.timeUpdateListener);
+    this.video.addEventListener('timeupdate', this.timeUpdateListener);
+    this.video.removeEventListener('ended', this.endedListener);
+    this.video.addEventListener('ended', this.endedListener);
+    this.video.removeEventListener('canplaythrough', this.canplaythroughListener);
+    this.video.addEventListener('canplaythrough', this.canplaythroughListener);
   }
 
   getProgressionOffsetInSeconds(progressionPercent: number) {

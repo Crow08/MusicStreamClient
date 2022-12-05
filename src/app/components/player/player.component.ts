@@ -76,7 +76,7 @@ export abstract class PlayerComponent {
     this.wsService.publishSessionCommand(name, name);
   }
 
-  loadNewSong(media: MinimalMedia, startMediaTime: number, startServerTime: number | null): void {
+  loadNewSong(media: MinimalMedia, startMediaTime: number): void {
     if (!media || media.id === -1) {
       PlayerComponent.playerState = PlayerState.STOP;
       return;
@@ -89,7 +89,7 @@ export abstract class PlayerComponent {
     this.httpHelperService
       .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
       .then((url) => {
-        this.prepareSongStart(url, startMediaTime, startServerTime);
+        this.prepareSongStart(url, startMediaTime);
       })
       .catch(console.error);
 
@@ -152,11 +152,11 @@ export abstract class PlayerComponent {
   }
 
   removeSongFromQueueOrHistory(queueIndex: number, type: string): void {
-    this.publishCommand(`deleteSongFromQueue/${queueIndex}/${type}`);
+    this.publishCommand(`deleteMediaFromQueue/${queueIndex}/${type}`);
   }
 
   drop(event: CdkDragDrop<string[]>): void {
-    this.publishCommand(`movedSong/${event.previousIndex}/to/${event.currentIndex}`);
+    this.publishCommand(`movedMedia/${event.previousIndex}/to/${event.currentIndex}`);
   }
 
   getVolume(): number {
@@ -167,8 +167,12 @@ export abstract class PlayerComponent {
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
+        const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
+        this.schedulePlay(commandObject.startServerTime + timeOffset);
+        break;
+      case 'SetMedia':
         this.mediaService.stop();
-        this.loadNewSong(commandObject.currentMedia, 0, commandObject.startServerTime);
+        this.loadNewSong(commandObject.currentMedia, 0);
         this.updateQueueAndHistory(commandObject.currentMedia.id);
         break;
       case 'Pause':
@@ -189,11 +193,7 @@ export abstract class PlayerComponent {
         }
         break;
       case 'Jump':
-        this.prepareSongStart(
-          null,
-          commandObject.startMediaTime,
-          PlayerComponent.playerState == PlayerState.PLAY ? commandObject.startServerTime : null
-        );
+        this.prepareSongStart(null, commandObject.startMediaTime);
         break;
       case 'Join':
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
@@ -203,7 +203,7 @@ export abstract class PlayerComponent {
           PlayerComponent.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
-              this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime, commandObject.startServerTime);
+              this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime);
               break;
             case 'STOP':
               this.mediaService.stop();
@@ -213,7 +213,7 @@ export abstract class PlayerComponent {
               PlayerComponent.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
-              this.loadNewSong(commandObject.currentMedia, commandObject.mediaStopTime, null);
+              this.loadNewSong(commandObject.currentMedia, commandObject.mediaStopTime);
               PlayerComponent.playerState = PlayerState.STOP;
               break;
           }
@@ -249,16 +249,12 @@ export abstract class PlayerComponent {
       : (this.currentMedia as Video).series?.name;
   }
 
-  private prepareSongStart(url: string | null, startMediaTime: number, startServerTime: number | null): void {
+  private prepareSongStart(url: string | null, startMediaTime: number): void {
     if (!!url) {
       this.mediaService.setSrc(url);
     }
     this.mediaService.setCurrentTime(startMediaTime / 1000);
-    if (startServerTime !== null) {
-      this.mediaService.pause();
-      const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
-      this.schedulePlay(startServerTime + timeOffset);
-    }
+    this.mediaService.pause();
   }
 
   private schedulePlay(startTime: number): void {

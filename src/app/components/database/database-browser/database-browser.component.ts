@@ -256,8 +256,8 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  deleteSongs(songs: Media[]): void {
-    console.log(songs);
+  deleteSongs(mediaList: Media[]): void {
+    console.log(mediaList);
     const dialogRef = this.deleteSongDialog.open(YesNoDialogComponent, {
       maxWidth: '400px',
       data: {
@@ -270,7 +270,7 @@ export class DatabaseBrowserComponent implements OnInit {
     dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
         this.httpHelperService
-          .put(`/api/v1/media/deleteSongs`, songs)
+          .put(`/api/v1/media/deleteSongs`, mediaList)
           .then(() => {
             this.submitSearch();
             this.snackBar.openFromComponent(CustomSnackBarComponent, {
@@ -289,8 +289,8 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  addSongToQueue(song: Media): void {
-    this.wsService.publishSessionCommand(`addSongToQueue`, JSON.stringify(song));
+  addSongToQueue(media: Media): void {
+    this.wsService.publishSessionCommand(`addMediaToQueue`, JSON.stringify(media));
     //this needs work, we cant just claim that it works everytime! #Arrow-function
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
       data: {
@@ -300,8 +300,8 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  addSongsToQueue(songs: Media[]): void {
-    this.wsService.publishSessionCommand(`addSongsToQueue`, JSON.stringify(songs));
+  addSongsToQueue(mediaList: Media[]): void {
+    this.wsService.publishSessionCommand(`addMediaListToQueue`, JSON.stringify(mediaList));
     //this needs work, we cant just claim that it works everytime! #Arrow-function
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
       data: {
@@ -311,8 +311,8 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  playSongNext(song: Media): void {
-    this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
+  playSongNext(media: Media): void {
+    this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(media));
     //this needs work, we cant just claim that it works everytime! #Arrow-function
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
       data: {
@@ -322,8 +322,8 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  playSongNow(song: Media): void {
-    this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(song));
+  playSongNow(media: Media): void {
+    this.wsService.publishSessionCommand(`playMediaNext`, JSON.stringify(media));
     setTimeout(() => this.wsService.publishSessionCommand(`skip`, `skip`), 1000);
   }
 }

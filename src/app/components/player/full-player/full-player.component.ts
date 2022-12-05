@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { PlayerComponent } from '../player.component';
 import { ActivatedRoute } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
@@ -13,7 +13,7 @@ import { LatencyComponent } from '../../latency/latency.component';
   templateUrl: './full-player.component.html',
   styleUrls: ['./full-player.component.scss'],
 })
-export class FullPlayerComponent extends PlayerComponent implements AfterViewInit, OnInit {
+export class FullPlayerComponent extends PlayerComponent implements AfterViewInit {
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent | undefined;
   @ViewChild('videoWrapper') videoWrapper: ElementRef | undefined;
   private hideCursorTimeout: NodeJS.Timeout | null = null;
@@ -34,6 +34,17 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     this.wsService = wsService;
     const routeParams = route.snapshot.paramMap;
     sessionService.joinSession(Number(routeParams.get('sessionId')));
+    this.mediaService.mediaEndedSubject.subscribe(() => {
+      this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
+    });
+    this.mediaService.mediaCanPlayThrough.subscribe(() => {
+      const id = this.authenticationService.currentUserValue?.id;
+      if (!!id) {
+        this.publishCommand(
+          `ready/${id}/${PlayerComponent.currentMedia.id}/${Math.round(this.mediaService.getCurrentTime() * 1000)}`
+        );
+      }
+    });
   }
 
   get isFullscreen(): boolean {
@@ -42,12 +53,6 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
 
   @ViewChild('videoPlayer') set videoPlayer(videoPlayer: ElementRef) {
     PlayerComponent.videoElement = videoPlayer.nativeElement;
-  }
-
-  ngOnInit(): void {
-    this.mediaService.mediaEndedSubject.subscribe(() => {
-      this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
-    });
   }
 
   ngAfterViewInit(): void {
