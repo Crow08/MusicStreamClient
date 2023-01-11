@@ -39,10 +39,9 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     });
     this.mediaService.mediaCanPlayThrough.subscribe(() => {
       const id = this.authenticationService.currentUserValue?.id;
-      if (!!id) {
-        this.publishCommand(
-          `ready/${id}/${PlayerComponent.currentMedia.id}/${Math.round(this.mediaService.getCurrentTime() * 1000)}`
-        );
+      const time = Math.round(this.mediaService.getCurrentTime() * 1000);
+      if (!!id && !this.indicatedReadyFor(PlayerComponent.currentMedia.id, time)) {
+        this.publishCommand(`ready/${id}/${PlayerComponent.currentMedia.id}/${time}`);
       }
     });
   }

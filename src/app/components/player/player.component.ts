@@ -29,6 +29,7 @@ export abstract class PlayerComponent {
   static songRating = 0;
   static userSongRating = 0;
   static videoElement: HTMLVideoElement;
+  static readyFor: { mediaId: number; time: number } | null;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -236,6 +237,15 @@ export abstract class PlayerComponent {
             break;
         }
         break;
+    }
+  }
+
+  protected indicatedReadyFor(mediaId: number, time: number) {
+    if (PlayerComponent.readyFor?.time == time && PlayerComponent.readyFor?.mediaId == mediaId) {
+      return true;
+    } else {
+      PlayerComponent.readyFor = { mediaId, time };
+      return false;
     }
   }
 
