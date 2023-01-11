@@ -23,7 +23,8 @@ export class SessionService {
   }
 
   joinSession(sessionId: number): void {
-    if (this.sessionId.getValue() !== sessionId) {
+    const currentSession = this.sessionId.getValue();
+    if (currentSession !== sessionId && currentSession !== null) {
       this.leaveSession();
     }
     this.sessionId.next(sessionId);

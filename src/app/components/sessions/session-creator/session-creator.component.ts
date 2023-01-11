@@ -60,7 +60,11 @@ export class SessionCreatorComponent {
   private addSongs(sessionId: number): void {
     this.httpHelperService
       .put(`/api/v1/sessions/${sessionId}/addpl`, this.getField['playlist'].value)
-      .then(() => this.sessionService.joinSession(sessionId))
+      .then(() => this.finished(sessionId))
       .catch(console.error);
+  }
+
+  private finished(sessionId: number) {
+    this.router.navigateByUrl(`/sessions/${sessionId}/lobby`).catch(console.error);
   }
 }
