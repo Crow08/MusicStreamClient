@@ -168,6 +168,7 @@ export abstract class PlayerComponent {
     const commandObject = JSON.parse(jsonString);
     switch (commandObject.type) {
       case 'Start':
+      case 'Resume':
         const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
         this.schedulePlay(commandObject.startServerTime + timeOffset);
         break;
@@ -179,9 +180,6 @@ export abstract class PlayerComponent {
       case 'Pause':
         this.mediaService.pauseAtPosition(commandObject.mediaStopTime);
         PlayerComponent.playerState = PlayerState.PAUSE;
-        break;
-      case 'Resume':
-        this.schedulePlay(commandObject.startServerTime);
         break;
       case 'Stop':
         this.mediaService.stop();
@@ -214,7 +212,7 @@ export abstract class PlayerComponent {
               PlayerComponent.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
-              this.loadNewSong(commandObject.currentMedia, commandObject.mediaStopTime);
+              this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.STOP;
               break;
           }
@@ -269,6 +267,7 @@ export abstract class PlayerComponent {
 
   private schedulePlay(startTime: number): void {
     PlayerComponent.playerState = PlayerState.WAITING;
+    console.log('schedulePlay: waiting for: ' + (startTime - new Date().getTime()) + 'ms');
     setTimeout(() => {
       this.mediaService.play().catch((reason) => console.error(reason));
       PlayerComponent.playerState = PlayerState.PLAY;
