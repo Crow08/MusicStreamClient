@@ -29,7 +29,7 @@ export abstract class PlayerComponent {
   static songRating = 0;
   static userSongRating = 0;
   static videoElement: HTMLVideoElement;
-  static readyFor: { mediaId: number; time: number } | null;
+  static lastReadyEvent: { mediaId: number; time: number } | null;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -83,14 +83,14 @@ export abstract class PlayerComponent {
       return;
     }
     const isVideo = media.type.toUpperCase() == 'VIDEO';
-    media.type.toUpperCase() == 'VIDEO'
-      ? this.mediaService.activateVideoMode(PlayerComponent.videoElement)
-      : this.mediaService.activateAudioMode();
 
     this.httpHelperService
       .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
       .then((url) => {
-        this.prepareSongStart(url, startMediaTime);
+        media.type.toUpperCase() == 'VIDEO'
+          ? this.mediaService.activateVideoMode(PlayerComponent.videoElement, url)
+          : this.mediaService.activateAudioMode();
+        this.prepareMediaStart(url, startMediaTime);
       })
       .catch(console.error);
 
@@ -192,17 +192,22 @@ export abstract class PlayerComponent {
         }
         break;
       case 'Jump':
-        this.prepareSongStart(null, commandObject.startMediaTime);
+        this.prepareMediaStart(null, commandObject.startMediaTime);
         break;
       case 'Join':
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
         if (commandObject.userId === this.authenticationService.currentUserValue?.id) {
+          // set join event as last ready object to not trigger a new sync on join.
+          PlayerComponent.lastReadyEvent = { mediaId: commandObject.currentMedia.id, time: commandObject.startMediaTime };
           PlayerComponent.queue = commandObject.queue;
           PlayerComponent.history = commandObject.history;
           PlayerComponent.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
               this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime);
+              PlayerComponent.playerState = PlayerState.PLAY;
+              const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
+              this.schedulePlay(commandObject.startServerTime + timeOffset);
               break;
             case 'STOP':
               this.mediaService.stop();
@@ -213,7 +218,7 @@ export abstract class PlayerComponent {
               break;
             case 'PAUSE':
               this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime);
-              PlayerComponent.playerState = PlayerState.STOP;
+              PlayerComponent.playerState = PlayerState.PAUSE;
               break;
           }
         }
@@ -239,10 +244,10 @@ export abstract class PlayerComponent {
   }
 
   protected indicatedReadyFor(mediaId: number, time: number) {
-    if (PlayerComponent.readyFor?.time == time && PlayerComponent.readyFor?.mediaId == mediaId) {
+    if (PlayerComponent.lastReadyEvent?.time == time && PlayerComponent.lastReadyEvent?.mediaId == mediaId) {
       return true;
     } else {
-      PlayerComponent.readyFor = { mediaId, time };
+      PlayerComponent.lastReadyEvent = { mediaId, time };
       return false;
     }
   }
@@ -257,7 +262,7 @@ export abstract class PlayerComponent {
       : (this.currentMedia as Video).series?.name;
   }
 
-  private prepareSongStart(url: string | null, startMediaTime: number): void {
+  private prepareMediaStart(url: string | null, startMediaTime: number): void {
     if (!!url) {
       this.mediaService.setSrc(url);
     }
@@ -268,6 +273,7 @@ export abstract class PlayerComponent {
   private schedulePlay(startTime: number): void {
     PlayerComponent.playerState = PlayerState.WAITING;
     console.log('schedulePlay: waiting for: ' + (startTime - new Date().getTime()) + 'ms');
+    console.log('media start time: ' + this.mediaService.getCurrentTime());
     setTimeout(() => {
       this.mediaService.play().catch((reason) => console.error(reason));
       PlayerComponent.playerState = PlayerState.PLAY;

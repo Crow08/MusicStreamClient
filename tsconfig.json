@@ -26,6 +26,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "outDir": "./dist/out-tsc",
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,

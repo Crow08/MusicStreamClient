@@ -1,5 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
+import videojs from 'video.js';
+import { MkvExtractService } from './mkv-extract-service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +12,8 @@ export class MediaService {
   private audio = new Audio();
   private video: HTMLVideoElement | null = null;
   private media: HTMLAudioElement | HTMLVideoElement;
+
+  private subtitles: any;
 
   private progressionListeners: ((p: number) => void)[] = [];
 
@@ -25,7 +29,7 @@ export class MediaService {
     });
   };
 
-  constructor(private settingsService: SettingsService) {
+  constructor(private settingsService: SettingsService, private mkvExtractService: MkvExtractService) {
     this.media = this.audio;
     this.setVolume(settingsService.defaultVolume);
     this.audio.addEventListener('timeupdate', this.timeUpdateListener);
@@ -78,8 +82,10 @@ export class MediaService {
     this.progressionListeners.push(callback);
   }
 
-  activateVideoMode(video: HTMLVideoElement) {
+  activateVideoMode(video: HTMLVideoElement, src: string) {
     const oldVolume = this.getVolume();
+    this.useVideoJSWithSubs(video, src);
+
     this.video = video;
     this.media = this.video;
     this.setVolume(oldVolume);
@@ -89,6 +95,39 @@ export class MediaService {
     this.video.addEventListener('ended', this.endedListener);
     this.video.removeEventListener('canplaythrough', this.canplaythroughListener);
     this.video.addEventListener('canplaythrough', this.canplaythroughListener);
+  }
+
+  private useVideoJSWithSubs(video: HTMLVideoElement, videoUrl: string, subUrl?: string, fontUrls: string[] = []) {
+    const vidOptions = {
+      autoplay: false,
+      controls: false,
+      fluid: true,
+      sources: [
+        {
+          src: videoUrl,
+          type: 'video/webm',
+        },
+      ],
+    };
+    const subOptions = {
+      video: video,
+      subUrl: subUrl,
+      fonts: fontUrls,
+      workerUrl: '/assets/subtitles-octopus/subtitles-octopus-worker.js',
+    };
+
+    videojs(video, vidOptions, () => {
+      console.log('onPlayerReady', this);
+      if (!subUrl) {
+        return;
+      }
+      if (this.subtitles) {
+        this.subtitles.dispose();
+      }
+      // SubtitlesOctopus is an oldschool js lib which is included as a script in index.html
+      // @ts-ignore
+      this.subtitles = new SubtitlesOctopus(subOptions);
+    });
   }
 
   getProgressionOffsetInSeconds(progressionPercent: number) {
