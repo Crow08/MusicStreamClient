@@ -35,4 +35,12 @@ export class SettingsComponent {
   getDefaultVolume(): number {
     return this.settingsService.defaultVolume;
   }
+  getCurrentTimeSkipLength(): number {
+    return this.settingsService.defaultTimeSkipLength;
+  }
+  setCurrentTimeSkipLength(target : EventTarget | null): void {
+    if (target != null && target instanceof HTMLInputElement){
+      this.settingsService.defaultTimeSkipLength = Number(target.value);
+      }
+  }
 }

@@ -6,6 +6,7 @@ import { AuthenticationService } from '../../../services/authentication.service'
 import { MediaService } from '../../../services/media.service';
 import { WsService } from '../../../services/ws.service';
 import { SessionService } from '../../../services/session.service';
+import { SettingsService } from '../../../services/settings.service';
 import { LatencyComponent } from '../../latency/latency.component';
 
 @Component({
@@ -25,7 +26,8 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     authenticationService: AuthenticationService,
     mediaService: MediaService,
     wsService: WsService,
-    sessionService: SessionService
+    sessionService: SessionService,
+    public settingsService: SettingsService
   ) {
     super();
     this.httpHelperService = httpHelperService;
@@ -111,5 +113,9 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
         this.singleVideoClickTimeout = null;
       }, 250);
     }
+  }
+
+  timeSkip(){
+    this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000)
   }
 }

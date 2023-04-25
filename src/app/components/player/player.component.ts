@@ -11,6 +11,7 @@ import { WsService } from '../../services/ws.service';
 import { MinimalMedia } from '../../models/minimalMedia';
 import { Song } from '../../models/song';
 import { Video } from '../../models/video';
+import { SettingsService } from 'src/app/services/settings.service';
 
 export enum PlayerState {
   WAITING = 'WAITING',

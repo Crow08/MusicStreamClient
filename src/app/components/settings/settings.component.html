@@ -18,4 +18,10 @@
                   step="0.004" thumbLabel value="{{getDefaultVolume()}}"></mat-slider>
     </mat-card-content>
   </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <h3>Timeskip length in Seconds: </h3>
+      <input (input)="setCurrentTimeSkipLength($event.target)" type="number" matInput value="{{getCurrentTimeSkipLength()}}">
+    </mat-card-content>
+  </mat-card>
 </div>

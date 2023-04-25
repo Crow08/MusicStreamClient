@@ -40,4 +40,12 @@ export class SettingsService {
   set defaultVolume(value: number) {
     localStorage.setItem('msc_defaultVolume', String(value));
   }
+  get defaultTimeSkipLength(): number {
+    const value = localStorage.getItem('msc_defaultTimeSkipLength');
+    return value === null ? 85 : Number(value);
+  }
+
+  set defaultTimeSkipLength(value: number) {
+    localStorage.setItem('msc_defaultTimeSkipLength', String(value));
+  }
 }

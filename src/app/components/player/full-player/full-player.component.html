@@ -48,6 +48,9 @@
               <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
                 <mat-icon>stop</mat-icon>
               </button>
+              <button (click)="timeSkip()" class="player-controls" color="accent" mat-raised-button>
+                <mat-icon>update</mat-icon>
+              </button>
               <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
                 <mat-icon>skip_next</mat-icon>
               </button>
@@ -73,6 +76,9 @@
           </button>
           <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
             <mat-icon>stop</mat-icon>
+          </button>
+          <button (click)="timeSkip()" class="player-controls" color="accent" mat-raised-button>
+            <mat-icon>update</mat-icon>
           </button>
           <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
             <mat-icon>skip_next</mat-icon>
