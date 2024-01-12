@@ -11,7 +11,6 @@ import { WsService } from '../../services/ws.service';
 import { MinimalMedia } from '../../models/minimalMedia';
 import { Song } from '../../models/song';
 import { Video } from '../../models/video';
-import { SettingsService } from 'src/app/services/settings.service';
 
 export enum PlayerState {
   WAITING = 'WAITING',
@@ -78,7 +77,7 @@ export abstract class PlayerComponent {
     this.wsService.publishSessionCommand(name, name);
   }
 
-  loadNewSong(media: MinimalMedia, startMediaTime: number): void {
+  loadNewMedia(media: MinimalMedia, startMediaTime: number): void {
     if (!media || media.id === -1) {
       PlayerComponent.playerState = PlayerState.STOP;
       return;
@@ -175,7 +174,7 @@ export abstract class PlayerComponent {
         break;
       case 'SetMedia':
         this.mediaService.stop();
-        this.loadNewSong(commandObject.currentMedia, 0);
+        this.loadNewMedia(commandObject.currentMedia, 0);
         this.updateQueueAndHistory(commandObject.currentMedia.id);
         break;
       case 'Pause':
@@ -205,7 +204,7 @@ export abstract class PlayerComponent {
           PlayerComponent.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
-              this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime);
+              this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.PLAY;
               const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
               this.schedulePlay(commandObject.startServerTime + timeOffset);
@@ -218,7 +217,7 @@ export abstract class PlayerComponent {
               PlayerComponent.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
-              this.loadNewSong(commandObject.currentMedia, commandObject.startMediaTime);
+              this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.PAUSE;
               break;
           }

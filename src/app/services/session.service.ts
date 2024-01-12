@@ -23,22 +23,26 @@ export class SessionService {
   }
 
   joinSession(sessionId: number): void {
-    const currentSession = this.sessionId.getValue();
-    if (currentSession !== sessionId && currentSession !== null) {
-      this.leaveSession();
-    }
-    this.sessionId.next(sessionId);
+    this.init(sessionId);
     this.router.navigateByUrl(`/sessions/${sessionId}/lobby`).catch(console.error);
-    this.wsConfigService.updateWsConfig({
-      session: sessionId,
-    });
-    this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
 
     setTimeout(() => {
       if (!!this.authenticationService.currentUserValue) {
         this.wsService.publishSessionCommand(`join/${this.authenticationService.currentUserValue.id}`, 'join');
       }
     }, 1000);
+  }
+
+  init(sessionId: number) {
+    const currentSession = this.sessionId.getValue();
+    if (currentSession !== sessionId && currentSession !== null) {
+      this.leaveSession();
+    }
+    this.sessionId.next(sessionId);
+    this.wsConfigService.updateWsConfig({
+      session: sessionId,
+    });
+    this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
   }
 
   private leaveSession(): void {

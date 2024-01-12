@@ -1,7 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
 import videojs from 'video.js';
-import { MkvExtractService } from './mkv-extract-service';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +28,7 @@ export class MediaService {
     });
   };
 
-  constructor(private settingsService: SettingsService, private mkvExtractService: MkvExtractService) {
+  constructor(private settingsService: SettingsService) {
     this.media = this.audio;
     this.setVolume(settingsService.defaultVolume);
     this.audio.addEventListener('timeupdate', this.timeUpdateListener);

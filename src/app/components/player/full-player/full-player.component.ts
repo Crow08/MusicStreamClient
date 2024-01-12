@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { PlayerComponent } from '../player.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
 import { AuthenticationService } from '../../../services/authentication.service';
 import { MediaService } from '../../../services/media.service';
@@ -8,6 +8,8 @@ import { WsService } from '../../../services/ws.service';
 import { SessionService } from '../../../services/session.service';
 import { SettingsService } from '../../../services/settings.service';
 import { LatencyComponent } from '../../latency/latency.component';
+import { MatDialog } from '@angular/material/dialog';
+import { JoinDialogComponent } from '../join-dialog/join-dialog.component';
 
 @Component({
   selector: 'app-full-player',
@@ -27,7 +29,8 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     mediaService: MediaService,
     wsService: WsService,
     sessionService: SessionService,
-    public settingsService: SettingsService
+    public settingsService: SettingsService,
+    dialog: MatDialog
   ) {
     super();
     this.httpHelperService = httpHelperService;
@@ -35,7 +38,9 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     this.mediaService = mediaService;
     this.wsService = wsService;
     const routeParams = route.snapshot.paramMap;
-    sessionService.joinSession(Number(routeParams.get('sessionId')));
+
+    this.displayJoinButton(dialog, sessionService, routeParams);
+
     this.mediaService.mediaEndedSubject.subscribe(() => {
       this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
     });
@@ -45,6 +50,16 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
       if (!!id && !this.indicatedReadyFor(PlayerComponent.currentMedia.id, time)) {
         this.publishCommand(`ready/${id}/${PlayerComponent.currentMedia.id}/${time}`);
       }
+    });
+  }
+
+  displayJoinButton(dialog: MatDialog, sessionService: SessionService, routeParams: ParamMap) {
+    const dialogRef = dialog.open(JoinDialogComponent);
+    let sessionId = Number(routeParams.get('sessionId'));
+
+    sessionService.init(sessionId);
+    dialogRef.afterClosed().subscribe(() => {
+      sessionService.joinSession(sessionId);
     });
   }
 
@@ -115,7 +130,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     }
   }
 
-  timeSkip(){
-    this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000)
+  timeSkip() {
+    this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000);
   }
 }
