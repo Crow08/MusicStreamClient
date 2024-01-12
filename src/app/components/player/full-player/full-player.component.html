@@ -18,10 +18,10 @@
         <mat-icon *ngIf="drawerLeft.opened">chevron_right</mat-icon>
         <mat-icon *ngIf="!drawerLeft.opened">chevron_left</mat-icon>
       </button>
-      <button (click)="drawerRight.toggle()" id="toggle-right-btn" mat-icon-button>
-        <mat-icon *ngIf="drawerRight.opened">chevron_left</mat-icon>
-        <mat-icon *ngIf="!drawerRight.opened">chevron_right</mat-icon>
-      </button>
+<!--      <button (click)="drawerRight.toggle()" id="toggle-right-btn" mat-icon-button>-->
+<!--        <mat-icon *ngIf="drawerRight.opened">chevron_left</mat-icon>-->
+<!--        <mat-icon *ngIf="!drawerRight.opened">chevron_right</mat-icon>-->
+<!--      </button>-->
       <mat-card-header>
         <mat-card-title>{{currentMedia.title || 'No current song'}}</mat-card-title>
         <mat-card-subtitle>
@@ -33,7 +33,7 @@
       </mat-card-header>
       <mat-card-content>
         <div #videoWrapper [hidden]="!isVideoMode()">
-          <video #videoPlayer (click)="onVideoClick()" class="video-js"  [ngClass]="{'player-fs': isFullscreen}" playsinline ></video>
+          <video #videoPlayer (click)="onVideoClick()" class="video-player"   ></video>
           <div *ngIf="isFullscreen" class="fullscreen-controls">
             <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"></app-player-track>
             <div id="fullscreen-control-buttons">
@@ -136,20 +136,20 @@
     </mat-card>
   </div>
 
-  <mat-drawer #drawerRight mode="side" position="end">
-    <mat-card class="drawer-card">
-      <mat-card-header>
-        <mat-card-title>Details:</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>
-        <mat-divider></mat-divider>
-        <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>
-        <mat-divider></mat-divider>
-        <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>
-        <mat-divider></mat-divider>
-        <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>
-      </mat-card-content>
-    </mat-card>
-  </mat-drawer>
+<!--  <mat-drawer #drawerRight mode="side" position="end">-->
+<!--    <mat-card class="drawer-card">-->
+<!--      <mat-card-header>-->
+<!--        <mat-card-title>Details:</mat-card-title>-->
+<!--      </mat-card-header>-->
+<!--      <mat-card-content>-->
+<!--        <app-input-artist [(selectedOptions)]="selectedArtist"></app-input-artist>-->
+<!--        <mat-divider></mat-divider>-->
+<!--        <app-input-album [(selectedOptions)]="selectedAlbum"></app-input-album>-->
+<!--        <mat-divider></mat-divider>-->
+<!--        <app-input-genre [(selectedOptions)]="selectedGenres"></app-input-genre>-->
+<!--        <mat-divider></mat-divider>-->
+<!--        <app-input-tag [(selectedOptions)]="selectedTags"></app-input-tag>-->
+<!--      </mat-card-content>-->
+<!--    </mat-card>-->
+<!--  </mat-drawer>-->
 </mat-drawer-container>

@@ -88,7 +88,7 @@ export abstract class PlayerComponent {
       .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
       .then((url) => {
         media.type.toUpperCase() == 'VIDEO'
-          ? this.mediaService.activateVideoMode(PlayerComponent.videoElement, url)
+          ? this.mediaService.activateVideoMode(PlayerComponent.videoElement)
           : this.mediaService.activateAudioMode();
         this.prepareMediaStart(url, startMediaTime);
       })

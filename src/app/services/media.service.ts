@@ -1,6 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
-import videojs from 'video.js';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +10,6 @@ export class MediaService {
   private audio = new Audio();
   private video: HTMLVideoElement | null = null;
   private media: HTMLAudioElement | HTMLVideoElement;
-
-  private subtitles: any;
 
   private progressionListeners: ((p: number) => void)[] = [];
 
@@ -81,9 +78,8 @@ export class MediaService {
     this.progressionListeners.push(callback);
   }
 
-  activateVideoMode(video: HTMLVideoElement, src: string) {
+  activateVideoMode(video: HTMLVideoElement) {
     const oldVolume = this.getVolume();
-    this.useVideoJSWithSubs(video, src);
 
     this.video = video;
     this.media = this.video;
@@ -94,39 +90,6 @@ export class MediaService {
     this.video.addEventListener('ended', this.endedListener);
     this.video.removeEventListener('canplaythrough', this.canplaythroughListener);
     this.video.addEventListener('canplaythrough', this.canplaythroughListener);
-  }
-
-  private useVideoJSWithSubs(video: HTMLVideoElement, videoUrl: string, subUrl?: string, fontUrls: string[] = []) {
-    const vidOptions = {
-      autoplay: false,
-      controls: false,
-      fluid: true,
-      sources: [
-        {
-          src: videoUrl,
-          type: 'video/webm',
-        },
-      ],
-    };
-    const subOptions = {
-      video: video,
-      subUrl: subUrl,
-      fonts: fontUrls,
-      workerUrl: '/assets/subtitles-octopus/subtitles-octopus-worker.js',
-    };
-
-    videojs(video, vidOptions, () => {
-      console.log('onPlayerReady', this);
-      if (!subUrl) {
-        return;
-      }
-      if (this.subtitles) {
-        this.subtitles.dispose();
-      }
-      // SubtitlesOctopus is an oldschool js lib which is included as a script in index.html
-      // @ts-ignore
-      this.subtitles = new SubtitlesOctopus(subOptions);
-    });
   }
 
   getProgressionOffsetInSeconds(progressionPercent: number) {
