@@ -1,5 +1,5 @@
 // Colors
-$parrot-primary: mat-palette((
+$parrot-primary: (
   50 : #eafafb,
   100 : #caf2f5,
   200 : #a6e9ee,
@@ -30,9 +30,9 @@ $parrot-primary: mat-palette((
     A400 : #000000,
     A700 : #000000,
   )
-));
+);
 
-$parrot-accent: mat-palette((
+$parrot-accent: (
   50 : #fff4e4,
   100 : #fee3bb,
   200 : #fed08e,
@@ -63,9 +63,9 @@ $parrot-accent: mat-palette((
     A400 : #000000,
     A700 : #000000,
   )
-));
+);
 
-$parrot-toolbar-primary: mat-palette((
+$parrot-toolbar-primary: (
   50 : #e0e0e0,
   100 : #b3b3b3,
   200 : #808080,
@@ -96,4 +96,4 @@ $parrot-toolbar-primary: mat-palette((
     A400 : #ffffff,
     A700 : #ffffff,
   )
-));
+);

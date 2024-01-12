@@ -19,7 +19,7 @@ interface LoginToken {
   providedIn: 'root',
 })
 export class SpotifyService {
-  private static refreshJob: NodeJS.Timeout;
+  private static refreshJob: number;
   clientHost = environment.frontendServer;
   redirectPath = '/spotify/redirect';
   spotifyAuthUrl = 'https://accounts.spotify.com/authorize';

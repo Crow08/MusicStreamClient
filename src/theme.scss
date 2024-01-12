@@ -1,11 +1,11 @@
 /* Theme specific styles will take effect across all components but only if style class is set on #app-theme-container. */
-@import '~@angular/material/theming';
+@use '@angular/material' as mat;
 @import 'src/app/themes/parrot.scss';
 @import 'src/app/themes/turtle.scss';
 @import 'src/app/themes/shark.scss';
 
 //include
-@include mat-core();
+@include mat.core();
 
 .parrot-theme {
   &#app-theme-container {
@@ -13,20 +13,16 @@
     background-size: cover;
   }
 
-  $parrot-warn: mat-palette($mat-red);
-  $parrot-theme: mat-dark-theme($parrot-primary, $parrot-accent, $parrot-warn);
-  $parrot-toolbar-theme: mat-dark-theme($parrot-toolbar-primary, $parrot-accent, $parrot-warn);
+  $my-theme: mat.define-light-theme((
+    color: (
+      primary: mat.define-palette($parrot-primary),
+      accent: mat.define-palette($parrot-accent)
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  ));
 
-  .mat-snack-bar-container.mat-snack-bar-center {
-    background: mat-color($parrot-accent);
-  }
-
-  .options-dialog {
-    max-width: 250px !important;
-  }
-
-  @include angular-material-theme($parrot-theme);
-  @include mat-toolbar-theme($parrot-toolbar-theme);
+  @include mat.all-component-themes($my-theme);
 }
 
 // turtle (greenish) theme
@@ -36,20 +32,16 @@
     background-size: cover;
   }
 
-  $turtle-warn: mat-palette($mat-red);
-  $turtle-theme: mat-dark-theme($turtle-primary, $turtle-accent, $turtle-warn);
-  $turtle-toolbar-theme: mat-dark-theme($turtle-toolbar-primary, $turtle-accent, $turtle-warn);
+  $my-theme: mat.define-light-theme((
+    color: (
+      primary: mat.define-palette($turtle-primary),
+      accent: mat.define-palette($turtle-accent)
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  ));
 
-  .theme-snackbar {
-    background: mat-color($turtle-accent) !important;
-  }
-
-  .options-dialog {
-    max-width: 250px !important;
-  }
-
-  @include angular-material-theme($turtle-theme);
-  @include mat-toolbar-theme($turtle-toolbar-theme);
+  @include mat.all-component-themes($my-theme);
 }
 
 // shark (blueish) theme
@@ -58,18 +50,14 @@
     background-image: url('./assets/shark.jpg');
   }
 
-  $shark-warn: mat-palette($mat-red);
-  $shark-theme: mat-dark-theme($shark-primary, $shark-accent, $shark-warn);
-  $shark-toolbar-theme: mat-dark-theme($shark-toolbar-primary, $shark-accent, $shark-warn);
+  $my-theme: mat.define-light-theme((
+    color: (
+      primary: mat.define-palette($shark-primary),
+      accent: mat.define-palette($shark-accent)
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  ));
 
-  .theme-snackbar {
-    background: mat-color($shark-accent) !important;
-  }
-
-  .options-dialog {
-    max-width: 250px !important;
-  }
-
-  @include angular-material-theme($shark-theme);
-  @include mat-toolbar-theme($shark-toolbar-theme);
+  @include mat.all-component-themes($my-theme);
 }

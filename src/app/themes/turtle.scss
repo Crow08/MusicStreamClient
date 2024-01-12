@@ -1,5 +1,5 @@
 // Colors
-$turtle-primary: mat-palette((
+$turtle-primary: (
   50 : #f8f3ff,
   100 : #eee1ff,
   200 : #e3cdff,
@@ -30,9 +30,9 @@ $turtle-primary: mat-palette((
     A400 : #000000,
     A700 : #000000,
   )
-));
+);
 
-$turtle-accent: mat-palette((
+$turtle-accent: (
   50 : #e4f7ea,
   100 : #bbeacc,
   200 : #8edcaa,
@@ -63,9 +63,9 @@ $turtle-accent: mat-palette((
     A400 : #000000,
     A700 : #000000,
   )
-));
+);
 
-$turtle-toolbar-primary: mat-palette((
+$turtle-toolbar-primary: (
   50 : #e0e0e0,
   100 : #b3b3b3,
   200 : #808080,
@@ -96,4 +96,4 @@ $turtle-toolbar-primary: mat-palette((
     A400 : #ffffff,
     A700 : #ffffff,
   )
-));
+);

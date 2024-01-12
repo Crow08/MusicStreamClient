@@ -1,5 +1,5 @@
 // Colors
-$shark-primary: mat-palette((
+$shark-primary: (
   50 : #fff8fa,
   100 : #ffeef2,
   200 : #ffe3ea,
@@ -30,9 +30,9 @@ $shark-primary: mat-palette((
     A400 : #000000,
     A700 : #000000,
   )
-));
+);
 //#97defc
-$shark-accent: mat-palette((
+$shark-accent: (
   50 : #eaf8fe,
   100 : #caeefe,
   200 : #a6e3fd,
@@ -63,9 +63,9 @@ $shark-accent: mat-palette((
     A400 : #000000,
     A700 : #000000,
   )
-));
+);
 
-$shark-toolbar-primary: mat-palette((
+$shark-toolbar-primary: (
   50 : #e0e0e0,
   100 : #b3b3b3,
   200 : #808080,
@@ -96,4 +96,4 @@ $shark-toolbar-primary: mat-palette((
     A400 : #ffffff,
     A700 : #ffffff,
   )
-));
+);

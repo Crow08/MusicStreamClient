@@ -19,8 +19,8 @@ import { JoinDialogComponent } from '../join-dialog/join-dialog.component';
 export class FullPlayerComponent extends PlayerComponent implements AfterViewInit {
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent | undefined;
   @ViewChild('videoWrapper') videoWrapper: ElementRef | undefined;
-  private hideCursorTimeout: NodeJS.Timeout | null = null;
-  private singleVideoClickTimeout: NodeJS.Timeout | null = null;
+  private hideCursorTimeout: number | null = null;
+  private singleVideoClickTimeout: number | null = null;
 
   constructor(
     route: ActivatedRoute,
