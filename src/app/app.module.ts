@@ -124,7 +124,7 @@ import { JoinDialogComponent } from './components/player/join-dialog/join-dialog
         },
         { path: '**', redirectTo: '' },
       ],
-      { relativeLinkResolution: 'legacy' }
+      {}
     ),
     BrowserAnimationsModule,
     MaterialModule,
