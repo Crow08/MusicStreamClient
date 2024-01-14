@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { PlayerState } from '../player.component';
-import { MatSliderChange } from '@angular/material/slider';
 import { MediaService } from '../../../services/media.service';
 import { debounce, interval, Subject } from 'rxjs';
 
@@ -10,7 +9,7 @@ import { debounce, interval, Subject } from 'rxjs';
   styleUrls: ['./player-track.component.scss'],
 })
 export class PlayerTrackComponent implements OnInit {
-  progression: number = 0;
+  progression = 0;
   rawSeek = new Subject<number>();
   @Input()
   playerState!: PlayerState;
@@ -28,10 +27,8 @@ export class PlayerTrackComponent implements OnInit {
     });
   }
 
-  onSeek({ value }: MatSliderChange) {
-    if (value !== null) {
-      this.rawSeek.next(value);
-    }
+  onSeek(value: number) {
+    this.rawSeek.next(value);
   }
 
   getTimeDisplay(): string {

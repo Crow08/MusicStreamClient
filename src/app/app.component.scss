@@ -43,7 +43,7 @@
 #main-headline {
   position: fixed;
   left: 50%;
-  top: 20px;
+  top: 5px;
   transform: translate(-50%, -50%);
   font-size: revert;
 }
@@ -72,7 +72,7 @@ a, a:visited {
 }
 
 ::ng-deep.mat-drawer-content {
-  overflow: overlay !important;
+  overflow: visible !important;
 }
 
 #sidenav {

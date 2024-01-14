@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { SettingsService, Theme } from '../../services/settings.service';
-import { MatSliderChange } from '@angular/material/slider';
 
 @Component({
   selector: 'app-settings',
@@ -22,10 +21,8 @@ export class SettingsComponent {
     this.settingsService.currentTheme = theme;
   }
 
-  setVolume({ value }: MatSliderChange): void {
-    if (value !== null) {
-      this.settingsService.defaultVolume = value;
-    }
+  setVolume(value: number): void {
+    this.settingsService.defaultVolume = value;
   }
 
   getCurrentTheme(): Theme {
@@ -38,9 +35,9 @@ export class SettingsComponent {
   getCurrentTimeSkipLength(): number {
     return this.settingsService.defaultTimeSkipLength;
   }
-  setCurrentTimeSkipLength(target : EventTarget | null): void {
-    if (target != null && target instanceof HTMLInputElement){
+  setCurrentTimeSkipLength(target: EventTarget | null): void {
+    if (target != null && target instanceof HTMLInputElement) {
       this.settingsService.defaultTimeSkipLength = Number(target.value);
-      }
+    }
   }
 }

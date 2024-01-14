@@ -17,11 +17,11 @@
   <mat-label>Selected {{selectObjectData.displayName}}s:</mat-label>
   <br>
   <div id="chip-list">
-    <mat-chip-list>
+    <mat-chip-set>
       <mat-chip *ngIf="selectedOptions?.length === 0">(None)</mat-chip>
       <mat-chip *ngFor="let option of selectedOptions">
         {{option.id}} - {{option.name}}
       </mat-chip>
-    </mat-chip-list>
+    </mat-chip-set>
   </div>
 </div>

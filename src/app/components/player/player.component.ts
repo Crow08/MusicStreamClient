@@ -3,7 +3,6 @@ import { LatencyComponent } from '../latency/latency.component';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Media } from '../../models/media';
 import { MediaService } from '../../services/media.service';
-import { MatSliderChange } from '@angular/material/slider';
 import { HttpHelperService } from '../../services/http-helper.service';
 import { User } from '../../models/user';
 import { GenericDataObject } from '../../models/genericDataObject';
@@ -29,7 +28,7 @@ export abstract class PlayerComponent {
   static songRating = 0;
   static userSongRating = 0;
   static videoElement: HTMLVideoElement;
-  static lastReadyEvent: { mediaId: number; time: number } | null;
+  private static _lastReadyEvent: { mediaId: number; time: number } | null;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -69,6 +68,14 @@ export abstract class PlayerComponent {
 
   get queue() {
     return PlayerComponent.queue;
+  }
+
+  static get lastReadyEvent(): { mediaId: number; time: number } | null {
+    return this._lastReadyEvent;
+  }
+
+  static set lastReadyEvent(value: { mediaId: number; time: number } | null) {
+    this._lastReadyEvent = value;
   }
 
   abstract getLatencyComponent(): LatencyComponent | undefined;
@@ -111,10 +118,8 @@ export abstract class PlayerComponent {
     }
   }
 
-  setVolume({ value }: MatSliderChange): void {
-    if (value !== null) {
-      this.mediaService.setVolume(value);
-    }
+  setVolume(value: number): void {
+    this.mediaService.setVolume(value);
   }
 
   onRating(rating: number): void {
@@ -157,7 +162,11 @@ export abstract class PlayerComponent {
   }
 
   drop(event: CdkDragDrop<string[]>): void {
-    this.publishCommand(`movedMedia/${event.previousIndex}/to/${event.currentIndex}`);
+    this.publishCommand(
+      `movedMedia/${this.getDisplayHistoryStartIndex() + event.previousIndex}/to/${
+        this.getDisplayHistoryStartIndex() + event.currentIndex
+      }`
+    );
   }
 
   getVolume(): number {
@@ -198,12 +207,12 @@ export abstract class PlayerComponent {
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
         if (commandObject.userId === this.authenticationService.currentUserValue?.id) {
           // set join event as last ready object to not trigger a new sync on join.
-          PlayerComponent.lastReadyEvent = { mediaId: commandObject.currentMedia.id, time: commandObject.startMediaTime };
           PlayerComponent.queue = commandObject.queue;
           PlayerComponent.history = commandObject.history;
           PlayerComponent.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
+              PlayerComponent.lastReadyEvent = { mediaId: commandObject.currentMedia.id, time: commandObject.startMediaTime };
               this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.PLAY;
               const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
@@ -243,12 +252,14 @@ export abstract class PlayerComponent {
     }
   }
 
-  protected indicatedReadyFor(mediaId: number, time: number) {
-    if (PlayerComponent.lastReadyEvent?.time == time && PlayerComponent.lastReadyEvent?.mediaId == mediaId) {
-      return true;
+  protected indicateReadyFor(mediaId: number, time: number) {
+    if (PlayerComponent.lastReadyEvent?.time == time && PlayerComponent._lastReadyEvent?.mediaId == mediaId) {
+      return false;
     } else {
       PlayerComponent.lastReadyEvent = { mediaId, time };
-      return false;
+      const id = this.authenticationService.currentUserValue?.id;
+      this.publishCommand(`ready/${id}/${mediaId}/${time}`);
+      return true;
     }
   }
 

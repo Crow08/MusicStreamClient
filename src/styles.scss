@@ -1,6 +1,8 @@
 /* Global styles will take effect across all components */
 body {
   margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: white;
 }
 
 #app-theme-container {
@@ -8,8 +10,8 @@ body {
   height: 100%;
   width: 100%;
 
-  .mat-card,
-  .mat-drawer {
+  mat-card,
+  mat-drawer {
     background: rgba(24, 24, 24, .65);
   }
 }

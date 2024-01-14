@@ -1,12 +1,13 @@
 :host {
   display: flex;
   justify-content: center;
+  margin: 20px;
 
   .mat-drawer-container,
   #drawer-wrapper .mat-card.drawer-card {
     background-color: transparent;
     box-shadow: none;
-    width: 45%;
+    width: 750px;
   }
 
   .fullscreen-controls {
@@ -28,11 +29,6 @@
       left: calc(15% - 8px);
       width: calc(70% + 16px);
     }
-
-    #fullscreen-control-buttons {
-      display: flex;
-      flex-direction: row;
-    }
   }
 
   .video-player {
@@ -44,50 +40,80 @@
     display: flex;
     flex-grow: 1;
   }
+
+  mat-chip-set,
+  mat-chip-listbox,
+  mat-chip,
+  mat-chip-option{
+    width: 100%
+  }
+
+
+  #fullscreen-control-buttons,
+  #control-buttons {
+    white-space: nowrap;
+    display: flex;
+    gap: 6px;
+    padding-top: 6px;
+
+    .player-controls {
+      min-width: 0;
+      padding: 1px 1px 0 13px
+    }
+    .volume-slider {
+      width: 100px;
+      float: right;
+    }
+  }
+
+  #latency-component {
+    right: 25px;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  #rating-latency-wrapper {
+    display: flex;
+  }
+
+  #toggle-right-btn {
+    float: right;
+  }
+  #toggle-left-btn,
+  #toggle-right-btn {
+    margin-bottom: -30px;
+  }
+
+  .removeSongFromQueueButton {
+    position: absolute;
+    right: 12px;
+    top: 0;
+    padding: 1px 1px 0 9px;
+    min-width: 0;
+  }
+
+  .mat-chip {
+    display: flex;
+    font-size: 16px;
+  }
+
+  .volume-slider {
+    margin-top: -6px;
+
+    ::ng-deep .mdc-slider__thumb {
+      --mat-slider-hover-state-layer-color: transparent;
+      --mat-slider-focus-state-layer-color: transparent;
+    }
+  }
+
+  mat-card {
+  }
+
+  mat-card-content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 750px;
+  }
 }
 
-mat-chip-list,
-mat-chip {
-  width: 100%
-}
 
-.player-controls {
-  margin: 6px;
-}
-
-#control-buttons {
-  white-space: nowrap;
-  display: flex;
-}
-
-#latency-component {
-  right: 25px;
-  position: absolute;
-  white-space: nowrap;
-}
-
-#rating-latency-wrapper {
-  display: flex;
-}
-
-.volume-slider {
-  width: 100px;
-  float: right;
-}
-
-::ng-deep .mat-slider-thumb {
-  transform: scale(0.7) !important;
-}
-
-#toggle-right-btn {
-  float: right;
-}
-
-.removeSongFromQueueButton {
-  margin-left: auto;
-}
-
-.mat-chip {
-  display: flex;
-  font-size: 16px;
-}

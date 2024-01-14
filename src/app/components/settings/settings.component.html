@@ -14,8 +14,9 @@
   <mat-card>
     <mat-card-content>
       <h3>Default player volume:</h3>
-      <mat-slider (input)="setVolume($event)" [displayWith]="volumeLabel" id="volume-slider" max="0.4" min="0"
-                  step="0.004" thumbLabel value="{{getDefaultVolume()}}"></mat-slider>
+      <mat-slider id="volume-slider" [displayWith]="volumeLabel"  [max]="0.4" [min]="0" [step]="0.004">
+        <input matSliderThumb value="{{getDefaultVolume()}}" (valueChange)="setVolume($event)" #slider>
+      </mat-slider>
     </mat-card-content>
   </mat-card>
   <mat-card>

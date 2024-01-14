@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  flex-direction: row-reverse;
+  .copy-box {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    mat-form-field {
+      width: 100%;
+    }
+  }
+}

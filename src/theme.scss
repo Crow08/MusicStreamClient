@@ -7,18 +7,22 @@
 //include
 @include mat.core();
 
+$my-typography: mat.define-typography-config(
+  $font-family: 'Roboto, "Helvetica Neue", sans-serif'
+);
+
 .parrot-theme {
   &#app-theme-container {
     background: url('./assets/parrot.jpg') no-repeat center fixed;
     background-size: cover;
   }
 
-  $my-theme: mat.define-light-theme((
+  $my-theme: mat.define-dark-theme((
     color: (
       primary: mat.define-palette($parrot-primary),
       accent: mat.define-palette($parrot-accent)
     ),
-    typography: mat.define-typography-config(),
+    typography: $my-typography,
     density: 0,
   ));
 
@@ -32,12 +36,12 @@
     background-size: cover;
   }
 
-  $my-theme: mat.define-light-theme((
+  $my-theme: mat.define-dark-theme((
     color: (
       primary: mat.define-palette($turtle-primary),
       accent: mat.define-palette($turtle-accent)
     ),
-    typography: mat.define-typography-config(),
+    typography: $my-typography,
     density: 0,
   ));
 
@@ -50,14 +54,18 @@
     background-image: url('./assets/shark.jpg');
   }
 
-  $my-theme: mat.define-light-theme((
+  $my-theme: mat.define-dark-theme((
     color: (
       primary: mat.define-palette($shark-primary),
       accent: mat.define-palette($shark-accent)
     ),
-    typography: mat.define-typography-config(),
+    typography: $my-typography,
     density: 0,
   ));
 
   @include mat.all-component-themes($my-theme);
+}
+
+.mat-dense {
+  @include mat.all-component-densities(-5);
 }

@@ -31,8 +31,9 @@
                 mat-raised-button>
           <mat-icon>{{loopMode ? 'repeat_on' : 'repeat'}}</mat-icon>
         </button>
-        <mat-slider (input)="setVolume($event)" id="volume-slider" max="0.4" min="0" step="0.004"
-                    value="{{getVolume()}}"></mat-slider>
+        <mat-slider id="volume-slider" [max]="0.4" [min]="0" [step]="0.004">
+          <input matSliderThumb value="{{getVolume()}}" (valueChange)="setVolume($event)" #slider>
+        </mat-slider>
       </div>
     </div>
   </div>

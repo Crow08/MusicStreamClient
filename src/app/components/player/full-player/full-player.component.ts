@@ -45,11 +45,10 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
       this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
     });
     this.mediaService.mediaCanPlayThrough.subscribe(() => {
+      console.log('READY');
       const id = this.authenticationService.currentUserValue?.id;
       const time = Math.round(this.mediaService.getCurrentTime() * 1000);
-      if (!!id && !this.indicatedReadyFor(PlayerComponent.currentMedia.id, time)) {
-        this.publishCommand(`ready/${id}/${PlayerComponent.currentMedia.id}/${time}`);
-      }
+      !!id && this.indicateReadyFor(PlayerComponent.currentMedia.id, time);
     });
   }
 
@@ -133,4 +132,6 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   timeSkip() {
     this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000);
   }
+
+  jumpTo(i: number) {}
 }

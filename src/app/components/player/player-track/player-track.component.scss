@@ -3,6 +3,7 @@
   .progress-wrapper {
     position: relative;
 
+
     .time-display {
       width: 8em;
       display: inline-block;
@@ -13,18 +14,30 @@
       top: 0.5em;
       left: 8em;
       width: calc(100% - 8em);
+      z-index: 0;
     }
 
     .overlay-slider {
       position: absolute;
-      top: -1.1em;
-      left: 7.5em;
-      width: calc(100% - 7em);
+      top: -0.9em;
+      left: 7.2em;
+      width: calc(100% - 7.5em);
 
-      ::ng-deep .mat-slider-track-background,
-      ::ng-deep .mat-slider-track-fill {
+      #slider {
+        z-index: 1;
+      }
+
+      ::ng-deep .mdc-slider__track--active_fill,
+      ::ng-deep .mdc-slider__track--inactive  {
         background: transparent;
+        border: 0 !important; /* Removes border from active track */
+      }
+      ::ng-deep .mdc-slider__thumb {
+        --mat-slider-hover-state-layer-color: transparent;
+        --mat-slider-focus-state-layer-color: transparent;
       }
     }
+
+
   }
 }
