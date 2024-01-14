@@ -132,6 +132,4 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   timeSkip() {
     this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000);
   }
-
-  jumpTo(i: number) {}
 }

@@ -102,11 +102,11 @@
           <div id="queue-list">
           <mat-list role="list">
             <mat-list-item
-              *ngFor="let song of history.slice(getDisplayHistoryStartIndex(), history.length); let i = index "
+              *ngFor="let media of history.slice(getDisplayHistoryStartIndex(), history.length); let i = index "
               [attr.data-index]="i" cdkDrag role="listitem">
-              <mat-chip color="primary" (click)="jumpTo(i)">
-                <mat-chip *cdkDragPlaceholder>{{ song.title }}</mat-chip>
-                {{ song.title }}
+              <mat-chip color="primary" (click)="jumpTo(media.id)">
+                <mat-chip *cdkDragPlaceholder>{{ media.title }}</mat-chip>
+                {{ media.title }}
                 <button (click)="removeSongFromQueueOrHistory(i,'history')" class="removeSongFromQueueButton"
                         mat-button>
                   <mat-icon>delete</mat-icon>
@@ -119,11 +119,11 @@
               </mat-chip-listbox>
             </mat-list-item>
 
-            <mat-list-item *ngFor="let song of queue.slice(0, getDisplayQueueLength()); let i = index"
+            <mat-list-item *ngFor="let media of queue.slice(0, getDisplayQueueLength()); let i = index"
                            [attr.data-index]="i" cdkDrag role="listitem">
-              <mat-chip color="primary" (click)="jumpTo(i)">
-                <mat-chip *cdkDragPlaceholder>{{ song.title }}</mat-chip>
-                {{ song.title }}
+              <mat-chip color="primary" (click)="jumpTo(media.id)">
+                <mat-chip *cdkDragPlaceholder>{{ media.title }}</mat-chip>
+                {{ media.title }}
                 <button (click)="removeSongFromQueueOrHistory(i,'queue')" class="removeSongFromQueueButton"
                         mat-button>
                   <mat-icon>delete</mat-icon>

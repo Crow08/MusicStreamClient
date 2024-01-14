@@ -169,6 +169,10 @@ export abstract class PlayerComponent {
     );
   }
 
+  jumpTo(mediaId: number) {
+    this.publishCommand(`skipTo/${mediaId}`);
+  }
+
   getVolume(): number {
     return this.mediaService.getVolume();
   }
