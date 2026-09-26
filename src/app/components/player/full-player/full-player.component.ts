@@ -9,6 +9,7 @@ import { SessionService } from '../../../services/session.service';
 import { SettingsService } from '../../../services/settings.service';
 import { LatencyComponent } from '../../latency/latency.component';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
 import { JoinDialogComponent } from '../join-dialog/join-dialog.component';
 
 @Component({
@@ -22,6 +23,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   private hideCursorTimeout: number | null = null;
   private singleVideoClickTimeout: number | null = null;
   private joinDialogRef: MatDialogRef<JoinDialogComponent, boolean> | null = null;
+  private readonly mediaSubscriptions = new Subscription();
 
   constructor(
     route: ActivatedRoute,
@@ -42,15 +44,20 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
 
     this.displayJoinButton(dialog, sessionService, routeParams);
 
-    this.mediaService.mediaEndedSubject.subscribe(() => {
-      this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
-    });
-    this.mediaService.mediaCanPlayThrough.subscribe(() => {
-      console.log('READY');
-      const id = this.authenticationService.currentUserValue?.id;
-      const time = Math.round(this.mediaService.getCurrentTime() * 1000);
-      !!id && this.indicateReadyFor(PlayerComponent.preparedMediaId, time);
-    });
+    // MediaService is app-wide: these subscriptions have to end with this component (see ngOnDestroy)
+    this.mediaSubscriptions.add(
+      this.mediaService.mediaEndedSubject.subscribe(() => {
+        this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
+      })
+    );
+    this.mediaSubscriptions.add(
+      this.mediaService.mediaCanPlayThrough.subscribe(() => {
+        console.log('READY');
+        const id = this.authenticationService.currentUserValue?.id;
+        const time = Math.round(this.mediaService.getCurrentTime() * 1000);
+        !!id && this.indicateReadyFor(PlayerComponent.preparedMediaId, time);
+      })
+    );
   }
 
   displayJoinButton(dialog: MatDialog, sessionService: SessionService, routeParams: ParamMap) {
@@ -74,6 +81,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   ngOnDestroy(): void {
     // leaving the lobby must not leave the dialog open on other pages or join the session
     this.joinDialogRef?.close(false);
+    this.mediaSubscriptions.unsubscribe();
   }
 
   get isFullscreen(): boolean {

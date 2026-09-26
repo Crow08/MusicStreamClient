@@ -86,6 +86,10 @@ export class MediaService {
     this.progressionListeners.push(callback);
   }
 
+  removeProgressionListener(callback: (p: number) => void): void {
+    this.progressionListeners = this.progressionListeners.filter((listener) => listener !== callback);
+  }
+
   activateVideoMode(video: HTMLVideoElement) {
     const oldVolume = this.getVolume();
 

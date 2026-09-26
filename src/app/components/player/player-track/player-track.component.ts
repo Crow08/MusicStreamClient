@@ -1,14 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { PlayerState } from '../player.component';
 import { MediaService } from '../../../services/media.service';
-import { debounce, interval, Subject } from 'rxjs';
+import { debounce, interval, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-player-track',
   templateUrl: './player-track.component.html',
   styleUrls: ['./player-track.component.scss'],
 })
-export class PlayerTrackComponent implements OnInit {
+export class PlayerTrackComponent implements OnInit, OnDestroy {
   progression = 0;
   rawSeek = new Subject<number>();
   @Input()
@@ -16,15 +16,23 @@ export class PlayerTrackComponent implements OnInit {
   @Output()
   seek = new EventEmitter<number>();
 
+  private seekSubscription: Subscription | null = null;
+  private readonly progressionListener = (progression: number) => (this.progression = progression);
+
   constructor(private mediaService: MediaService) {}
 
   ngOnInit(): void {
-    this.mediaService.addProgressionListener((progression) => (this.progression = progression));
-    this.rawSeek.pipe(debounce(() => interval(250))).subscribe({
+    this.mediaService.addProgressionListener(this.progressionListener);
+    this.seekSubscription = this.rawSeek.pipe(debounce(() => interval(250))).subscribe({
       next: (value) => {
         this.seek.emit(this.getJumpOffset(value));
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    this.mediaService.removeProgressionListener(this.progressionListener);
+    this.seekSubscription?.unsubscribe();
   }
 
   onSeek(value: number) {
