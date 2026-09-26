@@ -11,15 +11,24 @@ $my-typography: mat.define-typography-config(
   $font-family: 'Roboto, "Helvetica Neue", sans-serif'
 );
 
+// Theme colors for app elements that are not Material components.
+@mixin app-colors($primary) {
+  .autoplay-hint {
+    background-color: mat.get-color-from-palette($primary);
+    color: mat.get-color-from-palette($primary, default-contrast);
+  }
+}
+
 .parrot-theme {
   &#app-theme-container {
     background: url('./assets/parrot.jpg') no-repeat center fixed;
     background-size: cover;
   }
 
+  $primary: mat.define-palette($parrot-primary);
   $my-theme: mat.define-dark-theme((
     color: (
-      primary: mat.define-palette($parrot-primary),
+      primary: $primary,
       accent: mat.define-palette($parrot-accent)
     ),
     typography: $my-typography,
@@ -27,6 +36,7 @@ $my-typography: mat.define-typography-config(
   ));
 
   @include mat.all-component-themes($my-theme);
+  @include app-colors($primary);
 }
 
 // turtle (greenish) theme
@@ -36,9 +46,10 @@ $my-typography: mat.define-typography-config(
     background-size: cover;
   }
 
+  $primary: mat.define-palette($turtle-primary);
   $my-theme: mat.define-dark-theme((
     color: (
-      primary: mat.define-palette($turtle-primary),
+      primary: $primary,
       accent: mat.define-palette($turtle-accent)
     ),
     typography: $my-typography,
@@ -46,6 +57,7 @@ $my-typography: mat.define-typography-config(
   ));
 
   @include mat.all-component-themes($my-theme);
+  @include app-colors($primary);
 }
 
 // shark (blueish) theme
@@ -54,9 +66,10 @@ $my-typography: mat.define-typography-config(
     background-image: url('./assets/shark.jpg');
   }
 
+  $primary: mat.define-palette($shark-primary);
   $my-theme: mat.define-dark-theme((
     color: (
-      primary: mat.define-palette($shark-primary),
+      primary: $primary,
       accent: mat.define-palette($shark-accent)
     ),
     typography: $my-typography,
@@ -64,6 +77,7 @@ $my-typography: mat.define-typography-config(
   ));
 
   @include mat.all-component-themes($my-theme);
+  @include app-colors($primary);
 }
 
 .mat-dense {

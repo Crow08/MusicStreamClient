@@ -7,11 +7,11 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0 16px 8px;
+    margin: 32px 16px 8px; // below the drawer toggle button
     padding: 8px 12px;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.12);
     cursor: pointer;
+    // colors come from the active theme, see app-colors in theme.scss
   }
 
   .mat-drawer-container,
