@@ -7,22 +7,23 @@
       <h3>Theme:</h3>
       <mat-button-toggle-group aria-label="Font Style" name="fontStyle" value="{{getCurrentTheme().className}}">
         <mat-button-toggle (click)="selectTheme(theme)" *ngFor="let theme of availableThemes"
-                           value='{{theme.className}}'> {{theme.displayName}} </mat-button-toggle>
+                           value='{{theme.className}}'> {{ theme.displayName }}
+        </mat-button-toggle>
       </mat-button-toggle-group>
     </mat-card-content>
-  </mat-card>
-  <mat-card>
     <mat-card-content>
       <h3>Default player volume:</h3>
-      <mat-slider id="volume-slider" [displayWith]="volumeLabel"  [max]="0.4" [min]="0" [step]="0.004">
+      <mat-slider id="volume-slider" [displayWith]="volumeLabel" [max]="0.5" [min]="0" [step]="0.005">
         <input matSliderThumb value="{{getDefaultVolume()}}" (valueChange)="setVolume($event)" #slider>
       </mat-slider>
+      <label>{{ getVolumePercent(slider.value) }}%</label>
     </mat-card-content>
-  </mat-card>
-  <mat-card>
     <mat-card-content>
       <h3>Timeskip length in Seconds: </h3>
-      <input (input)="setCurrentTimeSkipLength($event.target)" type="number" matInput value="{{getCurrentTimeSkipLength()}}">
+      <mat-form-field>
+        <input matInput type="number" (input)="setCurrentTimeSkipLength($event.target)"
+               value="{{getCurrentTimeSkipLength()}}">
+      </mat-form-field>
     </mat-card-content>
   </mat-card>
 </div>

@@ -1,8 +1,8 @@
 <button *ngIf="!link" mat-raised-button color="primary" (click)="getInviteLink()">Invite someone</button>
 <br>
 <div class="copy-box">
-  <mat-form-field subscriptSizing="dynamic">
-    <textarea *ngIf="!!link" type="text" [disabled]="true" matInput [value]="link"></textarea>
+  <mat-form-field *ngIf="!!link" subscriptSizing="dynamic">
+    <textarea type="text" [disabled]="true" matInput [value]="link"></textarea>
   </mat-form-field>
   <button *ngIf="!!link" mat-raised-button  color="primary" [cdkCopyToClipboard]="link" [disabled]="link===''">
     <mat-icon>file_copy</mat-icon> copy!

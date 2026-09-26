@@ -40,4 +40,8 @@ export class SettingsComponent {
       this.settingsService.defaultTimeSkipLength = Number(target.value);
     }
   }
+
+  getVolumePercent(value: string) {
+    return Math.round(Number(value) * 2 * 100);
+  }
 }
