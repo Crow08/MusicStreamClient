@@ -32,7 +32,7 @@ export class AutoplayService {
   }
 
   /**
-   * Marks playback as blocked after a play() request was rejected by the browser.
+   * Marks playback with sound as blocked, e.g. after a play() request was rejected by the browser.
    *
    * @param retry action to run once the user has interacted with the page.
    */

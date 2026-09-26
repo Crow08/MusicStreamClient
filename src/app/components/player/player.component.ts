@@ -319,19 +319,39 @@ export abstract class PlayerComponent {
     console.log('schedulePlay: waiting for: ' + (startTime - new Date().getTime()) + 'ms');
     console.log('media start time: ' + this.mediaService.getCurrentTime());
     setTimeout(() => {
-      this.mediaService.play().catch((reason) => {
-        if (reason?.name === 'NotAllowedError') {
-          // the browser requires a user interaction first: afterwards join again to catch up with the session
-          this.autoplayService.reportBlocked(() => {
-            const id = this.authenticationService.currentUserValue?.id;
-            !!id && this.wsService.publishSessionCommand(`join/${id}`, 'join');
-          });
-        } else {
-          console.error(reason);
-        }
-      });
+      if (this.autoplayService.blocked.value) {
+        this.playMuted();
+      } else {
+        this.mediaService.play().catch((reason) => {
+          if (reason?.name === 'NotAllowedError') {
+            this.playMuted();
+          } else {
+            console.error(reason);
+          }
+        });
+      }
       PlayerComponent.playerState = PlayerState.PLAY;
     }, startTime - new Date().getTime());
+  }
+
+  /**
+   * Browsers only allow playback with sound after a user interaction. Muted playback is allowed and keeps the client in
+   * sync; the sound is enabled with the next interaction.
+   */
+  private playMuted(): void {
+    this.mediaService.setMuted(true);
+    this.autoplayService.reportBlocked(() => this.mediaService.setMuted(false));
+    this.mediaService.play().catch((reason) => {
+      if (reason?.name === 'NotAllowedError') {
+        // not even muted playback is allowed: join again after the interaction to catch up with the session
+        this.autoplayService.reportBlocked(() => {
+          const id = this.authenticationService.currentUserValue?.id;
+          !!id && this.wsService.publishSessionCommand(`join/${id}`, 'join');
+        });
+      } else {
+        console.error(reason);
+      }
+    });
   }
 
   /**

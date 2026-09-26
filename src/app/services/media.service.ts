@@ -10,6 +10,7 @@ export class MediaService {
   private audio = new Audio();
   private video: HTMLVideoElement | null = null;
   private media: HTMLAudioElement | HTMLVideoElement;
+  private muted = false;
 
   private progressionListeners: ((p: number) => void)[] = [];
 
@@ -57,6 +58,14 @@ export class MediaService {
     this.media.volume = volume;
   }
 
+  /**
+   * Mutes or unmutes the playback independently of the volume. Browsers allow muted playback without user interaction.
+   */
+  setMuted(muted: boolean): void {
+    this.muted = muted;
+    this.media.muted = muted;
+  }
+
   getVolume(): number {
     return this.media.volume;
   }
@@ -96,6 +105,7 @@ export class MediaService {
     this.video = video;
     this.media = this.video;
     this.setVolume(oldVolume);
+    this.media.muted = this.muted;
     this.video.removeEventListener('timeupdate', this.timeUpdateListener);
     this.video.addEventListener('timeupdate', this.timeUpdateListener);
     this.video.removeEventListener('ended', this.endedListener);
@@ -115,6 +125,7 @@ export class MediaService {
     const oldVolume = this.getVolume();
     this.media = this.audio;
     this.setVolume(oldVolume);
+    this.media.muted = this.muted;
   }
 
   isVideoMode() {
