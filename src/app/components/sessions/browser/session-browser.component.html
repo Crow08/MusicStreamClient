@@ -4,7 +4,7 @@
   </mat-card-header>
   <mat-card-content>
     <mat-action-list *ngFor="let session of sessions" role="list">
-      <mat-list-item (click)="joinSession(session.id)" role="listitem">
+      <mat-list-item (click)="openSession(session.id)" role="listitem">
         {{session.name}} - [{{session.id}}]
       </mat-list-item>
     </mat-action-list>

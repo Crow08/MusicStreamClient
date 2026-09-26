@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Session } from '../../../models/session';
 import { HttpHelperService } from '../../../services/http-helper.service';
-import { SessionService } from '../../../services/session.service';
 
 @Component({
   selector: 'app-browser',
@@ -11,7 +11,7 @@ import { SessionService } from '../../../services/session.service';
 export class SessionBrowserComponent implements OnInit {
   sessions: Session[] = [];
 
-  constructor(private httpHelperService: HttpHelperService, private sessionService: SessionService) {}
+  constructor(private httpHelperService: HttpHelperService, private router: Router) {}
 
   ngOnInit(): void {
     this.httpHelperService
@@ -20,7 +20,8 @@ export class SessionBrowserComponent implements OnInit {
       .catch(console.error);
   }
 
-  joinSession(id: number): void {
-    this.sessionService.joinSession(id);
+  openSession(id: number): void {
+    // joining is done by the lobby, which also handles the required user interaction
+    this.router.navigateByUrl(`/sessions/${id}/lobby`).catch(console.error);
   }
 }
