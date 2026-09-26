@@ -5,6 +5,7 @@ import { HttpHelperService } from '../../../services/http-helper.service';
 import { AuthenticationService } from '../../../services/authentication.service';
 import { MediaService } from '../../../services/media.service';
 import { WsService } from '../../../services/ws.service';
+import { AutoplayService } from '../../../services/autoplay.service';
 import { LatencyComponent } from '../../latency/latency.component';
 
 @Component({
@@ -20,9 +21,11 @@ export class MiniPlayerComponent extends PlayerComponent implements AfterViewIni
     httpHelperService: HttpHelperService,
     authenticationService: AuthenticationService,
     mediaService: MediaService,
-    wsService: WsService
+    wsService: WsService,
+    autoplayService: AutoplayService
   ) {
     super();
+    this.autoplayService = autoplayService;
     this.httpHelperService = httpHelperService;
     this.authenticationService = authenticationService;
     this.mediaService = mediaService;

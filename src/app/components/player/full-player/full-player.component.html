@@ -20,6 +20,10 @@
       <!--        <mat-icon *ngIf="drawerRight.opened">chevron_left</mat-icon>-->
       <!--        <mat-icon *ngIf="!drawerRight.opened">chevron_right</mat-icon>-->
       <!--      </button>-->
+      <div *ngIf="autoplayBlocked" class="autoplay-hint" role="status">
+        <mat-icon>volume_off</mat-icon>
+        Your browser blocks playback until you interact with the page. Click anywhere to enable sound.
+      </div>
       <mat-card-header>
         <mat-card-title>{{ currentMedia.title || 'No current song' }}</mat-card-title>
         <mat-card-subtitle>

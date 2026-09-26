@@ -40,7 +40,6 @@ import { SpotifyDelegateComponent } from './components/player/spotify-delegate/s
 import { PlayerTrackComponent } from './components/player/player-track/player-track.component';
 import { RegisterComponent } from './components/register/register.component';
 import { InviteComponent } from './components/invite/invite.component';
-import { JoinDialogComponent } from './components/player/join-dialog/join-dialog.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +74,6 @@ import { JoinDialogComponent } from './components/player/join-dialog/join-dialog
     PlayerTrackComponent,
     RegisterComponent,
     InviteComponent,
-    JoinDialogComponent,
   ],
   imports: [
     FormsModule,

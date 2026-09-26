@@ -3,6 +3,17 @@
   justify-content: center;
   margin: 20px;
 
+  .autoplay-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 16px 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.12);
+    cursor: pointer;
+  }
+
   .mat-drawer-container,
   #drawer-wrapper .mat-card.drawer-card {
     background-color: transparent;

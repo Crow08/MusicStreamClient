@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { PlayerComponent } from '../player.component';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
 import { AuthenticationService } from '../../../services/authentication.service';
 import { MediaService } from '../../../services/media.service';
@@ -8,9 +8,8 @@ import { WsService } from '../../../services/ws.service';
 import { SessionService } from '../../../services/session.service';
 import { SettingsService } from '../../../services/settings.service';
 import { LatencyComponent } from '../../latency/latency.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { JoinDialogComponent } from '../join-dialog/join-dialog.component';
+import { AutoplayService } from '../../../services/autoplay.service';
 
 @Component({
   selector: 'app-full-player',
@@ -22,7 +21,6 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   @ViewChild('videoWrapper') videoWrapper: ElementRef | undefined;
   private hideCursorTimeout: number | null = null;
   private singleVideoClickTimeout: number | null = null;
-  private joinDialogRef: MatDialogRef<JoinDialogComponent, boolean> | null = null;
   private readonly mediaSubscriptions = new Subscription();
 
   constructor(
@@ -33,16 +31,17 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     wsService: WsService,
     sessionService: SessionService,
     public settingsService: SettingsService,
-    dialog: MatDialog
+    autoplayService: AutoplayService
   ) {
     super();
     this.httpHelperService = httpHelperService;
     this.authenticationService = authenticationService;
     this.mediaService = mediaService;
     this.wsService = wsService;
-    const routeParams = route.snapshot.paramMap;
+    this.autoplayService = autoplayService;
 
-    this.displayJoinButton(dialog, sessionService, routeParams);
+    this.autoplayService.check();
+    sessionService.joinSession(Number(route.snapshot.paramMap.get('sessionId')));
 
     // MediaService is app-wide: these subscriptions have to end with this component (see ngOnDestroy)
     this.mediaSubscriptions.add(
@@ -60,27 +59,11 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     );
   }
 
-  displayJoinButton(dialog: MatDialog, sessionService: SessionService, routeParams: ParamMap) {
-    const sessionId = Number(routeParams.get('sessionId'));
-    sessionService.init(sessionId);
-
-    // the dialog only exists to get a user interaction, which the browser requires before media can be played
-    if (navigator.userActivation?.hasBeenActive) {
-      sessionService.joinSession(sessionId);
-      return;
-    }
-    this.joinDialogRef = dialog.open<JoinDialogComponent, void, boolean>(JoinDialogComponent, { disableClose: true });
-    this.joinDialogRef.afterClosed().subscribe((join) => {
-      this.joinDialogRef = null;
-      if (join) {
-        sessionService.joinSession(sessionId);
-      }
-    });
+  get autoplayBlocked(): boolean {
+    return this.autoplayService.blocked.value;
   }
 
   ngOnDestroy(): void {
-    // leaving the lobby must not leave the dialog open on other pages or join the session
-    this.joinDialogRef?.close(false);
     this.mediaSubscriptions.unsubscribe();
   }
 
