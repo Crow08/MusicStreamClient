@@ -222,7 +222,10 @@ export abstract class PlayerComponent {
           PlayerComponent.loopMode = commandObject.loopMode;
           switch (commandObject.sessionState) {
             case 'PLAY':
-              PlayerComponent.lastReadyEvent = { mediaId: commandObject.currentMedia.id, time: commandObject.startMediaTime };
+              PlayerComponent.lastReadyEvent = {
+                mediaId: commandObject.currentMedia?.id ?? -1,
+                time: commandObject.startMediaTime,
+              };
               this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.PLAY;
               const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
@@ -231,8 +234,13 @@ export abstract class PlayerComponent {
             case 'STOP':
               this.mediaService.stop();
               const media = commandObject.currentMedia;
-              const mediaType = media.type.toUpperCase() as 'VIDEO' | 'SONG';
-              PlayerComponent.currentMedia = new Media(media.id, mediaType, media.title, '', []);
+              if (media) {
+                const mediaType = media.type.toUpperCase() as 'VIDEO' | 'SONG';
+                PlayerComponent.currentMedia = new Media(media.id, mediaType, media.title, '', []);
+              } else {
+                // nothing has been played in this session yet
+                PlayerComponent.currentMedia = new Media(-1, 'SONG', '', '', []);
+              }
               PlayerComponent.playerState = PlayerState.STOP;
               break;
             case 'PAUSE':
