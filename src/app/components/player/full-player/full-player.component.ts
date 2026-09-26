@@ -48,7 +48,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
       console.log('READY');
       const id = this.authenticationService.currentUserValue?.id;
       const time = Math.round(this.mediaService.getCurrentTime() * 1000);
-      !!id && this.indicateReadyFor(PlayerComponent.currentMedia.id, time);
+      !!id && this.indicateReadyFor(PlayerComponent.preparedMediaId, time);
     });
   }
 

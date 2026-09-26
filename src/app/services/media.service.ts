@@ -15,6 +15,13 @@ export class MediaService {
 
   private canplaythroughListener = () => this.mediaCanPlayThrough.emit();
 
+  // seeking inside the already buffered range does not reliably fire canplaythrough again
+  private seekedListener = () => {
+    if (this.media.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+      this.mediaCanPlayThrough.emit();
+    }
+  };
+
   private endedListener = () => this.mediaEndedSubject.emit();
 
   private timeUpdateListener = () => {
@@ -31,6 +38,7 @@ export class MediaService {
     this.audio.addEventListener('timeupdate', this.timeUpdateListener);
     this.audio.addEventListener('ended', this.endedListener);
     this.audio.addEventListener('canplaythrough', this.canplaythroughListener);
+    this.audio.addEventListener('seeked', this.seekedListener);
   }
 
   play(): Promise<void> {
@@ -90,6 +98,8 @@ export class MediaService {
     this.video.addEventListener('ended', this.endedListener);
     this.video.removeEventListener('canplaythrough', this.canplaythroughListener);
     this.video.addEventListener('canplaythrough', this.canplaythroughListener);
+    this.video.removeEventListener('seeked', this.seekedListener);
+    this.video.addEventListener('seeked', this.seekedListener);
   }
 
   getProgressionOffsetInSeconds(progressionPercent: number) {

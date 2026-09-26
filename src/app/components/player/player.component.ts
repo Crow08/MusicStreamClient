@@ -28,6 +28,8 @@ export abstract class PlayerComponent {
   static songRating = 0;
   static userSongRating = 0;
   static videoElement: HTMLVideoElement;
+  /** Id of the media currently loaded into the media element. currentMedia is updated asynchronously. */
+  static preparedMediaId = -1;
   private static _lastReadyEvent: { mediaId: number; time: number } | null;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
@@ -90,6 +92,7 @@ export abstract class PlayerComponent {
       return;
     }
     const isVideo = media.type.toUpperCase() == 'VIDEO';
+    PlayerComponent.preparedMediaId = media.id;
 
     this.httpHelperService
       .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
@@ -186,6 +189,8 @@ export abstract class PlayerComponent {
         this.schedulePlay(commandObject.startServerTime + timeOffset);
         break;
       case 'SetMedia':
+        // every SetMedia starts a new sync round on the server, even for the same media at the same position
+        PlayerComponent.lastReadyEvent = null;
         this.mediaService.stop();
         this.loadNewMedia(commandObject.currentMedia, 0);
         this.updateQueueAndHistory(commandObject.currentMedia.id);
@@ -205,6 +210,7 @@ export abstract class PlayerComponent {
         }
         break;
       case 'Jump':
+        PlayerComponent.lastReadyEvent = null;
         this.prepareMediaStart(null, commandObject.startMediaTime);
         break;
       case 'Join':
@@ -232,6 +238,19 @@ export abstract class PlayerComponent {
             case 'PAUSE':
               this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.PAUSE;
+              break;
+            case 'SYNC_PLAY':
+            case 'SYNC_PAUSE':
+            case 'SYNC_STOP':
+              // a sync round is running: load the media and report ready so the round can include this user
+              PlayerComponent.lastReadyEvent = null;
+              this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
+              PlayerComponent.playerState =
+                commandObject.sessionState === 'SYNC_PLAY'
+                  ? PlayerState.WAITING
+                  : commandObject.sessionState === 'SYNC_PAUSE'
+                  ? PlayerState.PAUSE
+                  : PlayerState.STOP;
               break;
           }
         }
