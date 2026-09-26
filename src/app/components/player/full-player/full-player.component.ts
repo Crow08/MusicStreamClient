@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { PlayerComponent } from '../player.component';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
@@ -8,7 +8,7 @@ import { WsService } from '../../../services/ws.service';
 import { SessionService } from '../../../services/session.service';
 import { SettingsService } from '../../../services/settings.service';
 import { LatencyComponent } from '../../latency/latency.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { JoinDialogComponent } from '../join-dialog/join-dialog.component';
 
 @Component({
@@ -16,11 +16,12 @@ import { JoinDialogComponent } from '../join-dialog/join-dialog.component';
   templateUrl: './full-player.component.html',
   styleUrls: ['./full-player.component.scss'],
 })
-export class FullPlayerComponent extends PlayerComponent implements AfterViewInit {
+export class FullPlayerComponent extends PlayerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('latencyComponent') latencyComponent: LatencyComponent | undefined;
   @ViewChild('videoWrapper') videoWrapper: ElementRef | undefined;
   private hideCursorTimeout: number | null = null;
   private singleVideoClickTimeout: number | null = null;
+  private joinDialogRef: MatDialogRef<JoinDialogComponent, boolean> | null = null;
 
   constructor(
     route: ActivatedRoute,
@@ -53,13 +54,26 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   }
 
   displayJoinButton(dialog: MatDialog, sessionService: SessionService, routeParams: ParamMap) {
-    const dialogRef = dialog.open(JoinDialogComponent);
-    let sessionId = Number(routeParams.get('sessionId'));
-
+    const sessionId = Number(routeParams.get('sessionId'));
     sessionService.init(sessionId);
-    dialogRef.afterClosed().subscribe(() => {
+
+    // the dialog only exists to get a user interaction, which the browser requires before media can be played
+    if (navigator.userActivation?.hasBeenActive) {
       sessionService.joinSession(sessionId);
+      return;
+    }
+    this.joinDialogRef = dialog.open<JoinDialogComponent, void, boolean>(JoinDialogComponent, { disableClose: true });
+    this.joinDialogRef.afterClosed().subscribe((join) => {
+      this.joinDialogRef = null;
+      if (join) {
+        sessionService.joinSession(sessionId);
+      }
     });
+  }
+
+  ngOnDestroy(): void {
+    // leaving the lobby must not leave the dialog open on other pages or join the session
+    this.joinDialogRef?.close(false);
   }
 
   get isFullscreen(): boolean {
