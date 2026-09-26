@@ -57,7 +57,7 @@
           >
           </mat-checkbox>
           <button
-            (click)="addSongsToQueue(selection.selected)"
+            (click)="addMediaListToQueue(selection.selected)"
             [disabled]="selection.isEmpty()"
             mat-button
             type="button"
@@ -141,7 +141,7 @@
               </button>
               <mat-menu #menu="matMenu">
                 <button
-                  (click)="playSongNow(element)"
+                  (click)="playMediaNow(element)"
                   *ngIf="inSession"
                   mat-menu-item
                   type="button"
@@ -150,7 +150,7 @@
                   <span>Play now</span>
                 </button>
                 <button
-                  (click)="playSongNext(element)"
+                  (click)="playMediaNext(element)"
                   *ngIf="inSession"
                   mat-menu-item
                   type="button"
@@ -159,7 +159,7 @@
                   <span>Play next</span>
                 </button>
                 <button
-                  (click)="addSongToQueue(element)"
+                  (click)="addMediaToQueue(element)"
                   *ngIf="inSession"
                   mat-menu-item
                   type="button"

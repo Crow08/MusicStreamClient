@@ -289,7 +289,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  addSongToQueue(media: Media): void {
+  addMediaToQueue(media: Media): void {
     this.wsService.publishSessionCommand(`addMediaToQueue`, JSON.stringify(media));
     //this needs work, we cant just claim that it works everytime! #Arrow-function
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
@@ -300,7 +300,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  addSongsToQueue(mediaList: Media[]): void {
+  addMediaListToQueue(mediaList: Media[]): void {
     this.wsService.publishSessionCommand(`addMediaListToQueue`, JSON.stringify(mediaList));
     //this needs work, we cant just claim that it works everytime! #Arrow-function
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
@@ -311,8 +311,8 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  playSongNext(media: Media): void {
-    this.wsService.publishSessionCommand(`playSongNext`, JSON.stringify(media));
+  playMediaNext(media: Media): void {
+    this.wsService.publishSessionCommand(`playMediaNext`, JSON.stringify(media));
     //this needs work, we cant just claim that it works everytime! #Arrow-function
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
       data: {
@@ -322,7 +322,7 @@ export class DatabaseBrowserComponent implements OnInit {
     });
   }
 
-  playSongNow(media: Media): void {
+  playMediaNow(media: Media): void {
     this.wsService.publishSessionCommand(`playMediaNext`, JSON.stringify(media));
     setTimeout(() => this.wsService.publishSessionCommand(`skip`, `skip`), 1000);
   }
