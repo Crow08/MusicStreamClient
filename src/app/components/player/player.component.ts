@@ -445,7 +445,8 @@ export abstract class PlayerComponent {
     const queueIndex = PlayerComponent.queue.findIndex((value) => value.id === songId);
     if (queueIndex !== -1) {
       // forward
-      if (PlayerComponent.currentMedia) {
+      // id -1 is the placeholder for "no current media", which must not end up in the history or queue
+      if (PlayerComponent.currentMedia && PlayerComponent.currentMedia.id !== -1) {
         PlayerComponent.history.push({
           id: PlayerComponent.currentMedia.id,
           title: PlayerComponent.currentMedia.title,
@@ -461,7 +462,8 @@ export abstract class PlayerComponent {
       const historyIndex = PlayerComponent.history.findIndex((value) => value.id === songId);
       if (historyIndex !== -1) {
         // backwards
-        if (PlayerComponent.currentMedia) {
+        // id -1 is the placeholder for "no current media", which must not end up in the history or queue
+      if (PlayerComponent.currentMedia && PlayerComponent.currentMedia.id !== -1) {
           PlayerComponent.queue.unshift({
             id: PlayerComponent.currentMedia.id,
             title: PlayerComponent.currentMedia.title,
