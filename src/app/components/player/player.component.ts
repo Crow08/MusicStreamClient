@@ -46,6 +46,7 @@ export abstract class PlayerComponent {
   /** Client time at which the current playback started at the given media position, used to correct drift. */
   private static playbackAnchor: { mediaId: number; startTime: number; mediaTime: number } | null = null;
   private static lastSeekCorrection = 0;
+  private static mediaInfoRequest = 0;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -113,28 +114,29 @@ export abstract class PlayerComponent {
     this.httpHelperService
       .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
       .then((url) => {
-        media.type.toUpperCase() == 'VIDEO'
-          ? this.mediaService.activateVideoMode(PlayerComponent.videoElement)
-          : this.mediaService.activateAudioMode();
+        isVideo ? this.mediaService.activateVideoMode(PlayerComponent.videoElement) : this.mediaService.activateAudioMode();
         this.prepareMediaStart(url, startMediaTime);
       })
       .catch(console.error);
 
-    if (isVideo) {
-      this.httpHelperService
-        .get(`/api/v1/media/video/${media.id}`, Video)
-        .then((video) => {
-          this.setNewMedia(video);
-        })
-        .catch(console.error);
-    } else {
-      this.httpHelperService
-        .get(`/api/v1/media/song/${media.id}`, Song)
-        .then((song) => {
-          this.setNewMedia(song);
-        })
-        .catch(console.error);
-    }
+    this.loadMediaInfo(media);
+  }
+
+  /** Loads the details (title, artist, ...) and ratings of the media, without loading the media itself. */
+  loadMediaInfo(media: MinimalMedia): void {
+    // responses may arrive out of order when the media changes quickly: only the latest request is applied
+    const request = ++PlayerComponent.mediaInfoRequest;
+    const request$: Promise<Media> =
+      media.type.toUpperCase() == 'VIDEO'
+        ? this.httpHelperService.get(`/api/v1/media/video/${media.id}`, Video)
+        : this.httpHelperService.get(`/api/v1/media/song/${media.id}`, Song);
+    request$
+      .then((details) => {
+        if (request === PlayerComponent.mediaInfoRequest) {
+          this.setNewMedia(details);
+        }
+      })
+      .catch(console.error);
   }
 
   setVolume(value: number): void {
@@ -142,28 +144,50 @@ export abstract class PlayerComponent {
   }
 
   onRating(rating: number): void {
+    const mediaId = PlayerComponent.currentMedia.id;
+    if (mediaId === -1) {
+      return;
+    }
+    PlayerComponent.userSongRating = rating;
     this.httpHelperService
-      .put(`api/v1/ratings/${PlayerComponent.currentMedia.id}/addUserRating/${rating}`, null)
+      .put(`/api/v1/ratings/${mediaId}/addUserRating/${rating}`, null)
       .then(() => {
         this.getRating();
+        this.getUserRating();
       })
       .catch(console.error);
   }
 
   getRating(): void {
+    const mediaId = PlayerComponent.currentMedia.id;
+    if (mediaId === -1) {
+      PlayerComponent.songRating = 0;
+      return;
+    }
     this.httpHelperService
-      .getPlain(`/api/v1/ratings/getSongRating/${PlayerComponent.currentMedia.id}`)
+      .getPlain(`/api/v1/ratings/getSongRating/${mediaId}`)
       .then((rating) => {
-        PlayerComponent.songRating = Number(rating);
+        // the response may arrive after the media changed
+        if (PlayerComponent.currentMedia.id === mediaId) {
+          PlayerComponent.songRating = Number(rating);
+        }
       })
       .catch(console.error);
   }
 
   getUserRating(): void {
+    const mediaId = PlayerComponent.currentMedia.id;
+    if (mediaId === -1) {
+      PlayerComponent.userSongRating = 0;
+      return;
+    }
     this.httpHelperService
-      .getPlain(`/api/v1/ratings/getUserRating/${PlayerComponent.currentMedia.id}`)
+      .getPlain(`/api/v1/ratings/getUserRating/${mediaId}`)
       .then((rating) => {
-        PlayerComponent.userSongRating = Number(rating);
+        // the response may arrive after the media changed
+        if (PlayerComponent.currentMedia.id === mediaId) {
+          PlayerComponent.userSongRating = Number(rating);
+        }
       })
       .catch(console.error);
   }
@@ -265,6 +289,8 @@ export abstract class PlayerComponent {
               if (media) {
                 const mediaType = media.type.toUpperCase() as 'VIDEO' | 'SONG';
                 PlayerComponent.currentMedia = new Media(media.id, mediaType, media.title, '', []);
+                // the media is not loaded while stopped, but its details and ratings are shown
+                this.loadMediaInfo(media);
               } else {
                 // nothing has been played in this session yet
                 PlayerComponent.currentMedia = new Media(-1, 'SONG', '', '', []);
@@ -481,6 +507,9 @@ export abstract class PlayerComponent {
 
   private setNewMedia(media: Media): void {
     PlayerComponent.currentMedia = media;
+    // do not show the ratings of the previous media until the new ones are loaded
+    PlayerComponent.songRating = 0;
+    PlayerComponent.userSongRating = 0;
     if (media.type == 'SONG') {
       this.selectedAlbum = [new GenericDataObject((media as Song).album.id, (media as Song).album.name)];
       this.selectedArtist = [new GenericDataObject((media as Song).artist.id, (media as Song).artist.name)];

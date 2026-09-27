@@ -19,8 +19,8 @@ export class RatingStarComponent implements OnInit {
   }
 
   public setRatingValue(newRating: number): void {
-    this.currentRating = newRating;
-    this.rating.emit(this.currentRating);
+    // the parent owns the rating: changing the input here would stick when the parent's value does not change
+    this.rating.emit(newRating);
   }
 
   startHover(value: number): void {
