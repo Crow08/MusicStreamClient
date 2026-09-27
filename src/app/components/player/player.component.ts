@@ -236,6 +236,7 @@ export abstract class PlayerComponent {
       case 'Join':
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
         if (commandObject.userId === this.authenticationService.currentUserValue?.id) {
+          this.onJoined();
           // set join event as last ready object to not trigger a new sync on join.
           PlayerComponent.queue = commandObject.queue;
           PlayerComponent.history = commandObject.history;
@@ -303,6 +304,9 @@ export abstract class PlayerComponent {
         break;
     }
   }
+
+  /** Called when the own join response arrived. */
+  protected onJoined(): void {}
 
   protected indicateReadyFor(mediaId: number, time: number) {
     if (PlayerComponent.lastReadyEvent?.time == time && PlayerComponent._lastReadyEvent?.mediaId == mediaId) {

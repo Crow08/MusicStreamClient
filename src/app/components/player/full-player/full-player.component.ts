@@ -29,7 +29,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     authenticationService: AuthenticationService,
     mediaService: MediaService,
     wsService: WsService,
-    sessionService: SessionService,
+    private sessionService: SessionService,
     public settingsService: SettingsService,
     autoplayService: AutoplayService
   ) {
@@ -65,6 +65,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   }
 
   ngOnDestroy(): void {
+    this.sessionService.cancelJoin();
     this.mediaSubscriptions.unsubscribe();
   }
 
@@ -78,6 +79,11 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
 
   ngAfterViewInit(): void {
     this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
+    this.sessionService.requestJoin();
+  }
+
+  protected override onJoined(): void {
+    this.sessionService.acknowledgeJoin();
   }
 
   getLatencyComponent(): LatencyComponent | undefined {
