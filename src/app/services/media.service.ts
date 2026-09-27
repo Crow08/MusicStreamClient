@@ -7,6 +7,7 @@ import { SettingsService } from './settings.service';
 export class MediaService {
   mediaEndedSubject = new EventEmitter<void>();
   mediaCanPlayThrough = new EventEmitter<void>();
+  timeUpdate = new EventEmitter<void>();
   private audio = new Audio();
   private video: HTMLVideoElement | null = null;
   private media: HTMLAudioElement | HTMLVideoElement;
@@ -31,6 +32,7 @@ export class MediaService {
         value((this.media.currentTime / this.media.duration) * 100);
       }
     });
+    this.timeUpdate.emit();
   };
 
   constructor(private settingsService: SettingsService) {
@@ -84,6 +86,16 @@ export class MediaService {
 
   getDuration(): number {
     return this.media.duration;
+  }
+
+  isPaused(): boolean {
+    return this.media.paused;
+  }
+
+  setPlaybackRate(rate: number): void {
+    if (this.media.playbackRate !== rate) {
+      this.media.playbackRate = rate;
+    }
   }
 
   pauseAtPosition(position: number): void {

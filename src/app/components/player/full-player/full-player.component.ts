@@ -49,6 +49,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
         this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
       })
     );
+    this.mediaSubscriptions.add(this.mediaService.timeUpdate.subscribe(() => this.correctDrift()));
     this.mediaSubscriptions.add(
       this.mediaService.mediaCanPlayThrough.subscribe(() => {
         console.log('READY');

@@ -21,6 +21,14 @@ export enum PlayerState {
 
 /** A start later than this (ms) is compensated by starting further into the media. */
 const LATE_START_TOLERANCE = 30;
+/** Drift (ms) between the actual and the expected position that is tolerated during playback. */
+const DRIFT_TOLERANCE = 40;
+/** Drift (ms) up to which the playback rate is adjusted; a larger drift is corrected by seeking. */
+const MAX_RATE_CORRECTED_DRIFT = 1000;
+/** Maximum deviation of the playback rate from 1 when correcting a drift. */
+const MAX_RATE_CORRECTION = 0.05;
+/** Minimum time (ms) between two corrections by seeking, which need time to buffer. */
+const SEEK_CORRECTION_COOLDOWN = 3000;
 
 export abstract class PlayerComponent {
   static playerState: PlayerState = PlayerState.STOP;
@@ -35,6 +43,9 @@ export abstract class PlayerComponent {
   /** Id of the media currently loaded into the media element. currentMedia is updated asynchronously. */
   static preparedMediaId = -1;
   private static _lastReadyEvent: { mediaId: number; time: number } | null;
+  /** Client time at which the current playback started at the given media position, used to correct drift. */
+  private static playbackAnchor: { mediaId: number; startTime: number; mediaTime: number } | null = null;
+  private static lastSeekCorrection = 0;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -196,15 +207,18 @@ export abstract class PlayerComponent {
       case 'SetMedia':
         // every SetMedia starts a new sync round on the server, even for the same media at the same position
         PlayerComponent.lastReadyEvent = null;
+        this.clearPlaybackAnchor();
         this.mediaService.stop();
         this.loadNewMedia(commandObject.currentMedia, 0);
         this.updateQueueAndHistory(commandObject.currentMedia.id);
         break;
       case 'Pause':
+        this.clearPlaybackAnchor();
         this.mediaService.pauseAtPosition(commandObject.mediaStopTime);
         PlayerComponent.playerState = PlayerState.PAUSE;
         break;
       case 'Stop':
+        this.clearPlaybackAnchor();
         this.mediaService.stop();
         PlayerComponent.playerState = PlayerState.STOP;
         break;
@@ -216,6 +230,7 @@ export abstract class PlayerComponent {
         break;
       case 'Jump':
         PlayerComponent.lastReadyEvent = null;
+        this.clearPlaybackAnchor();
         this.prepareMediaStart(null, commandObject.startMediaTime);
         break;
       case 'Join':
@@ -319,6 +334,47 @@ export abstract class PlayerComponent {
   }
 
   /**
+   * Continuously compares the playback position with the position expected from the scheduled start and corrects the
+   * drift, e.g. after buffering: small drifts by slightly changing the playback rate, large ones by seeking.
+   */
+  protected correctDrift(): void {
+    const anchor = PlayerComponent.playbackAnchor;
+    const now = new Date().getTime();
+    if (
+      !anchor ||
+      anchor.mediaId !== PlayerComponent.preparedMediaId ||
+      PlayerComponent.playerState !== PlayerState.PLAY ||
+      this.mediaService.isPaused() ||
+      now < anchor.startTime
+    ) {
+      return;
+    }
+    const expected = anchor.mediaTime + (now - anchor.startTime);
+    if (expected >= this.mediaService.getDuration() * 1000) {
+      return;
+    }
+    const drift = expected - this.mediaService.getCurrentTime() * 1000; // positive: behind the session
+    if (Math.abs(drift) > MAX_RATE_CORRECTED_DRIFT) {
+      if (now - PlayerComponent.lastSeekCorrection > SEEK_CORRECTION_COOLDOWN) {
+        PlayerComponent.lastSeekCorrection = now;
+        console.log(`Drift of ${Math.round(drift)}ms: seeking`);
+        this.mediaService.setPlaybackRate(1);
+        this.mediaService.setCurrentTime(expected / 1000);
+      }
+    } else if (Math.abs(drift) > DRIFT_TOLERANCE) {
+      const correction = Math.max(-MAX_RATE_CORRECTION, Math.min(MAX_RATE_CORRECTION, drift / 3000));
+      this.mediaService.setPlaybackRate(1 + correction);
+    } else {
+      this.mediaService.setPlaybackRate(1);
+    }
+  }
+
+  private clearPlaybackAnchor(): void {
+    PlayerComponent.playbackAnchor = null;
+    this.mediaService.setPlaybackRate(1);
+  }
+
+  /**
    * Starts the playback at the given client time.
    *
    * @param startTime client time in ms at which the playback starts.
@@ -326,6 +382,7 @@ export abstract class PlayerComponent {
    */
   private schedulePlay(startTime: number, mediaTime = Math.round(this.mediaService.getCurrentTime() * 1000)): void {
     PlayerComponent.playerState = PlayerState.WAITING;
+    PlayerComponent.playbackAnchor = { mediaId: PlayerComponent.preparedMediaId, startTime, mediaTime };
     console.log('schedulePlay: waiting for: ' + (startTime - new Date().getTime()) + 'ms');
     console.log('media start time: ' + mediaTime);
     setTimeout(() => {
