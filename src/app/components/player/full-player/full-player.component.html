@@ -111,7 +111,7 @@
               <mat-chip color="primary" (click)="jumpTo(media.id)">
                 <mat-chip *cdkDragPlaceholder>{{ media.title }}</mat-chip>
                 {{ media.title }}
-                <button (click)="$event.stopPropagation(); removeSongFromQueueOrHistory(getDisplayHistoryStartIndex() + i, 'history')"
+                <button (click)="$event.stopPropagation(); removeSongFromQueueOrHistory(getDisplayHistoryStartIndex() + i, 'history', media.id)"
                         class="removeSongFromQueueButton"
                         mat-button>
                   <mat-icon>delete</mat-icon>
@@ -129,7 +129,7 @@
               <mat-chip color="primary" (click)="jumpTo(media.id)">
                 <mat-chip *cdkDragPlaceholder>{{ media.title }}</mat-chip>
                 {{ media.title }}
-                <button (click)="$event.stopPropagation(); removeSongFromQueueOrHistory(i, 'queue')"
+                <button (click)="$event.stopPropagation(); removeSongFromQueueOrHistory(i, 'queue', media.id)"
                         class="removeSongFromQueueButton"
                         mat-button>
                   <mat-icon>delete</mat-icon>

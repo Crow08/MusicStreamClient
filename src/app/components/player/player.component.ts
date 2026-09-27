@@ -176,16 +176,22 @@ export abstract class PlayerComponent {
     return Math.max(5, 10 - PlayerComponent.history.length);
   }
 
-  removeSongFromQueueOrHistory(queueIndex: number, type: string): void {
-    this.publishCommand(`deleteMediaFromQueue/${queueIndex}/${type}`);
+  removeSongFromQueueOrHistory(queueIndex: number, type: string, mediaId: number): void {
+    // the index may be outdated on the server when others change the queue, so the media id is sent along
+    this.publishCommand(`deleteMediaFromQueue/${queueIndex}/${type}/${mediaId}`);
   }
 
   drop(event: CdkDragDrop<string[]>): void {
-    this.publishCommand(
-      `movedMedia/${this.getDisplayHistoryStartIndex() + event.previousIndex}/to/${
-        this.getDisplayHistoryStartIndex() + event.currentIndex
-      }`
-    );
+    // indices in the combined list of history, current media and queue
+    const previousIndex = this.getDisplayHistoryStartIndex() + event.previousIndex;
+    const currentIndex = this.getDisplayHistoryStartIndex() + event.currentIndex;
+    const history = PlayerComponent.history;
+    const media =
+      previousIndex < history.length ? history[previousIndex] : PlayerComponent.queue[previousIndex - history.length - 1];
+    if (!media || previousIndex === currentIndex) {
+      return;
+    }
+    this.publishCommand(`movedMedia/${previousIndex}/to/${currentIndex}/${media.id}`);
   }
 
   jumpTo(mediaId: number) {
