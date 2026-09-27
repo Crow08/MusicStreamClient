@@ -323,7 +323,6 @@ export class DatabaseBrowserComponent implements OnInit {
   }
 
   playMediaNow(media: Media): void {
-    this.wsService.publishSessionCommand(`playMediaNext`, JSON.stringify(media));
-    setTimeout(() => this.wsService.publishSessionCommand(`skip`, `skip`), 1000);
+    this.wsService.publishSessionCommand(`playMediaNow`, JSON.stringify(media));
   }
 }
