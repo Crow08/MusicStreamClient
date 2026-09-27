@@ -240,6 +240,7 @@ export abstract class PlayerComponent {
         this.clearPlaybackAnchor();
         this.mediaService.stop();
         this.loadNewMedia(commandObject.currentMedia, 0);
+        this.reportReadyIfUnableToLoad(commandObject.currentMedia.id, 0);
         this.updateQueueAndHistory(commandObject.currentMedia.id);
         break;
       case 'Pause':
@@ -262,6 +263,7 @@ export abstract class PlayerComponent {
         PlayerComponent.lastReadyEvent = null;
         this.clearPlaybackAnchor();
         this.prepareMediaStart(null, commandObject.startMediaTime);
+        this.reportReadyIfUnableToLoad(PlayerComponent.preparedMediaId, commandObject.startMediaTime);
         break;
       case 'Join':
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
@@ -307,6 +309,9 @@ export abstract class PlayerComponent {
               // a sync round is running: load the media and report ready so the round can include this user
               PlayerComponent.lastReadyEvent = null;
               this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
+              if (commandObject.currentMedia) {
+                this.reportReadyIfUnableToLoad(commandObject.currentMedia.id, commandObject.startMediaTime);
+              }
               PlayerComponent.playerState =
                 commandObject.sessionState === 'SYNC_PLAY'
                   ? PlayerState.WAITING
@@ -339,6 +344,18 @@ export abstract class PlayerComponent {
 
   /** Called when the own join response arrived. */
   protected onJoined(): void {}
+
+  /**
+   * Browsers do not load media in hidden tabs before the user interacted with the page. Such a tab would never report
+   * ready, so the others would wait for the sync timeout: it reports ready right away instead and catches up (drift
+   * correction) once the user returns to the tab and interacts with it.
+   */
+  private reportReadyIfUnableToLoad(mediaId: number, time: number): void {
+    if (document.hidden && this.autoplayService.blocked.value) {
+      console.log('Hidden tab without user interaction can not load media: reporting ready');
+      this.indicateReadyFor(mediaId, time);
+    }
+  }
 
   protected indicateReadyFor(mediaId: number, time: number) {
     if (PlayerComponent.lastReadyEvent?.time == time && PlayerComponent._lastReadyEvent?.mediaId == mediaId) {
