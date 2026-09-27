@@ -19,6 +19,9 @@ export enum PlayerState {
   STOP = 'STOP',
 }
 
+/** A start later than this (ms) is compensated by starting further into the media. */
+const LATE_START_TOLERANCE = 30;
+
 export abstract class PlayerComponent {
   static playerState: PlayerState = PlayerState.STOP;
   static loopMode = false;
@@ -231,7 +234,8 @@ export abstract class PlayerComponent {
               this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.PLAY;
               const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
-              this.schedulePlay(commandObject.startServerTime + timeOffset);
+              // the media element is still loading here, so pass the position instead of reading it
+              this.schedulePlay(commandObject.startServerTime + timeOffset, commandObject.startMediaTime);
               break;
             case 'STOP':
               this.mediaService.stop();
@@ -314,11 +318,23 @@ export abstract class PlayerComponent {
     this.mediaService.pause();
   }
 
-  private schedulePlay(startTime: number): void {
+  /**
+   * Starts the playback at the given client time.
+   *
+   * @param startTime client time in ms at which the playback starts.
+   * @param mediaTime media position in ms at the start time, defaults to the position the media is prepared at.
+   */
+  private schedulePlay(startTime: number, mediaTime = Math.round(this.mediaService.getCurrentTime() * 1000)): void {
     PlayerComponent.playerState = PlayerState.WAITING;
     console.log('schedulePlay: waiting for: ' + (startTime - new Date().getTime()) + 'ms');
-    console.log('media start time: ' + this.mediaService.getCurrentTime());
+    console.log('media start time: ' + mediaTime);
     setTimeout(() => {
+      // the start command may arrive late, or the timeout fires late: start where the others already are
+      const lateness = new Date().getTime() - startTime;
+      if (lateness > LATE_START_TOLERANCE) {
+        console.log(`Late start by ${lateness}ms: starting further into the media`);
+        this.mediaService.setCurrentTime((mediaTime + lateness) / 1000);
+      }
       if (this.autoplayService.blocked.value) {
         this.playMuted();
       } else {
