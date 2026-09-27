@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-snack-bar-component-upload-result',
+  selector: 'app-snack-bar-component-upload-error',
   template: `<span class="result-bar"> Error! </span>`,
   styles: [
     `
