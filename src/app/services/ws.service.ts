@@ -1,27 +1,64 @@
 import { Injectable } from '@angular/core';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { User } from '../models/user';
-import { Subscription } from 'rxjs';
+import { filter, first, Subject, Subscription, timeout } from 'rxjs';
 import { WsConfigService } from './ws-config.service';
+
+/** Time to wait for an error response before a command is considered successful. */
+const ERROR_RESPONSE_TIMEOUT = 1000;
+
+export interface CommandError {
+  message: string;
+  destination: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class WsService {
+  /** Failed commands of this client, reported by the server. */
+  readonly errors = new Subject<CommandError>();
+
   private static utilLatencyTopic: Subscription | undefined;
   private static SessionControlsTopic: Subscription | undefined;
 
-  constructor(private wsConfigService: WsConfigService, private rxStompService: RxStompService) {}
+  constructor(private wsConfigService: WsConfigService, private rxStompService: RxStompService) {
+    this.rxStompService.watch('/user/queue/errors').subscribe((message) => {
+      const error = JSON.parse(message.body) as CommandError;
+      console.error(`Command ${error.destination} failed: ${error.message}`);
+      this.errors.next(error);
+    });
+  }
 
   publishSessionCommand(name: string, body: string): void {
     if (this.wsConfigService.configParameter.session) {
-      this.rxStompService.publish({
-        destination: `/app/sessions/${this.wsConfigService.configParameter.session}/commands/${name}`,
-        body,
-      });
+      this.rxStompService.publish({ destination: this.getSessionCommandDestination(name), body });
     } else {
       console.error('No active Session!');
     }
+  }
+
+  /**
+   * Publishes a session command and resolves to false if the server reports an error for it, true otherwise.
+   * Commands are broadcast to all clients, so success is assumed when no error arrives in time.
+   */
+  publishSessionCommandWithResult(name: string, body: string): Promise<boolean> {
+    const destination = this.getSessionCommandDestination(name);
+    const result = new Promise<boolean>((resolve) => {
+      this.errors
+        .pipe(
+          filter((error) => error.destination === destination),
+          first(),
+          timeout(ERROR_RESPONSE_TIMEOUT)
+        )
+        .subscribe({ next: () => resolve(false), error: () => resolve(true) });
+    });
+    this.publishSessionCommand(name, body);
+    return result;
+  }
+
+  private getSessionCommandDestination(name: string): string {
+    return `/app/sessions/${this.wsConfigService.configParameter.session}/commands/${name}`;
   }
 
   publishUtilCommand(name: string, body: string): void {

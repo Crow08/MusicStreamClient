@@ -1,3 +1,6 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { WsService } from './services/ws.service';
+import { CustomSnackBarComponent } from './components/messages/custom-snack-bar.component';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -20,10 +23,19 @@ export class AppComponent implements OnInit {
     private authenticationService: AuthenticationService,
     private settingsDialog: MatDialog,
     private sessionService: SessionService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private wsService: WsService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
+    this.wsService.errors.subscribe((error) =>
+      this.snackBar.openFromComponent(CustomSnackBarComponent, {
+        data: { message: error.message },
+        panelClass: ['http-error-notification'],
+        duration: 4000,
+      })
+    );
     this.isDesktopLayout = window.innerWidth >= 991;
     window.onresize = () => (this.isDesktopLayout = window.innerWidth >= 991);
     this.sessionService.sessionId.subscribe((id) => {

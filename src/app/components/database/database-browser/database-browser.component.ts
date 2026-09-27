@@ -290,39 +290,32 @@ export class DatabaseBrowserComponent implements OnInit {
   }
 
   addMediaToQueue(media: Media): void {
-    this.wsService.publishSessionCommand(`addMediaToQueue`, JSON.stringify(media));
-    //this needs work, we cant just claim that it works everytime! #Arrow-function
-    this.snackBar.openFromComponent(CustomSnackBarComponent, {
-      data: {
-        message: 'successMessage',
-      },
-      duration: 2000,
-    });
+    this.publishWithFeedback(`addMediaToQueue`, JSON.stringify(media));
   }
 
   addMediaListToQueue(mediaList: Media[]): void {
-    this.wsService.publishSessionCommand(`addMediaListToQueue`, JSON.stringify(mediaList));
-    //this needs work, we cant just claim that it works everytime! #Arrow-function
-    this.snackBar.openFromComponent(CustomSnackBarComponent, {
-      data: {
-        message: 'successMessage',
-      },
-      duration: 2000,
-    });
+    this.publishWithFeedback(`addMediaListToQueue`, JSON.stringify(mediaList));
   }
 
   playMediaNext(media: Media): void {
-    this.wsService.publishSessionCommand(`playMediaNext`, JSON.stringify(media));
-    //this needs work, we cant just claim that it works everytime! #Arrow-function
-    this.snackBar.openFromComponent(CustomSnackBarComponent, {
-      data: {
-        message: 'successMessage',
-      },
-      duration: 2000,
-    });
+    this.publishWithFeedback(`playMediaNext`, JSON.stringify(media));
   }
 
   playMediaNow(media: Media): void {
-    this.wsService.publishSessionCommand(`playMediaNow`, JSON.stringify(media));
+    this.publishWithFeedback(`playMediaNow`, JSON.stringify(media));
+  }
+
+  /** Errors are shown app-wide (see AppComponent), so only success needs to be shown here. */
+  private publishWithFeedback(command: string, body: string): void {
+    this.wsService.publishSessionCommandWithResult(command, body).then((success) => {
+      if (success) {
+        this.snackBar.openFromComponent(CustomSnackBarComponent, {
+          data: {
+            message: 'successMessage',
+          },
+          duration: 2000,
+        });
+      }
+    });
   }
 }
