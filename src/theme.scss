@@ -17,6 +17,15 @@ $my-typography: mat.define-typography-config(
     background-color: mat.get-color-from-palette($primary);
     color: mat.get-color-from-palette($primary, default-contrast);
   }
+
+  .seek-preview-image {
+    border-color: mat.get-color-from-palette($primary);
+  }
+
+  .seek-preview-time {
+    background-color: mat.get-color-from-palette($primary);
+    color: mat.get-color-from-palette($primary, default-contrast);
+  }
 }
 
 .parrot-theme {

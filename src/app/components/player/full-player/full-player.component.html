@@ -37,7 +37,8 @@
         <div #videoWrapper [hidden]="!isVideoMode()">
           <video #videoPlayer (click)="onVideoClick()" class="video-player" playsinline></video>
           <div *ngIf="isFullscreen" class="fullscreen-controls">
-            <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"></app-player-track>
+            <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"
+                              [thumbnailUrl]="thumbnailUrl"></app-player-track>
             <div id="fullscreen-control-buttons">
               <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
                 <mat-icon>skip_previous</mat-icon>
@@ -67,7 +68,8 @@
             </div>
           </div>
         </div>
-        <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"></app-player-track>
+        <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"
+                          [thumbnailUrl]="thumbnailUrl"></app-player-track>
         <div id="control-buttons">
           <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
             <mat-icon>skip_previous</mat-icon>

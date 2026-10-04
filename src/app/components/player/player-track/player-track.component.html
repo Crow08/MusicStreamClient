@@ -1,11 +1,19 @@
-<div class="progress-wrapper">
+<div class="progress-wrapper" #wrapper>
   <div class="time-display">
     {{getTimeDisplay()}}
   </div>
-  <mat-slider [max]=100 [min]=0 [step]=0.1 class="overlay-slider" color="accent">
+  <mat-slider [max]=100 [min]=0 [step]=0.1 class="overlay-slider" color="accent" #slider
+              (pointermove)="onPointerMove($event)" (pointerdown)="onPointerDown($event)" (pointerleave)="onPointerLeave()">
     <input matSliderThumb (valueChange)="onSeek($event)" [ngModel]="progression"  id="slider">
   </mat-slider>
   <mat-progress-bar [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
                     class="progress-bar"
                     color="accent"></mat-progress-bar>
+  <div *ngIf="preview" class="seek-preview" [style.left.px]="preview.left">
+    <div class="seek-preview-image"
+         [style.width.px]="thumbnailWidth" [style.height.px]="thumbnailHeight"
+         [style.background-image]="thumbnailBackground"
+         [style.background-position]="preview.tilePosition"></div>
+    <div class="seek-preview-time">{{preview.time}}</div>
+  </div>
 </div>

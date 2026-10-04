@@ -47,6 +47,9 @@ export abstract class PlayerComponent {
   private static playbackAnchor: { mediaId: number; startTime: number; mediaTime: number } | null = null;
   private static lastSeekCorrection = 0;
   private static mediaInfoRequest = 0;
+  /** Pre-signed URL of the thumbnail sprite of the current video (seek bar preview), null if there is none. */
+  private static thumbnailUrl: string | null = null;
+  private static thumbnailMediaId = -1;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -89,6 +92,10 @@ export abstract class PlayerComponent {
     return PlayerComponent.queue;
   }
 
+  get thumbnailUrl() {
+    return PlayerComponent.thumbnailUrl;
+  }
+
   static get lastReadyEvent(): { mediaId: number; time: number } | null {
     return this._lastReadyEvent;
   }
@@ -119,7 +126,31 @@ export abstract class PlayerComponent {
       })
       .catch(console.error);
 
+    this.loadThumbnails(media, isVideo);
     this.loadMediaInfo(media);
+  }
+
+  /** Loads the URL of the thumbnail sprite shown when hovering over the seek bar of a video. */
+  private loadThumbnails(media: MinimalMedia, isVideo: boolean): void {
+    if (media.id === PlayerComponent.thumbnailMediaId) {
+      return;
+    }
+    PlayerComponent.thumbnailMediaId = media.id;
+    PlayerComponent.thumbnailUrl = null;
+    if (!isVideo) {
+      return;
+    }
+    this.httpHelperService
+      .getPlain(`/api/v1/media/thumbnails/${media.id}?X-NPE-PSU-Duration=PT1H`)
+      .then((url) => {
+        // the media may have changed while the request was running
+        // the plain text response ends with a line break, which is not allowed in a CSS url()
+        if (PlayerComponent.thumbnailMediaId === media.id) {
+          PlayerComponent.thumbnailUrl = url.trim();
+        }
+      })
+      // thumbnails are optional: without them the seek bar shows no preview
+      .catch(() => undefined);
   }
 
   /** Loads the details (title, artist, ...) and ratings of the media, without loading the media itself. */
@@ -506,7 +537,7 @@ export abstract class PlayerComponent {
       if (historyIndex !== -1) {
         // backwards
         // id -1 is the placeholder for "no current media", which must not end up in the history or queue
-      if (PlayerComponent.currentMedia && PlayerComponent.currentMedia.id !== -1) {
+        if (PlayerComponent.currentMedia && PlayerComponent.currentMedia.id !== -1) {
           PlayerComponent.queue.unshift({
             id: PlayerComponent.currentMedia.id,
             title: PlayerComponent.currentMedia.title,
