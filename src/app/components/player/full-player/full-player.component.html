@@ -123,14 +123,6 @@
               <mat-icon>more_vert</mat-icon>
             </button>
           </ng-container>
-          <button (click)="publishCommand('shuffle')" class="player-controls" color="accent" mat-raised-button
-                  title="Shuffle queue">
-            <mat-icon>shuffle</mat-icon>
-          </button>
-          <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent"
-                  mat-raised-button [title]="loopMode ? 'Loop: on' : 'Loop: off'">
-            <mat-icon>{{ loopMode ? 'repeat_on' : 'repeat' }}</mat-icon>
-          </button>
           <mat-slider title="Volume" color="accent" class="volume-slider mat-dense" [max]="0.4" [min]="0" [step]="0.004">
             <input matSliderThumb value="{{getVolume()}}" (valueChange)="setVolume($event)" #slider>
           </mat-slider>
@@ -167,7 +159,17 @@
           </button>
         </mat-menu>
         <div class="playlist-header">
-          <span>{{ history.length + 1 }} / {{ playlistRows.length }}</span>
+          <span title="Position of the current media / length of the playlist">
+            {{ history.length + 1 }} / {{ playlistRows.length }}
+          </span>
+          <div class="spacer"></div>
+          <button (click)="publishCommand('shuffle')" mat-icon-button title="Shuffle queue">
+            <mat-icon>shuffle</mat-icon>
+          </button>
+          <button (click)="publishCommand('loop/' + !loopMode)" [color]="loopMode ? 'accent' : undefined" mat-icon-button
+                  [title]="loopMode ? 'Loop: on' : 'Loop: off'">
+            <mat-icon>{{ loopMode ? 'repeat_on' : 'repeat' }}</mat-icon>
+          </button>
           <button (click)="scrollToCurrent()" mat-icon-button title="Scroll to the current media">
             <mat-icon>my_location</mat-icon>
           </button>
