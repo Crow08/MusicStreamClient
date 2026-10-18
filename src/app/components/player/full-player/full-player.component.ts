@@ -144,4 +144,13 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   timeSkip() {
     this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000);
   }
+
+  /** Formats seconds as m:ss or h:mm:ss. */
+  formatTime(seconds: number): string {
+    const total = Math.floor(seconds);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const ss = String(total % 60).padStart(2, '0');
+    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+  }
 }

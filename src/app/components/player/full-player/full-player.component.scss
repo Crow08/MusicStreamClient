@@ -127,4 +127,7 @@
   }
 }
 
-
+// chapter menu items are rendered in the overlay container, outside of :host
+.current-chapter {
+  font-weight: bold;
+}

@@ -11,6 +11,7 @@ import { MinimalMedia } from '../../models/minimalMedia';
 import { Song } from '../../models/song';
 import { Video } from '../../models/video';
 import { AutoplayService } from '../../services/autoplay.service';
+import { Chapter } from '../../models/chapter';
 
 export enum PlayerState {
   WAITING = 'WAITING',
@@ -29,6 +30,13 @@ const MAX_RATE_CORRECTED_DRIFT = 1000;
 const MAX_RATE_CORRECTION = 0.05;
 /** Minimum time (ms) between two corrections by seeking, which need time to buffer. */
 const SEEK_CORRECTION_COOLDOWN = 3000;
+/**
+ * Tolerance (s) when determining the current chapter: after jumping to a chapter, the position may end up slightly
+ * before its start, which must not count as the previous chapter.
+ */
+const CHAPTER_START_TOLERANCE = 0.5;
+/** Position (s) in a chapter after which "previous chapter" restarts the current chapter instead. */
+const CHAPTER_RESTART_THRESHOLD = 3;
 
 export abstract class PlayerComponent {
   static playerState: PlayerState = PlayerState.STOP;
@@ -49,7 +57,10 @@ export abstract class PlayerComponent {
   private static mediaInfoRequest = 0;
   /** Pre-signed URL of the thumbnail sprite of the current video (seek bar preview), null if there is none. */
   private static thumbnailUrl: string | null = null;
-  private static thumbnailMediaId = -1;
+  /** Chapters of the current video (seek bar markers), empty if there are none. */
+  private static chapters: Chapter[] = [];
+  /** Media whose thumbnails and chapters were requested. */
+  private static seekBarMediaId = -1;
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -96,6 +107,10 @@ export abstract class PlayerComponent {
     return PlayerComponent.thumbnailUrl;
   }
 
+  get chapters() {
+    return PlayerComponent.chapters;
+  }
+
   static get lastReadyEvent(): { mediaId: number; time: number } | null {
     return this._lastReadyEvent;
   }
@@ -126,17 +141,21 @@ export abstract class PlayerComponent {
       })
       .catch(console.error);
 
-    this.loadThumbnails(media, isVideo);
+    this.loadSeekBarInfo(media, isVideo);
     this.loadMediaInfo(media);
   }
 
-  /** Loads the URL of the thumbnail sprite shown when hovering over the seek bar of a video. */
-  private loadThumbnails(media: MinimalMedia, isVideo: boolean): void {
-    if (media.id === PlayerComponent.thumbnailMediaId) {
+  /**
+   * Loads the URL of the thumbnail sprite shown when hovering over the seek bar of a video and the chapters of the
+   * video (read by the server from the MP4, browsers do not expose them).
+   */
+  private loadSeekBarInfo(media: MinimalMedia, isVideo: boolean): void {
+    if (media.id === PlayerComponent.seekBarMediaId) {
       return;
     }
-    PlayerComponent.thumbnailMediaId = media.id;
+    PlayerComponent.seekBarMediaId = media.id;
     PlayerComponent.thumbnailUrl = null;
+    PlayerComponent.chapters = [];
     if (!isVideo) {
       return;
     }
@@ -145,11 +164,20 @@ export abstract class PlayerComponent {
       .then((url) => {
         // the media may have changed while the request was running
         // the plain text response ends with a line break, which is not allowed in a CSS url()
-        if (PlayerComponent.thumbnailMediaId === media.id) {
+        if (PlayerComponent.seekBarMediaId === media.id) {
           PlayerComponent.thumbnailUrl = url.trim();
         }
       })
       // thumbnails are optional: without them the seek bar shows no preview
+      .catch(() => undefined);
+    this.httpHelperService
+      .getArray(`/api/v1/media/video/${media.id}/chapters`, Chapter)
+      .then((chapters) => {
+        if (PlayerComponent.seekBarMediaId === media.id) {
+          PlayerComponent.chapters = chapters;
+        }
+      })
+      // chapters are optional as well
       .catch(() => undefined);
   }
 
@@ -401,6 +429,47 @@ export abstract class PlayerComponent {
 
   protected jumpOffset(offset: number) {
     this.publishCommand(`jump/${offset}`);
+  }
+
+  /** Index of the chapter at the current position, -1 without chapters or before the first one. */
+  getCurrentChapterIndex(): number {
+    const time = this.mediaService.getCurrentTime() + CHAPTER_START_TOLERANCE;
+    let index = -1;
+    PlayerComponent.chapters.forEach((chapter, i) => {
+      if (chapter.start <= time) {
+        index = i;
+      }
+    });
+    return index;
+  }
+
+  getNextChapter(): Chapter | undefined {
+    return PlayerComponent.chapters[this.getCurrentChapterIndex() + 1];
+  }
+
+  isLastChapter(): boolean {
+    return this.getCurrentChapterIndex() >= PlayerComponent.chapters.length - 1;
+  }
+
+  jumpToChapter(chapter: Chapter | undefined): void {
+    if (chapter) {
+      this.jumpOffset(Math.round((chapter.start - this.mediaService.getCurrentTime()) * 1000));
+    }
+  }
+
+  nextChapter(): void {
+    this.jumpToChapter(this.getNextChapter());
+  }
+
+  /** Restarts the current chapter, or goes to the previous one when the current chapter has just started. */
+  previousChapter(): void {
+    const index = this.getCurrentChapterIndex();
+    const current = PlayerComponent.chapters[index];
+    if (!current) {
+      return;
+    }
+    const restart = this.mediaService.getCurrentTime() - current.start > CHAPTER_RESTART_THRESHOLD || index === 0;
+    this.jumpToChapter(restart ? current : PlayerComponent.chapters[index - 1]);
   }
 
   protected getSubTitle() {

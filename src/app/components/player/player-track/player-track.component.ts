@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnIni
 import { PlayerState } from '../player.component';
 import { MediaService } from '../../../services/media.service';
 import { debounce, interval, Subject, Subscription } from 'rxjs';
+import { Chapter } from '../../../models/chapter';
 
 // Layout of the thumbnail sprite, must match musicStreamServer/convert-video.ps1:
 // tile n shows the time n * THUMBNAIL_INTERVAL, at column n % THUMBNAIL_COLUMNS and row floor(n / THUMBNAIL_COLUMNS).
@@ -14,8 +15,10 @@ interface SeekPreview {
   /** Horizontal center of the preview, relative to the progress wrapper. */
   left: number;
   time: string;
-  /** CSS background-position of the tile. */
-  tilePosition: string;
+  /** CSS background-position of the tile, null without thumbnails. */
+  tilePosition: string | null;
+  /** Title of the chapter at the hovered position, null without chapters. */
+  chapter: string | null;
 }
 
 @Component({
@@ -31,6 +34,9 @@ export class PlayerTrackComponent implements OnInit, OnChanges, OnDestroy {
   /** Pre-signed URL of the thumbnail sprite of the current video, null if there is none. */
   @Input()
   thumbnailUrl: string | null = null;
+  /** Chapters of the current video, ordered by start time, empty if there are none. */
+  @Input()
+  chapters: Chapter[] = [];
   @Output()
   seek = new EventEmitter<number>();
   @ViewChild('wrapper', { static: true })
@@ -109,6 +115,15 @@ export class PlayerTrackComponent implements OnInit, OnChanges, OnDestroy {
     )}`;
   }
 
+  /** Positions (percent of the seek bar) of the chapter boundaries; the first chapter starts at 0 and has no marker. */
+  getChapterMarkers(): number[] {
+    const duration = this.mediaService.getDuration();
+    if (!isFinite(duration) || duration <= 0) {
+      return [];
+    }
+    return this.chapters.filter((c) => c.start > 0 && c.start < duration).map((c) => (c.start / duration) * 100);
+  }
+
   getDurationString(seconds: number): string {
     if (isNaN(seconds)) {
       return '';
@@ -142,23 +157,39 @@ export class PlayerTrackComponent implements OnInit, OnChanges, OnDestroy {
     // the slider values map to the track, which is inset from the slider element
     const track = this.slider.nativeElement.querySelector('.mdc-slider__track') ?? this.slider.nativeElement;
     const trackRect = track.getBoundingClientRect();
-    if (!this.thumbnailBackground || !isFinite(duration) || duration <= 0 || trackRect.width === 0) {
+    const hasChapters = this.chapters.length > 0;
+    if ((!this.thumbnailBackground && !hasChapters) || !isFinite(duration) || duration <= 0 || trackRect.width === 0) {
       this.preview = null;
       return;
     }
     const time = this.clamp((clientX - trackRect.left) / trackRect.width, 0, 1) * duration;
 
-    const tile = Math.min(Math.floor(time / THUMBNAIL_INTERVAL), this.thumbnailCount - 1);
-    const x = (tile % THUMBNAIL_COLUMNS) * THUMBNAIL_WIDTH;
-    const y = Math.floor(tile / THUMBNAIL_COLUMNS) * THUMBNAIL_HEIGHT;
-    const tilePosition = `-${x}px -${y}px`;
+    let tilePosition: string | null = null;
+    if (this.thumbnailBackground) {
+      const tile = Math.min(Math.floor(time / THUMBNAIL_INTERVAL), this.thumbnailCount - 1);
+      const x = (tile % THUMBNAIL_COLUMNS) * THUMBNAIL_WIDTH;
+      const y = Math.floor(tile / THUMBNAIL_COLUMNS) * THUMBNAIL_HEIGHT;
+      tilePosition = `-${x}px -${y}px`;
+    }
+    const chapter = hasChapters ? this.getChapterAt(time)?.title ?? null : null;
 
     // keep the preview inside the player
     const wrapperRect = this.wrapper.nativeElement.getBoundingClientRect();
     const halfWidth = THUMBNAIL_WIDTH / 2;
     const left = this.clamp(clientX - wrapperRect.left, halfWidth, Math.max(halfWidth, wrapperRect.width - halfWidth));
 
-    this.preview = { left, time: this.getDurationString(time), tilePosition };
+    this.preview = { left, time: this.getDurationString(time), tilePosition, chapter };
+  }
+
+  private getChapterAt(time: number): Chapter | undefined {
+    let current: Chapter | undefined;
+    for (const chapter of this.chapters) {
+      if (chapter.start > time) {
+        break;
+      }
+      current = chapter;
+    }
+    return current;
   }
 
   private preloadThumbnails() {

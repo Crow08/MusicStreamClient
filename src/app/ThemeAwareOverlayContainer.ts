@@ -1,11 +1,12 @@
 import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { OverlayContainer } from '@angular/cdk/overlay';
+import { FullscreenOverlayContainer } from '@angular/cdk/overlay';
 import { Platform } from '@angular/cdk/platform';
 import { availableThemes } from './services/settings.service';
 
+/** Applies the theme to overlays and moves them into the fullscreen element (e.g. menus of the fullscreen player). */
 @Injectable({ providedIn: 'root' })
-export class ThemeAwareOverlayContainer extends OverlayContainer implements OnDestroy {
+export class ThemeAwareOverlayContainer extends FullscreenOverlayContainer implements OnDestroy {
   constructor(@Inject(DOCUMENT) document: any, platform: Platform) {
     super(document, platform);
   }

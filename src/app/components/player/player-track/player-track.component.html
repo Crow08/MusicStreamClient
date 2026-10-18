@@ -9,11 +9,17 @@
   <mat-progress-bar [mode]="playerState === 'WAITING' ? 'buffer' : 'determinate'" [value]="progression"
                     class="progress-bar"
                     color="accent"></mat-progress-bar>
+  <div class="chapter-markers">
+    <div *ngFor="let position of getChapterMarkers()" class="chapter-marker" [style.left.%]="position"></div>
+  </div>
   <div *ngIf="preview" class="seek-preview" [style.left.px]="preview.left">
-    <div class="seek-preview-image"
+    <div *ngIf="preview.tilePosition" class="seek-preview-image"
          [style.width.px]="thumbnailWidth" [style.height.px]="thumbnailHeight"
          [style.background-image]="thumbnailBackground"
          [style.background-position]="preview.tilePosition"></div>
-    <div class="seek-preview-time">{{preview.time}}</div>
+    <div class="seek-preview-time">
+      <div *ngIf="preview.chapter" class="seek-preview-chapter">{{preview.chapter}}</div>
+      {{preview.time}}
+    </div>
   </div>
 </div>
