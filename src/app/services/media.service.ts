@@ -8,6 +8,10 @@ export class MediaService {
   mediaEndedSubject = new EventEmitter<void>();
   mediaCanPlayThrough = new EventEmitter<void>();
   timeUpdate = new EventEmitter<void>();
+  /** Playback stopped because the next frame is not available yet (buffering). */
+  mediaWaiting = new EventEmitter<void>();
+  /** Playback is running (again), e.g. after buffering. */
+  mediaPlaying = new EventEmitter<void>();
   private audio = new Audio();
   private video: HTMLVideoElement | null = null;
   private media: HTMLAudioElement | HTMLVideoElement;
@@ -26,6 +30,10 @@ export class MediaService {
 
   private endedListener = () => this.mediaEndedSubject.emit();
 
+  private waitingListener = () => this.mediaWaiting.emit();
+
+  private playingListener = () => this.mediaPlaying.emit();
+
   private timeUpdateListener = () => {
     this.progressionListeners.forEach((value) => {
       if (!!this.media) {
@@ -42,6 +50,8 @@ export class MediaService {
     this.audio.addEventListener('ended', this.endedListener);
     this.audio.addEventListener('canplaythrough', this.canplaythroughListener);
     this.audio.addEventListener('seeked', this.seekedListener);
+    this.audio.addEventListener('waiting', this.waitingListener);
+    this.audio.addEventListener('playing', this.playingListener);
   }
 
   play(): Promise<void> {
@@ -126,6 +136,10 @@ export class MediaService {
     this.video.addEventListener('canplaythrough', this.canplaythroughListener);
     this.video.removeEventListener('seeked', this.seekedListener);
     this.video.addEventListener('seeked', this.seekedListener);
+    this.video.removeEventListener('waiting', this.waitingListener);
+    this.video.addEventListener('waiting', this.waitingListener);
+    this.video.removeEventListener('playing', this.playingListener);
+    this.video.addEventListener('playing', this.playingListener);
   }
 
   getProgressionOffsetInSeconds(progressionPercent: number) {

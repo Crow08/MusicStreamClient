@@ -10,6 +10,11 @@ import { SettingsService } from '../../../services/settings.service';
 import { LatencyComponent } from '../../latency/latency.component';
 import { Subscription } from 'rxjs';
 import { AutoplayService } from '../../../services/autoplay.service';
+import { UserStatusService } from '../../../services/user-status.service';
+import { UserStatus } from '../../../models/userStatus';
+
+/** Drift (ms) from which a listener is shown as out of sync, see correctDrift. */
+const OUT_OF_SYNC_THRESHOLD = 200;
 
 @Component({
   selector: 'app-full-player',
@@ -31,7 +36,8 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     wsService: WsService,
     private sessionService: SessionService,
     public settingsService: SettingsService,
-    autoplayService: AutoplayService
+    autoplayService: AutoplayService,
+    userStatusService: UserStatusService
   ) {
     super();
     this.httpHelperService = httpHelperService;
@@ -39,6 +45,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     this.mediaService = mediaService;
     this.wsService = wsService;
     this.autoplayService = autoplayService;
+    this.userStatusService = userStatusService;
 
     this.autoplayService.check();
     sessionService.joinSession(Number(route.snapshot.paramMap.get('sessionId')));
@@ -50,9 +57,13 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
       })
     );
     this.mediaSubscriptions.add(this.mediaService.timeUpdate.subscribe(() => this.correctDrift()));
+    // buffering counts as loading: in both cases the media can not be played right now
+    this.mediaSubscriptions.add(this.mediaService.mediaWaiting.subscribe(() => this.userStatusService.setState('LOADING')));
+    this.mediaSubscriptions.add(this.mediaService.mediaPlaying.subscribe(() => this.userStatusService.setState('READY')));
     this.mediaSubscriptions.add(
       this.mediaService.mediaCanPlayThrough.subscribe(() => {
         console.log('READY');
+        this.userStatusService.setState('READY');
         const id = this.authenticationService.currentUserValue?.id;
         const time = Math.round(this.mediaService.getCurrentTime() * 1000);
         !!id && this.indicateReadyFor(PlayerComponent.preparedMediaId, time);
@@ -66,6 +77,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
 
   ngOnDestroy(): void {
     this.sessionService.cancelJoin();
+    this.userStatusService.setJoined(false);
     this.mediaSubscriptions.unsubscribe();
   }
 
@@ -84,6 +96,55 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
 
   protected override onJoined(): void {
     this.sessionService.acknowledgeJoin();
+    this.userStatusService.setJoined(true);
+  }
+
+  onLatencyMeasured(latency: number): void {
+    this.userStatusService.setLatency(latency);
+  }
+
+  getStateIcon(status: UserStatus | undefined): string {
+    switch (status?.state) {
+      case 'READY':
+        return 'check_circle';
+      case 'LOADING':
+        return 'hourglass_empty';
+      default:
+        return 'radio_button_unchecked';
+    }
+  }
+
+  getStateText(status: UserStatus | undefined): string {
+    switch (status?.state) {
+      case 'READY':
+        return 'Ready';
+      case 'LOADING':
+        return 'Loading / buffering';
+      case 'IDLE':
+        return 'No media loaded';
+      default:
+        return 'Status unknown';
+    }
+  }
+
+  formatLatency(status: UserStatus | undefined): string {
+    return `${status?.latency ?? '–'} ms`;
+  }
+
+  /** The drift is only known while the user is playing. */
+  hasDrift(status: UserStatus | undefined): boolean {
+    return status?.drift != null;
+  }
+
+  isOutOfSync(status: UserStatus | undefined): boolean {
+    return status?.drift != null && Math.abs(status.drift) >= OUT_OF_SYNC_THRESHOLD;
+  }
+
+  /** Formats the drift as signed seconds or ms, positive: behind the session. */
+  formatDrift(drift: number): string {
+    const sign = drift > 0 ? '+' : drift < 0 ? '-' : '±';
+    const abs = Math.abs(drift);
+    return abs >= 1000 ? `${sign}${(abs / 1000).toFixed(1)} s` : `${sign}${abs} ms`;
   }
 
   getLatencyComponent(): LatencyComponent | undefined {

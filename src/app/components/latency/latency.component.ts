@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Output } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
 import { WsService } from '../../services/ws.service';
 
@@ -15,6 +15,8 @@ export class LatencyComponent implements AfterViewInit {
   latency: number = 0;
   /** Client clock minus server clock in ms. */
   serverTimeOffset: number = 0;
+  /** Emits the average round trip time once the measurement is complete. */
+  @Output() measured = new EventEmitter<number>();
 
   private pingStart: number = 0;
   private latencySamples: number[] = [];
@@ -64,6 +66,7 @@ export class LatencyComponent implements AfterViewInit {
       this.pingServer();
     } else {
       this.wsService.unsubscribeFromUtilLatencyTopic();
+      this.measured.emit(this.latency);
     }
   }
 }

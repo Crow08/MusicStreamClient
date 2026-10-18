@@ -7,6 +7,7 @@ import { MediaService } from '../../../services/media.service';
 import { WsService } from '../../../services/ws.service';
 import { AutoplayService } from '../../../services/autoplay.service';
 import { LatencyComponent } from '../../latency/latency.component';
+import { UserStatusService } from '../../../services/user-status.service';
 
 @Component({
   selector: 'app-mini-player',
@@ -22,10 +23,12 @@ export class MiniPlayerComponent extends PlayerComponent implements AfterViewIni
     authenticationService: AuthenticationService,
     mediaService: MediaService,
     wsService: WsService,
-    autoplayService: AutoplayService
+    autoplayService: AutoplayService,
+    userStatusService: UserStatusService
   ) {
     super();
     this.autoplayService = autoplayService;
+    this.userStatusService = userStatusService;
     this.httpHelperService = httpHelperService;
     this.authenticationService = authenticationService;
     this.mediaService = mediaService;

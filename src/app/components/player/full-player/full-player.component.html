@@ -5,9 +5,24 @@
           <mat-card-title>Listeners:</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <mat-chip-set>
-            <mat-chip *ngFor="let user of sessionUsers">{{ user.username }}</mat-chip>
-          </mat-chip-set>
+          <div *ngFor="let user of sessionUsers" class="listener">
+            <ng-container *ngIf="{ status: getUserStatus(user.id) } as listener">
+              <mat-icon class="listener-state" [title]="getStateText(listener.status)">
+                {{ getStateIcon(listener.status) }}
+              </mat-icon>
+              <div class="listener-info">
+                <span class="listener-name">{{ user.username }}</span>
+                <span class="listener-details">
+                  <span title="Latency (round trip to the server)">{{ formatLatency(listener.status) }}</span>
+                  <span *ngIf="hasDrift(listener.status)" [class.out-of-sync]="isOutOfSync(listener.status)"
+                        title="Drift from the session position (+: behind, -: ahead)">
+                    <mat-icon *ngIf="isOutOfSync(listener.status)" class="out-of-sync-icon">sync_problem</mat-icon>
+                    {{ formatDrift(listener.status!.drift!) }}
+                  </span>
+                </span>
+              </div>
+            </ng-container>
+          </div>
         </mat-card-content>
     </mat-drawer>
   </mat-drawer-container>
@@ -33,7 +48,7 @@
           {{ getSubTitle() || 'Unknown Artist' }}<br/>
           <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
                            [songRating]="songRating"></app-rating-star>
-          <app-latency #latencyComponent id="latency-component"></app-latency>
+          <app-latency #latencyComponent (measured)="onLatencyMeasured($event)" id="latency-component"></app-latency>
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>

@@ -12,6 +12,8 @@ import { Song } from '../../models/song';
 import { Video } from '../../models/video';
 import { AutoplayService } from '../../services/autoplay.service';
 import { Chapter } from '../../models/chapter';
+import { UserStatusService } from '../../services/user-status.service';
+import { UserStatus } from '../../models/userStatus';
 
 export enum PlayerState {
   WAITING = 'WAITING',
@@ -44,6 +46,8 @@ export abstract class PlayerComponent {
   static queue: { id: number; title: string }[] = [];
   static history: { id: number; title: string }[] = [];
   static sessionUsers: User[] = [];
+  /** Playback status of the session users reported by their clients, by user id. */
+  static userStatuses = new Map<number, UserStatus>();
   static currentMedia: Media = new Media(-1, 'SONG', '', '', []);
   static songRating = 0;
   static userSongRating = 0;
@@ -70,9 +74,14 @@ export abstract class PlayerComponent {
   protected mediaService!: MediaService;
   protected wsService!: WsService;
   protected autoplayService!: AutoplayService;
+  protected userStatusService!: UserStatusService;
 
   get sessionUsers() {
     return PlayerComponent.sessionUsers;
+  }
+
+  getUserStatus(userId: number): UserStatus | undefined {
+    return PlayerComponent.userStatuses.get(userId);
   }
 
   get currentMedia() {
@@ -128,8 +137,10 @@ export abstract class PlayerComponent {
   loadNewMedia(media: MinimalMedia, startMediaTime: number): void {
     if (!media || media.id === -1) {
       PlayerComponent.playerState = PlayerState.STOP;
+      this.userStatusService.setState('IDLE');
       return;
     }
+    this.userStatusService.setState('LOADING');
     const isVideo = media.type.toUpperCase() == 'VIDEO';
     PlayerComponent.preparedMediaId = media.id;
 
@@ -310,6 +321,7 @@ export abstract class PlayerComponent {
       case 'Stop':
         this.clearPlaybackAnchor();
         this.mediaService.stop();
+        this.userStatusService.setState('IDLE');
         PlayerComponent.playerState = PlayerState.STOP;
         break;
       case 'Leave':
@@ -317,15 +329,20 @@ export abstract class PlayerComponent {
         if (userIndex != -1) {
           PlayerComponent.sessionUsers.splice(userIndex, 1);
         }
+        PlayerComponent.userStatuses.delete(commandObject.userId);
         break;
       case 'Jump':
         PlayerComponent.lastReadyEvent = null;
         this.clearPlaybackAnchor();
+        this.userStatusService.setState('LOADING');
         this.prepareMediaStart(null, commandObject.startMediaTime);
         this.reportReadyIfUnableToLoad(PlayerComponent.preparedMediaId, commandObject.startMediaTime);
         break;
       case 'Join':
         PlayerComponent.sessionUsers = commandObject.sessionUsers;
+        PlayerComponent.userStatuses = new Map(
+          (commandObject.userStatuses as UserStatus[]).map((status) => [status.userId, status])
+        );
         if (commandObject.userId === this.authenticationService.currentUserValue?.id) {
           this.onJoined();
           // set join event as last ready object to not trigger a new sync on join.
@@ -346,6 +363,7 @@ export abstract class PlayerComponent {
               break;
             case 'STOP':
               this.mediaService.stop();
+              this.userStatusService.setState('IDLE');
               const media = commandObject.currentMedia;
               if (media) {
                 const mediaType = media.type.toUpperCase() as 'VIDEO' | 'SONG';
@@ -395,6 +413,9 @@ export abstract class PlayerComponent {
           case 'QueueAndHistory':
             PlayerComponent.queue = commandObject.queue;
             PlayerComponent.history = commandObject.history;
+            break;
+          case 'UserStatus':
+            PlayerComponent.userStatuses.set(commandObject.userStatus.userId, commandObject.userStatus);
             break;
         }
         break;
@@ -507,6 +528,7 @@ export abstract class PlayerComponent {
       return;
     }
     const drift = expected - this.mediaService.getCurrentTime() * 1000; // positive: behind the session
+    this.userStatusService.setDrift(drift);
     if (Math.abs(drift) > MAX_RATE_CORRECTED_DRIFT) {
       if (now - PlayerComponent.lastSeekCorrection > SEEK_CORRECTION_COOLDOWN) {
         PlayerComponent.lastSeekCorrection = now;
@@ -525,6 +547,7 @@ export abstract class PlayerComponent {
   private clearPlaybackAnchor(): void {
     PlayerComponent.playbackAnchor = null;
     this.mediaService.setPlaybackRate(1);
+    this.userStatusService.setDrift(null);
   }
 
   /**

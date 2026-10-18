@@ -33,6 +33,11 @@
     top: 0;
     bottom: 0;
     right: 100%;
+
+    // fixed, so the width does not change with the displayed listener status
+    .mat-drawer {
+      width: 190px;
+    }
   }
 
   .fullscreen-controls {
@@ -64,6 +69,45 @@
   .spacer {
     display: flex;
     flex-grow: 1;
+  }
+
+  .listener {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    white-space: nowrap;
+
+    .listener-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .listener-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .listener-details {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .out-of-sync {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      color: #f44336;
+    }
+
+    .out-of-sync-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
   }
 
   mat-chip-set,
