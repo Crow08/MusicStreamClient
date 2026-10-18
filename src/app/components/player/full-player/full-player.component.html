@@ -27,7 +27,7 @@
     </mat-drawer>
   </mat-drawer-container>
 
-  <div>
+  <div class="player-column">
     <mat-card class="content-card">
       <button (click)="drawerLeft.toggle()" id="toggle-left-btn" mat-icon-button
               [title]="drawerLeft.opened ? 'Hide listeners' : 'Show listeners'">
@@ -51,7 +51,7 @@
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div #videoWrapper [hidden]="!isVideoMode()">
+        <div #videoWrapper [hidden]="!isVideoMode()" class="video-wrapper">
           <video #videoPlayer (click)="onVideoClick()" class="video-player" playsinline></video>
           <div *ngIf="isFullscreen" class="fullscreen-controls">
             <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"

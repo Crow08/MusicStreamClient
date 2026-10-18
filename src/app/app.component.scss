@@ -40,6 +40,11 @@
   overflow-y: auto;
 }
 
+// pages can fill the height of the content area (e.g. the full player), they scroll in the sidenav content
+#home-sidenav-container {
+  height: 100%;
+}
+
 #main-headline {
   position: fixed;
   left: 50%;

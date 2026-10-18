@@ -1,7 +1,9 @@
+// the player fills the height of the page, the playlist takes the space left by the video and the controls
 :host {
   display: flex;
   justify-content: center;
   margin: 20px;
+  height: calc(100% - 40px);
 
   .autoplay-hint {
     display: flex;
@@ -22,6 +24,7 @@
 
   #drawer-wrapper {
     position: relative;
+    height: 100%;
     width: 750px;
     max-width: 100%;
   }
@@ -173,8 +176,39 @@
     padding-left: 16px; // aligned with the list items
   }
 
+  .player-column,
+  .content-card {
+    height: 100%;
+  }
+
+  .content-card > mat-card-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    // only scrolls if the window is too small for the video, the controls and the minimal playlist
+    height: auto;
+
+    > * {
+      flex: none;
+    }
+
+    // in small windows the video shrinks (letterboxed) before the playlist does
+    > .video-wrapper {
+      flex: 0 1 auto;
+      min-height: 120px;
+    }
+
+    > mat-list {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0;
+      min-height: 4 * 48px;
+    }
+  }
+
   #queue-viewport {
-    height: 480px;
+    flex: 1 1 0;
 
     // the virtual scroll viewport needs equal row heights, see playlistRowHeight
     .mat-mdc-list-item {

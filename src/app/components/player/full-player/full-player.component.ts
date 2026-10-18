@@ -49,6 +49,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   private hideCursorTimeout: number | null = null;
   private singleVideoClickTimeout: number | null = null;
   private readonly mediaSubscriptions = new Subscription();
+  private playlistResizeObserver: ResizeObserver | undefined;
 
   constructor(
     route: ActivatedRoute,
@@ -177,6 +178,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     this.sessionService.cancelJoin();
     this.userStatusService.setJoined(false);
     this.mediaSubscriptions.unsubscribe();
+    this.playlistResizeObserver?.disconnect();
   }
 
   get isFullscreen(): boolean {
@@ -190,6 +192,12 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   ngAfterViewInit(): void {
     this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
     this.sessionService.requestJoin();
+    const viewport = this.playlistViewport;
+    if (viewport) {
+      // the playlist height depends on the space left in the card (e.g. a loaded video), not only on the window size
+      this.playlistResizeObserver = new ResizeObserver(() => viewport.checkViewportSize());
+      this.playlistResizeObserver.observe(viewport.elementRef.nativeElement);
+    }
   }
 
   protected override onJoined(): void {
