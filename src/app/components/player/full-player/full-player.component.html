@@ -1,14 +1,16 @@
-<mat-drawer-container autosize id="drawer-wrapper">
-  <mat-drawer #drawerLeft mode="side">
-      <mat-card-header>
-        <mat-card-title>Listeners:</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-chip-set>
-          <mat-chip *ngFor="let user of sessionUsers">{{ user.username }}</mat-chip>
-        </mat-chip-set>
-      </mat-card-content>
-  </mat-drawer>
+<div id="drawer-wrapper">
+  <mat-drawer-container autosize id="listeners-drawer">
+    <mat-drawer #drawerLeft mode="side" position="end">
+        <mat-card-header>
+          <mat-card-title>Listeners:</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-chip-set>
+            <mat-chip *ngFor="let user of sessionUsers">{{ user.username }}</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+    </mat-drawer>
+  </mat-drawer-container>
 
   <div>
     <mat-card class="content-card">
@@ -207,4 +209,4 @@
   <!--      </mat-card-content>-->
   <!--    </mat-card>-->
   <!--  </mat-drawer>-->
-</mat-drawer-container>
+</div>

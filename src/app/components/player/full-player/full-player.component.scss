@@ -18,7 +18,21 @@
   #drawer-wrapper .mat-card.drawer-card {
     background-color: transparent;
     box-shadow: none;
+  }
+
+  #drawer-wrapper {
+    position: relative;
     width: 750px;
+    max-width: 100%;
+  }
+
+  // The listeners drawer has its own container, anchored to the left edge of the player: with autosize it grows
+  // to the drawer width, so the drawer (position="end") slides out of the player edge and the player stays in place.
+  #listeners-drawer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
   }
 
   .fullscreen-controls {
