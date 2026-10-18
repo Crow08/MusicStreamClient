@@ -29,27 +29,29 @@
 
   <div class="player-column">
     <mat-card class="content-card">
-      <button (click)="drawerLeft.toggle()" id="toggle-left-btn" mat-icon-button
-              [title]="drawerLeft.opened ? 'Hide listeners' : 'Show listeners'">
-        <mat-icon *ngIf="drawerLeft.opened">chevron_right</mat-icon>
-        <mat-icon *ngIf="!drawerLeft.opened">chevron_left</mat-icon>
-      </button>
       <!--      <button (click)="drawerRight.toggle()" id="toggle-right-btn" mat-icon-button>-->
       <!--        <mat-icon *ngIf="drawerRight.opened">chevron_left</mat-icon>-->
       <!--        <mat-icon *ngIf="!drawerRight.opened">chevron_right</mat-icon>-->
       <!--      </button>-->
+      <!-- drawer toggle, media and rating in one line -->
+      <div class="media-header">
+        <button (click)="drawerLeft.toggle()" id="toggle-left-btn" mat-icon-button
+                [title]="drawerLeft.opened ? 'Hide listeners' : 'Show listeners'">
+          <mat-icon *ngIf="drawerLeft.opened">chevron_right</mat-icon>
+          <mat-icon *ngIf="!drawerLeft.opened">chevron_left</mat-icon>
+        </button>
+        <div class="media-info"
+             [title]="(currentMedia.title || 'No current song') + ' – ' + (getSubTitle() || 'Unknown Artist')">
+          <mat-card-title>{{ currentMedia.title || 'No current song' }}</mat-card-title>
+          <mat-card-subtitle>{{ getSubTitle() || 'Unknown Artist' }}</mat-card-subtitle>
+        </div>
+        <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
+                         [songRating]="songRating"></app-rating-star>
+      </div>
       <div *ngIf="autoplayBlocked" class="autoplay-hint" role="status">
         <mat-icon>volume_off</mat-icon>
         Your browser only allows muted playback until you interact with the page. Click anywhere to enable sound.
       </div>
-      <mat-card-header>
-        <mat-card-title>{{ currentMedia.title || 'No current song' }}</mat-card-title>
-        <mat-card-subtitle>
-          {{ getSubTitle() || 'Unknown Artist' }}<br/>
-          <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
-                           [songRating]="songRating"></app-rating-star>
-        </mat-card-subtitle>
-      </mat-card-header>
       <mat-card-content>
         <div #videoWrapper [hidden]="!isVideoMode()" class="video-wrapper">
           <video #videoPlayer (click)="onVideoClick()" class="video-player" playsinline></video>

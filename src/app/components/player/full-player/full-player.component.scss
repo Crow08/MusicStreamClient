@@ -9,7 +9,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 32px 16px 8px; // below the drawer toggle button
+    margin: 0 16px 8px;
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
@@ -141,9 +141,40 @@
   #toggle-right-btn {
     float: right;
   }
-  #toggle-left-btn,
   #toggle-right-btn {
     margin-bottom: -30px;
+  }
+
+  .media-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 16px 4px 4px;
+
+    .media-info {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+
+      mat-card-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      mat-card-subtitle {
+        flex-shrink: 10;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    app-rating-star {
+      flex: none;
+      white-space: nowrap;
+    }
   }
 
   .removeSongFromQueueButton {
