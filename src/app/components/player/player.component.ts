@@ -324,6 +324,12 @@ export abstract class PlayerComponent {
         this.mediaService.stop();
         this.userStatusService.setState('IDLE');
         PlayerComponent.playerState = PlayerState.STOP;
+        // at the end of the queue the server sends the new queue and history: there is no current media any more
+        if (commandObject.history) {
+          PlayerComponent.queue = commandObject.queue;
+          PlayerComponent.history = commandObject.history;
+          PlayerComponent.currentMedia = new Media(-1, 'SONG', '', '', []);
+        }
         break;
       case 'Leave':
         const userIndex = PlayerComponent.sessionUsers.findIndex((value) => value.id === commandObject.userId);
