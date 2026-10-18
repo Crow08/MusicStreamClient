@@ -26,6 +26,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatMenuModule } from '@angular/material/menu';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @NgModule({
@@ -57,6 +58,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     MatSidenavModule,
     MatMenuModule,
     DragDropModule,
+    ScrollingModule,
     ClipboardModule,
   ],
   exports: [
@@ -86,6 +88,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     MatSidenavModule,
     MatMenuModule,
     DragDropModule,
+    ScrollingModule,
     ClipboardModule,
   ],
 })

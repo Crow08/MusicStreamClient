@@ -165,6 +165,23 @@
     }
   }
 
+  .playlist-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  #queue-viewport {
+    height: 480px;
+
+    // the virtual scroll viewport needs equal row heights, see playlistRowHeight
+    .mat-mdc-list-item {
+      height: 48px;
+    }
+  }
+
   mat-card {
   }
 

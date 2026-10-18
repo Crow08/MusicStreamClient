@@ -1,4 +1,3 @@
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Media } from '../../models/media';
 import { MediaService } from '../../services/media.service';
@@ -261,23 +260,17 @@ export abstract class PlayerComponent {
       .catch(console.error);
   }
 
-  getDisplayHistoryStartIndex(): number {
-    return Math.max(0, PlayerComponent.history.length - Math.max(5, 10 - PlayerComponent.queue.length));
-  }
-
-  getDisplayQueueLength(): number {
-    return Math.max(5, 10 - PlayerComponent.history.length);
-  }
-
   removeSongFromQueueOrHistory(queueIndex: number, type: string, mediaId: number): void {
     // the index may be outdated on the server when others change the queue, so the media id is sent along
     this.publishCommand(`deleteMediaFromQueue/${queueIndex}/${type}/${mediaId}`);
   }
 
-  drop(event: CdkDragDrop<string[]>): void {
-    // indices in the combined list of history, current media and queue
-    const previousIndex = this.getDisplayHistoryStartIndex() + event.previousIndex;
-    const currentIndex = this.getDisplayHistoryStartIndex() + event.currentIndex;
+  /**
+   * Moves a media within the playlist.
+   * @param previousIndex index in the combined list of history, current media and queue
+   * @param currentIndex target index in the same list
+   */
+  moveMedia(previousIndex: number, currentIndex: number): void {
     const history = PlayerComponent.history;
     const media =
       previousIndex < history.length ? history[previousIndex] : PlayerComponent.queue[previousIndex - history.length - 1];
