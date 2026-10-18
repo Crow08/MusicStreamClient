@@ -7,11 +7,11 @@ import { MediaService } from '../../../services/media.service';
 import { WsService } from '../../../services/ws.service';
 import { SessionService } from '../../../services/session.service';
 import { SettingsService } from '../../../services/settings.service';
-import { LatencyComponent } from '../../latency/latency.component';
-import { Subscription } from 'rxjs';
+import { pairwise, Subscription } from 'rxjs';
 import { AutoplayService } from '../../../services/autoplay.service';
 import { UserStatusService } from '../../../services/user-status.service';
 import { UserStatus } from '../../../models/userStatus';
+import { ClockSyncService } from '../../../services/clock-sync.service';
 
 /** Drift (ms) from which a listener is shown as out of sync, see correctDrift. */
 const OUT_OF_SYNC_THRESHOLD = 200;
@@ -22,7 +22,6 @@ const OUT_OF_SYNC_THRESHOLD = 200;
   styleUrls: ['./full-player.component.scss'],
 })
 export class FullPlayerComponent extends PlayerComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('latencyComponent') latencyComponent: LatencyComponent | undefined;
   @ViewChild('videoWrapper') videoWrapper: ElementRef | undefined;
   private hideCursorTimeout: number | null = null;
   private singleVideoClickTimeout: number | null = null;
@@ -37,7 +36,8 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     private sessionService: SessionService,
     public settingsService: SettingsService,
     autoplayService: AutoplayService,
-    userStatusService: UserStatusService
+    userStatusService: UserStatusService,
+    clockSyncService: ClockSyncService
   ) {
     super();
     this.httpHelperService = httpHelperService;
@@ -46,6 +46,7 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     this.wsService = wsService;
     this.autoplayService = autoplayService;
     this.userStatusService = userStatusService;
+    this.clockSyncService = clockSyncService;
 
     this.autoplayService.check();
     sessionService.joinSession(Number(route.snapshot.paramMap.get('sessionId')));
@@ -57,6 +58,14 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
       })
     );
     this.mediaSubscriptions.add(this.mediaService.timeUpdate.subscribe(() => this.correctDrift()));
+    this.mediaSubscriptions.add(
+      this.clockSyncService.serverTimeOffset
+        .pipe(pairwise())
+        .subscribe(([previous, current]) => this.shiftPlaybackAnchor(current - previous))
+    );
+    this.mediaSubscriptions.add(
+      this.clockSyncService.latency.subscribe((latency) => latency !== null && this.userStatusService.setLatency(latency))
+    );
     // buffering counts as loading: in both cases the media can not be played right now
     this.mediaSubscriptions.add(this.mediaService.mediaWaiting.subscribe(() => this.userStatusService.setState('LOADING')));
     this.mediaSubscriptions.add(this.mediaService.mediaPlaying.subscribe(() => this.userStatusService.setState('READY')));
@@ -97,10 +106,6 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   protected override onJoined(): void {
     this.sessionService.acknowledgeJoin();
     this.userStatusService.setJoined(true);
-  }
-
-  onLatencyMeasured(latency: number): void {
-    this.userStatusService.setLatency(latency);
   }
 
   getStateIcon(status: UserStatus | undefined): string {
@@ -145,10 +150,6 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     const sign = drift > 0 ? '+' : drift < 0 ? '-' : '±';
     const abs = Math.abs(drift);
     return abs >= 1000 ? `${sign}${(abs / 1000).toFixed(1)} s` : `${sign}${abs} ms`;
-  }
-
-  getLatencyComponent(): LatencyComponent | undefined {
-    return this.latencyComponent;
   }
 
   isVideoMode() {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { PlayerComponent } from '../player.component';
 import { Router } from '@angular/router';
 import { HttpHelperService } from '../../../services/http-helper.service';
@@ -6,8 +6,8 @@ import { AuthenticationService } from '../../../services/authentication.service'
 import { MediaService } from '../../../services/media.service';
 import { WsService } from '../../../services/ws.service';
 import { AutoplayService } from '../../../services/autoplay.service';
-import { LatencyComponent } from '../../latency/latency.component';
 import { UserStatusService } from '../../../services/user-status.service';
+import { ClockSyncService } from '../../../services/clock-sync.service';
 
 @Component({
   selector: 'app-mini-player',
@@ -15,8 +15,6 @@ import { UserStatusService } from '../../../services/user-status.service';
   styleUrls: ['./mini-player.component.scss'],
 })
 export class MiniPlayerComponent extends PlayerComponent implements AfterViewInit, OnInit {
-  @ViewChild('miniLatencyComponent') latencyComponent: LatencyComponent | undefined;
-
   constructor(
     private router: Router,
     httpHelperService: HttpHelperService,
@@ -24,11 +22,13 @@ export class MiniPlayerComponent extends PlayerComponent implements AfterViewIni
     mediaService: MediaService,
     wsService: WsService,
     autoplayService: AutoplayService,
-    userStatusService: UserStatusService
+    userStatusService: UserStatusService,
+    clockSyncService: ClockSyncService
   ) {
     super();
     this.autoplayService = autoplayService;
     this.userStatusService = userStatusService;
+    this.clockSyncService = clockSyncService;
     this.httpHelperService = httpHelperService;
     this.authenticationService = authenticationService;
     this.mediaService = mediaService;
@@ -43,10 +43,6 @@ export class MiniPlayerComponent extends PlayerComponent implements AfterViewIni
 
   ngAfterViewInit(): void {
     this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
-  }
-
-  getLatencyComponent(): LatencyComponent | undefined {
-    return this.latencyComponent;
   }
 
   displayMiniPlayer() {

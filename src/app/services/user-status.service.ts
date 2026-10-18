@@ -3,14 +3,19 @@ import { WsService } from './ws.service';
 import { AuthenticationService } from './authentication.service';
 import { UserState } from '../models/userStatus';
 
-/** Minimum time (ms) between two reports that only change the drift, which is measured several times a second. */
-const DRIFT_REPORT_INTERVAL = 2000;
+/**
+ * Minimum time (ms) between two reports that only change the drift or latency: the drift is measured several times a
+ * second, the latency with every timed command (including these reports).
+ */
+const REPORT_INTERVAL = 2000;
 /** Drift changes (ms) smaller than this are not reported. */
 const DRIFT_REPORT_THRESHOLD = 50;
+/** Latency changes (ms) smaller than this are not reported. */
+const LATENCY_REPORT_THRESHOLD = 5;
 
 /**
  * Reports the playback status of this client (loading/ready, latency, drift) to the session, which shows it to the
- * other users. Changes of the state are reported right away, drift changes at most every DRIFT_REPORT_INTERVAL.
+ * other users. Changes of the state are reported right away, drift and latency changes at most every REPORT_INTERVAL.
  */
 @Injectable({
   providedIn: 'root',
@@ -18,6 +23,7 @@ const DRIFT_REPORT_THRESHOLD = 50;
 export class UserStatusService {
   private state: UserState = 'IDLE';
   private latency: number | null = null;
+  private reportedLatency: number | null = null;
   private drift: number | null = null;
   private reportedDrift: number | null = null;
   private lastReport = 0;
@@ -50,7 +56,11 @@ export class UserStatusService {
 
   setLatency(latency: number): void {
     this.latency = latency;
-    this.report();
+    if (this.reportedLatency === null) {
+      this.report();
+    } else if (Math.abs(latency - this.reportedLatency) >= LATENCY_REPORT_THRESHOLD) {
+      this.scheduleReport();
+    }
   }
 
   /** @param drift expected minus actual playback position in ms, null when not playing. */
@@ -68,7 +78,7 @@ export class UserStatusService {
 
   private scheduleReport(): void {
     if (this.pendingReport === null) {
-      const delay = Math.max(0, this.lastReport + DRIFT_REPORT_INTERVAL - new Date().getTime());
+      const delay = Math.max(0, this.lastReport + REPORT_INTERVAL - new Date().getTime());
       this.pendingReport = setTimeout(() => {
         this.pendingReport = null;
         this.report();
@@ -91,6 +101,7 @@ export class UserStatusService {
     }
     this.lastReport = new Date().getTime();
     this.reportedDrift = this.drift;
+    this.reportedLatency = this.latency;
     const status = { state: this.state, latency: this.latency, drift: this.drift };
     this.wsService.publishSessionCommand(`status/${id}`, JSON.stringify(status));
   }

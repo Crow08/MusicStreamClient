@@ -48,7 +48,6 @@
           {{ getSubTitle() || 'Unknown Artist' }}<br/>
           <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
                            [songRating]="songRating"></app-rating-star>
-          <app-latency #latencyComponent (measured)="onLatencyMeasured($event)" id="latency-component"></app-latency>
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>

@@ -11,7 +11,6 @@ import { RxStompService, rxStompServiceFactory } from '@stomp/ng2-stompjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SessionBrowserComponent } from './components/sessions/browser/session-browser.component';
 import { SessionCreatorComponent } from './components/sessions/session-creator/session-creator.component';
-import { LatencyComponent } from './components/latency/latency.component';
 import { UploadComponent } from './components/upload/upload.component';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { ThemeAwareOverlayContainer } from './ThemeAwareOverlayContainer';
@@ -48,7 +47,6 @@ import { InviteComponent } from './components/invite/invite.component';
     HomeComponent,
     SessionBrowserComponent,
     SessionCreatorComponent,
-    LatencyComponent,
     UploadComponent,
     ServerResultSuccessSnackBarComponent,
     ServerResultErrorSnackBarComponent,

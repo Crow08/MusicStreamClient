@@ -5,7 +5,7 @@ export type UserState = 'IDLE' | 'LOADING' | 'READY';
 export interface UserStatus {
   userId: number;
   state: UserState;
-  /** Average round trip time to the server in ms, null if not measured yet. */
+  /** Median round trip time to the server in ms (see ClockSyncService), null if not measured yet. */
   latency: number | null;
   /** Expected minus actual playback position in ms (positive: behind the session), null if not playing. */
   drift: number | null;

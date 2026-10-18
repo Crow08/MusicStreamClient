@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { RxStompService } from '@stomp/ng2-stompjs';
-import { User } from '../models/user';
 import { filter, first, Subject, Subscription, timeout } from 'rxjs';
 import { WsConfigService } from './ws-config.service';
+import { ClockSyncService } from './clock-sync.service';
 
 /** Time to wait for an error response before a command is considered successful. */
 const ERROR_RESPONSE_TIMEOUT = 1000;
@@ -19,10 +19,13 @@ export class WsService {
   /** Failed commands of this client, reported by the server. */
   readonly errors = new Subject<CommandError>();
 
-  private static utilLatencyTopic: Subscription | undefined;
   private static SessionControlsTopic: Subscription | undefined;
 
-  constructor(private wsConfigService: WsConfigService, private rxStompService: RxStompService) {
+  constructor(
+    private wsConfigService: WsConfigService,
+    private rxStompService: RxStompService,
+    private clockSyncService: ClockSyncService
+  ) {
     this.rxStompService.watch('/user/queue/errors').subscribe((message) => {
       const error = JSON.parse(message.body) as CommandError;
       console.error(`Command ${error.destination} failed: ${error.message}`);
@@ -32,7 +35,8 @@ export class WsService {
 
   publishSessionCommand(name: string, body: string): void {
     if (this.wsConfigService.configParameter.session) {
-      this.rxStompService.publish({ destination: this.getSessionCommandDestination(name), body });
+      const headers = this.clockSyncService.tagCommand(name);
+      this.rxStompService.publish({ destination: this.getSessionCommandDestination(name), body, headers });
     } else {
       console.error('No active Session!');
     }
@@ -61,13 +65,6 @@ export class WsService {
     return `/app/sessions/${this.wsConfigService.configParameter.session}/commands/${name}`;
   }
 
-  publishUtilCommand(name: string, body: string): void {
-    this.rxStompService.publish({
-      destination: `/app/util/${name}`,
-      body: body,
-    });
-  }
-
   subscribeToSessionTopic(callback: (body: string) => void): void {
     if (WsService.SessionControlsTopic) {
       WsService.SessionControlsTopic.unsubscribe();
@@ -75,30 +72,15 @@ export class WsService {
     WsService.SessionControlsTopic = this.rxStompService
       .watch(`/topic/sessions/${this.wsConfigService.configParameter.session}`)
       .subscribe((message: any) => {
+        this.clockSyncService.onResponse(message.headers);
         callback(message.body);
       });
-  }
-
-  subscribeToUtilLatencyTopic(user: User, callback: (body: string) => void): void {
-    if (WsService.utilLatencyTopic) {
-      WsService.utilLatencyTopic.unsubscribe();
-    }
-    WsService.utilLatencyTopic = this.rxStompService.watch(`/topic/util/latency/${user.id}`).subscribe((message: any) => {
-      callback(message.body);
-    });
   }
 
   unsubscribeFromSessionTopic(): void {
     if (WsService.SessionControlsTopic) {
       WsService.SessionControlsTopic.unsubscribe();
       WsService.SessionControlsTopic = undefined;
-    }
-  }
-
-  unsubscribeFromUtilLatencyTopic(): void {
-    if (WsService.utilLatencyTopic) {
-      WsService.utilLatencyTopic.unsubscribe();
-      WsService.utilLatencyTopic = undefined;
     }
   }
 }

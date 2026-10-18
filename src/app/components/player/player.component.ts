@@ -1,5 +1,4 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { LatencyComponent } from '../latency/latency.component';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Media } from '../../models/media';
 import { MediaService } from '../../services/media.service';
@@ -14,6 +13,7 @@ import { AutoplayService } from '../../services/autoplay.service';
 import { Chapter } from '../../models/chapter';
 import { UserStatusService } from '../../services/user-status.service';
 import { UserStatus } from '../../models/userStatus';
+import { ClockSyncService } from '../../services/clock-sync.service';
 
 export enum PlayerState {
   WAITING = 'WAITING',
@@ -75,6 +75,7 @@ export abstract class PlayerComponent {
   protected wsService!: WsService;
   protected autoplayService!: AutoplayService;
   protected userStatusService!: UserStatusService;
+  protected clockSyncService!: ClockSyncService;
 
   get sessionUsers() {
     return PlayerComponent.sessionUsers;
@@ -127,8 +128,6 @@ export abstract class PlayerComponent {
   static set lastReadyEvent(value: { mediaId: number; time: number } | null) {
     this._lastReadyEvent = value;
   }
-
-  abstract getLatencyComponent(): LatencyComponent | undefined;
 
   publishCommand(name: string): void {
     this.wsService.publishSessionCommand(name, name);
@@ -301,8 +300,7 @@ export abstract class PlayerComponent {
     switch (commandObject.type) {
       case 'Start':
       case 'Resume':
-        const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
-        this.schedulePlay(commandObject.startServerTime + timeOffset);
+        this.schedulePlay(commandObject.startServerTime + this.clockSyncService.serverTimeOffset.value);
         break;
       case 'SetMedia':
         // every SetMedia starts a new sync round on the server, even for the same media at the same position
@@ -357,9 +355,9 @@ export abstract class PlayerComponent {
               };
               this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
               PlayerComponent.playerState = PlayerState.PLAY;
-              const timeOffset = this.getLatencyComponent()?.serverTimeOffset ?? 0;
+              const startTime = commandObject.startServerTime + this.clockSyncService.serverTimeOffset.value;
               // the media element is still loading here, so pass the position instead of reading it
-              this.schedulePlay(commandObject.startServerTime + timeOffset, commandObject.startMediaTime);
+              this.schedulePlay(startTime, commandObject.startMediaTime);
               break;
             case 'STOP':
               this.mediaService.stop();
@@ -541,6 +539,16 @@ export abstract class PlayerComponent {
       this.mediaService.setPlaybackRate(1 + correction);
     } else {
       this.mediaService.setPlaybackRate(1);
+    }
+  }
+
+  /**
+   * Applies a change of the clock offset to the running playback: the anchor was derived from the server start time
+   * with the previous offset. The drift correction then moves the playback to the corrected position.
+   */
+  protected shiftPlaybackAnchor(offsetChange: number): void {
+    if (PlayerComponent.playbackAnchor) {
+      PlayerComponent.playbackAnchor.startTime += offsetChange;
     }
   }
 
