@@ -141,11 +141,21 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   }
 
   dropPlaylistRow(event: CdkDragDrop<unknown, unknown, PlaylistRow>): void {
-    const row = event.item.data;
-    const previousIndex = row.type === 'history' ? row.index : this.history.length + 1 + row.index;
     // the drop index refers to the rendered rows
     const currentIndex = (this.playlistViewport?.getRenderedRange().start ?? 0) + event.currentIndex;
-    this.moveMedia(previousIndex, currentIndex);
+    this.moveMedia(this.combinedIndex(event.item.data), currentIndex);
+  }
+
+  /** Index of the row in the combined list of history, current media and queue. */
+  combinedIndex(row: PlaylistRow): number {
+    switch (row.type) {
+      case 'history':
+        return row.index;
+      case 'current':
+        return this.history.length;
+      case 'queue':
+        return this.history.length + 1 + row.index;
+    }
   }
 
   /** Whether the viewport shows the current media or the rows around it. */

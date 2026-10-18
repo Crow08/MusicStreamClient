@@ -183,7 +183,7 @@
                 <mat-chip-option color="primary" selected> {{ row.media.title }}</mat-chip-option>
               </mat-chip-listbox>
               <ng-template #playlistEntry>
-                <mat-chip color="primary" (click)="jumpTo(row.media.id)">
+                <mat-chip color="primary" (click)="jumpTo(combinedIndex(row), row.media.id)">
                   <mat-chip *cdkDragPlaceholder>{{ row.media.title }}</mat-chip>
                   {{ row.media.title }}
                   <button (click)="$event.stopPropagation(); removeSongFromQueueOrHistory(row.index, row.type, row.media.id)"

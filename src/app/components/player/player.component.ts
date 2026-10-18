@@ -280,8 +280,13 @@ export abstract class PlayerComponent {
     this.publishCommand(`movedMedia/${previousIndex}/to/${currentIndex}/${media.id}`);
   }
 
-  jumpTo(mediaId: number) {
-    this.publishCommand(`skipTo/${mediaId}`);
+  /**
+   * Jumps to a media in the history or queue.
+   * @param index index in the combined list of history, current media and queue
+   * @param mediaId the media at that index, selects the right media if the index is outdated
+   */
+  jumpTo(index: number, mediaId: number) {
+    this.publishCommand(`skipTo/${index}/${mediaId}`);
   }
 
   getVolume(): number {
