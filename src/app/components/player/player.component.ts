@@ -302,7 +302,12 @@ export abstract class PlayerComponent {
         this.mediaService.stop();
         this.loadNewMedia(commandObject.currentMedia, 0);
         this.reportReadyIfUnableToLoad(commandObject.currentMedia.id, 0);
-        this.updateQueueAndHistory(commandObject.currentMedia.id);
+        // the details of the media are loaded asynchronously, the title is shown right away
+        PlayerComponent.currentMedia.title = commandObject.currentMedia.title;
+        // the server sends the queue and history along: they can not be derived from the media id, which may occur
+        // several times in both
+        PlayerComponent.queue = commandObject.queue;
+        PlayerComponent.history = commandObject.history;
         break;
       case 'Pause':
         this.clearPlaybackAnchor();
@@ -602,48 +607,6 @@ export abstract class PlayerComponent {
         console.error(reason);
       }
     });
-  }
-
-  /**
-   * Move the given song in the playing position and update the history and/or the queue accordingly.
-   * @param songId the song to be played
-   */
-  private updateQueueAndHistory(songId: number): void {
-    const queueIndex = PlayerComponent.queue.findIndex((value) => value.id === songId);
-    if (queueIndex !== -1) {
-      // forward
-      // id -1 is the placeholder for "no current media", which must not end up in the history or queue
-      if (PlayerComponent.currentMedia && PlayerComponent.currentMedia.id !== -1) {
-        PlayerComponent.history.push({
-          id: PlayerComponent.currentMedia.id,
-          title: PlayerComponent.currentMedia.title,
-        });
-      }
-      PlayerComponent.currentMedia.title = PlayerComponent.queue.splice(queueIndex, 1)[0].title;
-      if (queueIndex !== 0) {
-        // was actually backwards loop
-        PlayerComponent.history = PlayerComponent.history.concat(PlayerComponent.queue);
-        PlayerComponent.queue = [];
-      }
-    } else {
-      const historyIndex = PlayerComponent.history.findIndex((value) => value.id === songId);
-      if (historyIndex !== -1) {
-        // backwards
-        // id -1 is the placeholder for "no current media", which must not end up in the history or queue
-        if (PlayerComponent.currentMedia && PlayerComponent.currentMedia.id !== -1) {
-          PlayerComponent.queue.unshift({
-            id: PlayerComponent.currentMedia.id,
-            title: PlayerComponent.currentMedia.title,
-          });
-        }
-        PlayerComponent.currentMedia.title = PlayerComponent.history.splice(historyIndex, 1)[0].title;
-        if (historyIndex === 0) {
-          // was actually forwards loop
-          PlayerComponent.queue = PlayerComponent.history.concat(PlayerComponent.queue);
-          PlayerComponent.history = [];
-        }
-      }
-    }
   }
 
   private setNewMedia(media: Media): void {
