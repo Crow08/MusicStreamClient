@@ -54,7 +54,7 @@
       </div>
       <mat-card-content>
         <div #videoWrapper [hidden]="!isVideoMode()" class="video-wrapper">
-          <video #videoPlayer (click)="onVideoClick()" class="video-player" playsinline></video>
+          <!-- the video element is owned by the MediaService and moved in here, see ngAfterViewInit -->
           <div *ngIf="isFullscreen" class="fullscreen-controls">
             <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"
                               [thumbnailUrl]="thumbnailUrl" [chapters]="chapters"></app-player-track>
@@ -64,7 +64,7 @@
                 <mat-icon>skip_previous</mat-icon>
               </button>
               <button
-                (click)="publishCommand(playerState === 'STOP' ? 'start' : playerState === 'PAUSE' ? 'resume' : 'pause')"
+                (click)="togglePlayback()"
                 class="player-controls" color="accent" mat-raised-button [title]="playerState === 'PLAY' ? 'Pause' : 'Play'">
                 <mat-icon>{{ playerState === 'PLAY' ? 'pause' : 'play_arrow' }}</mat-icon>
               </button>
@@ -104,7 +104,7 @@
             <mat-icon>skip_previous</mat-icon>
           </button>
           <button
-            (click)="publishCommand(playerState === 'STOP' ? 'start' : playerState === 'PAUSE' ? 'resume' : 'pause')"
+            (click)="togglePlayback()"
             class="player-controls" color="accent" mat-raised-button [title]="playerState === 'PLAY' ? 'Pause' : 'Play'">
             <mat-icon>{{ playerState === 'PLAY' ? 'pause' : 'play_arrow' }}</mat-icon>
           </button>

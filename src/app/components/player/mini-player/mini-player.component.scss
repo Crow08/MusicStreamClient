@@ -1,25 +1,69 @@
 :host {
-  display: flex;
+  display: block;
   width: 100%;
-  overflow: auto;
+}
+
+.mini-player {
+  display: grid;
+  grid-template-columns: 1fr minmax(260px, 2fr) 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.media-info {
+  min-width: 0;
+
+  mat-card-title,
+  mat-card-subtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.controls {
+  min-width: 0;
+}
+
+.control-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 6px;
+  white-space: nowrap;
 }
 
 .spacer {
   flex: 1;
 }
 
-#controls {
-  position: fixed;
-  left: 50%;
-  bottom: 10px;
-  transform: translate(-50%, 15%) scale(0.75);
-  font-size: revert;
+.side {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
-#song-title {
-  padding-right: 10px;
-}
-
+// square buttons with centered icons: the icon margins of mat-raised-button are made for icons next to a label
 .player-controls {
-  margin: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  width: 40px;
+  height: 36px;
+  padding: 0;
+
+  .mat-icon {
+    margin: 0;
+  }
+}
+
+.volume-slider {
+  width: 100px;
+}
+
+// chapter menu items are rendered in the overlay container, outside of :host
+.current-chapter {
+  font-weight: bold;
 }

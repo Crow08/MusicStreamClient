@@ -1,53 +1,33 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { PlayerComponent } from '../player.component';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpHelperService } from '../../../services/http-helper.service';
-import { AuthenticationService } from '../../../services/authentication.service';
+import { PlayerComponent } from '../player.component';
 import { MediaService } from '../../../services/media.service';
-import { WsService } from '../../../services/ws.service';
-import { AutoplayService } from '../../../services/autoplay.service';
-import { UserStatusService } from '../../../services/user-status.service';
-import { ClockSyncService } from '../../../services/clock-sync.service';
+import { SettingsService } from '../../../services/settings.service';
+import { PlayerEngineService } from '../../../services/player-engine.service';
+import { SessionService } from '../../../services/session.service';
 
+/** Controls of the session shown on the pages other than the lobby, see AppComponent. */
 @Component({
   selector: 'app-mini-player',
   templateUrl: './mini-player.component.html',
   styleUrls: ['./mini-player.component.scss'],
 })
-export class MiniPlayerComponent extends PlayerComponent implements AfterViewInit, OnInit {
+export class MiniPlayerComponent extends PlayerComponent {
   constructor(
-    private router: Router,
-    httpHelperService: HttpHelperService,
-    authenticationService: AuthenticationService,
+    engine: PlayerEngineService,
     mediaService: MediaService,
-    wsService: WsService,
-    autoplayService: AutoplayService,
-    userStatusService: UserStatusService,
-    clockSyncService: ClockSyncService
+    settingsService: SettingsService,
+    private router: Router,
+    private sessionService: SessionService
   ) {
-    super();
-    this.autoplayService = autoplayService;
-    this.userStatusService = userStatusService;
-    this.clockSyncService = clockSyncService;
-    this.httpHelperService = httpHelperService;
-    this.authenticationService = authenticationService;
-    this.mediaService = mediaService;
-    this.wsService = wsService;
+    super(engine, mediaService, settingsService);
   }
 
-  ngOnInit(): void {
-    this.mediaService.mediaEndedSubject.subscribe(() => {
-      this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
-    });
-  }
-
-  ngAfterViewInit(): void {
-    this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
-  }
-
-  displayMiniPlayer() {
-    let url = this.router.url;
-    url = url.substring(0, url.indexOf('?') != -1 ? url.indexOf('?') : this.router.url.length);
-    return !url.endsWith('lobby') && !url.endsWith('login') && !url.endsWith('register');
+  /** Opens the lobby of the current session. The session is already joined, so the playback is not interrupted. */
+  backToSession(): void {
+    const sessionId = this.sessionService.sessionId.value;
+    if (sessionId !== null) {
+      this.router.navigateByUrl(`/sessions/${sessionId}/lobby`).catch(console.error);
+    }
   }
 }

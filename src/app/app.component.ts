@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { AuthenticationService } from './services/authentication.service';
 import { SessionService } from './services/session.service';
 import { SettingsService } from './services/settings.service';
+import { PlayerEngineService } from './services/player-engine.service';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,9 @@ export class AppComponent implements OnInit {
     private sessionService: SessionService,
     private settingsService: SettingsService,
     private wsService: WsService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    // the playback of the session lives in this service: it has to exist as long as the app
+    private playerEngine: PlayerEngineService
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +51,15 @@ export class AppComponent implements OnInit {
     });
   }
 
+  /** The controls of the session are shown on every page but the lobby, which has the full player. */
+  get showMiniPlayer(): boolean {
+    const url = this.router.url.split('?')[0];
+    return this.inSession && !url.endsWith('lobby') && !url.endsWith('login') && !url.endsWith('register');
+  }
+
   logout(): void {
+    // stops the playback of the session
+    this.sessionService.leaveSession();
     this.authenticationService.logout();
     this.router.navigate(['/login']).catch((reason) => console.error(reason));
   }

@@ -3,20 +3,12 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { PlayerComponent } from '../player.component';
 import { ActivatedRoute } from '@angular/router';
-import { HttpHelperService } from '../../../services/http-helper.service';
-import { AuthenticationService } from '../../../services/authentication.service';
 import { MediaService } from '../../../services/media.service';
-import { WsService } from '../../../services/ws.service';
 import { SessionService } from '../../../services/session.service';
 import { SettingsService } from '../../../services/settings.service';
-import { pairwise, Subscription } from 'rxjs';
 import { AutoplayService } from '../../../services/autoplay.service';
-import { UserStatusService } from '../../../services/user-status.service';
-import { UserStatus } from '../../../models/userStatus';
-import { ClockSyncService } from '../../../services/clock-sync.service';
+import { PlayerEngineService } from '../../../services/player-engine.service';
 
-/** Drift (ms) from which a listener is shown as out of sync, see correctDrift. */
-const OUT_OF_SYNC_THRESHOLD = 200;
 /** Height (px) of a playlist row, all rows must have this height (virtual scrolling). */
 const PLAYLIST_ROW_HEIGHT = 48;
 /** Number of history rows shown above the current media when scrolling to it. */
@@ -48,60 +40,20 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   private followedRow = 0;
   private hideCursorTimeout: number | null = null;
   private singleVideoClickTimeout: number | null = null;
-  private readonly mediaSubscriptions = new Subscription();
   private playlistResizeObserver: ResizeObserver | undefined;
+  private readonly videoClickListener = () => this.onVideoClick();
 
   constructor(
     route: ActivatedRoute,
-    httpHelperService: HttpHelperService,
-    authenticationService: AuthenticationService,
+    engine: PlayerEngineService,
     mediaService: MediaService,
-    wsService: WsService,
+    settingsService: SettingsService,
     private sessionService: SessionService,
-    public settingsService: SettingsService,
-    autoplayService: AutoplayService,
-    userStatusService: UserStatusService,
-    clockSyncService: ClockSyncService
+    private autoplayService: AutoplayService
   ) {
-    super();
-    this.httpHelperService = httpHelperService;
-    this.authenticationService = authenticationService;
-    this.mediaService = mediaService;
-    this.wsService = wsService;
-    this.autoplayService = autoplayService;
-    this.userStatusService = userStatusService;
-    this.clockSyncService = clockSyncService;
-
+    super(engine, mediaService, settingsService);
     this.autoplayService.check();
     sessionService.joinSession(Number(route.snapshot.paramMap.get('sessionId')));
-
-    // MediaService is app-wide: these subscriptions have to end with this component (see ngOnDestroy)
-    this.mediaSubscriptions.add(
-      this.mediaService.mediaEndedSubject.subscribe(() => {
-        this.publishCommand(`end/${PlayerComponent.currentMedia.id}`);
-      })
-    );
-    this.mediaSubscriptions.add(this.mediaService.timeUpdate.subscribe(() => this.correctDrift()));
-    this.mediaSubscriptions.add(
-      this.clockSyncService.serverTimeOffset
-        .pipe(pairwise())
-        .subscribe(([previous, current]) => this.shiftPlaybackAnchor(current - previous))
-    );
-    this.mediaSubscriptions.add(
-      this.clockSyncService.latency.subscribe((latency) => latency !== null && this.userStatusService.setLatency(latency))
-    );
-    // buffering counts as loading: in both cases the media can not be played right now
-    this.mediaSubscriptions.add(this.mediaService.mediaWaiting.subscribe(() => this.userStatusService.setState('LOADING')));
-    this.mediaSubscriptions.add(this.mediaService.mediaPlaying.subscribe(() => this.userStatusService.setState('READY')));
-    this.mediaSubscriptions.add(
-      this.mediaService.mediaCanPlayThrough.subscribe(() => {
-        console.log('READY');
-        this.userStatusService.setState('READY');
-        const id = this.authenticationService.currentUserValue?.id;
-        const time = Math.round(this.mediaService.getCurrentTime() * 1000);
-        !!id && this.indicateReadyFor(PlayerComponent.preparedMediaId, time);
-      })
-    );
   }
 
   /** Playlist rows, rebuilt only when the history, the queue or the current media changed. */
@@ -175,82 +127,32 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
   }
 
   ngOnDestroy(): void {
-    this.sessionService.cancelJoin();
-    this.userStatusService.setJoined(false);
-    this.mediaSubscriptions.unsubscribe();
+    // the session and its playback continue without the lobby, only the video element returns to its hidden host
+    this.mediaService.videoElement.removeEventListener('click', this.videoClickListener);
+    this.mediaService.detachVideo();
     this.playlistResizeObserver?.disconnect();
+    if (!!this.hideCursorTimeout) {
+      clearTimeout(this.hideCursorTimeout);
+    }
   }
 
   get isFullscreen(): boolean {
     return document.fullscreenElement != null;
   }
 
-  @ViewChild('videoPlayer') set videoPlayer(videoPlayer: ElementRef) {
-    PlayerComponent.videoElement = videoPlayer.nativeElement;
-  }
-
   ngAfterViewInit(): void {
-    this.wsService.subscribeToSessionTopic((body) => this.processCommand(body));
-    this.sessionService.requestJoin();
+    // the session topic is listened to by the PlayerEngineService, the join is only needed if the session is not joined yet
+    this.sessionService.ensureJoined();
+    if (this.videoWrapper) {
+      this.mediaService.attachVideo(this.videoWrapper.nativeElement);
+      this.mediaService.videoElement.addEventListener('click', this.videoClickListener);
+    }
     const viewport = this.playlistViewport;
     if (viewport) {
       // the playlist height depends on the space left in the card (e.g. a loaded video), not only on the window size
       this.playlistResizeObserver = new ResizeObserver(() => viewport.checkViewportSize());
       this.playlistResizeObserver.observe(viewport.elementRef.nativeElement);
     }
-  }
-
-  protected override onJoined(): void {
-    this.sessionService.acknowledgeJoin();
-    this.userStatusService.setJoined(true);
-  }
-
-  getStateIcon(status: UserStatus | undefined): string {
-    switch (status?.state) {
-      case 'READY':
-        return 'check_circle';
-      case 'LOADING':
-        return 'hourglass_empty';
-      default:
-        return 'radio_button_unchecked';
-    }
-  }
-
-  getStateText(status: UserStatus | undefined): string {
-    switch (status?.state) {
-      case 'READY':
-        return 'Ready';
-      case 'LOADING':
-        return 'Loading / buffering';
-      case 'IDLE':
-        return 'No media loaded';
-      default:
-        return 'Status unknown';
-    }
-  }
-
-  formatLatency(status: UserStatus | undefined): string {
-    return `${status?.latency ?? '–'} ms`;
-  }
-
-  /** The drift is only known while the user is playing. */
-  hasDrift(status: UserStatus | undefined): boolean {
-    return status?.drift != null;
-  }
-
-  isOutOfSync(status: UserStatus | undefined): boolean {
-    return status?.drift != null && Math.abs(status.drift) >= OUT_OF_SYNC_THRESHOLD;
-  }
-
-  /** Formats the drift as signed seconds or ms, positive: behind the session. */
-  formatDrift(drift: number): string {
-    const sign = drift > 0 ? '+' : drift < 0 ? '-' : '±';
-    const abs = Math.abs(drift);
-    return abs >= 1000 ? `${sign}${(abs / 1000).toFixed(1)} s` : `${sign}${abs} ms`;
-  }
-
-  isVideoMode() {
-    return this.mediaService.isVideoMode();
   }
 
   fullscreen() {
@@ -294,22 +196,9 @@ export class FullPlayerComponent extends PlayerComponent implements AfterViewIni
     } else {
       // single click
       this.singleVideoClickTimeout = setTimeout(() => {
-        this.publishCommand(this.playerState === 'STOP' ? 'start' : this.playerState === 'PAUSE' ? 'resume' : 'pause');
+        this.togglePlayback();
         this.singleVideoClickTimeout = null;
       }, 250);
     }
-  }
-
-  timeSkip() {
-    this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000);
-  }
-
-  /** Formats seconds as m:ss or h:mm:ss. */
-  formatTime(seconds: number): string {
-    const total = Math.floor(seconds);
-    const h = Math.floor(total / 3600);
-    const m = Math.floor((total % 3600) / 60);
-    const ss = String(total % 60).padStart(2, '0');
-    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
   }
 }

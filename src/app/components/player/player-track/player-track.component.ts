@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { PlayerState } from '../player.component';
+import { PlayerState } from '../../../models/playerState';
 import { MediaService } from '../../../services/media.service';
 import { debounce, interval, Subject, Subscription } from 'rxjs';
 import { Chapter } from '../../../models/chapter';
@@ -67,6 +67,8 @@ export class PlayerTrackComponent implements OnInit, OnChanges, OnDestroy {
   constructor(private mediaService: MediaService) {}
 
   ngOnInit(): void {
+    // the position is only reported while the media plays: take over the current one (e.g. a paused media on a new page)
+    this.progression = this.mediaService.getProgression();
     this.mediaService.addProgressionListener(this.progressionListener);
     this.seekSubscription = this.rawSeek.pipe(debounce(() => interval(250))).subscribe({
       next: (value) => {

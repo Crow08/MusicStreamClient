@@ -12,9 +12,16 @@ export class MediaService {
   mediaWaiting = new EventEmitter<void>();
   /** Playback is running (again), e.g. after buffering. */
   mediaPlaying = new EventEmitter<void>();
-  private audio = new Audio();
-  private video: HTMLVideoElement | null = null;
-  private media: HTMLAudioElement | HTMLVideoElement;
+  private readonly audio = new Audio();
+  /**
+   * Owned by this app-wide service like the audio element, so the playback survives navigation. A video element only
+   * keeps playing while it is part of the document: it lives in a hidden host and is moved into the page by the
+   * components that display it (see attachVideo).
+   */
+  private readonly video = document.createElement('video');
+  private readonly videoHost = document.createElement('div');
+  private media: HTMLAudioElement | HTMLVideoElement = this.audio;
+  private videoMode = false;
   private muted = false;
 
   private progressionListeners: ((p: number) => void)[] = [];
@@ -44,14 +51,35 @@ export class MediaService {
   };
 
   constructor(private settingsService: SettingsService) {
-    this.media = this.audio;
     this.setVolume(settingsService.defaultVolume);
-    this.audio.addEventListener('timeupdate', this.timeUpdateListener);
-    this.audio.addEventListener('ended', this.endedListener);
-    this.audio.addEventListener('canplaythrough', this.canplaythroughListener);
-    this.audio.addEventListener('seeked', this.seekedListener);
-    this.audio.addEventListener('waiting', this.waitingListener);
-    this.audio.addEventListener('playing', this.playingListener);
+    this.video.playsInline = true;
+    this.video.style.width = '100%';
+    this.video.style.height = '100%';
+    // hidden but rendered: browsers may stop playing elements that are not rendered
+    Object.assign(this.videoHost.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '1px',
+      height: '1px',
+      overflow: 'hidden',
+      opacity: '0',
+      pointerEvents: 'none',
+    });
+    this.videoHost.appendChild(this.video);
+    document.body.appendChild(this.videoHost);
+    [this.audio, this.video].forEach((element) => this.addListeners(element));
+  }
+
+  /** The events are only forwarded for the active element: the other one is not playing. */
+  private addListeners(element: HTMLMediaElement): void {
+    const forward = (listener: () => void) => () => element === this.media && listener();
+    element.addEventListener('timeupdate', forward(this.timeUpdateListener));
+    element.addEventListener('ended', forward(this.endedListener));
+    element.addEventListener('canplaythrough', forward(this.canplaythroughListener));
+    element.addEventListener('seeked', forward(this.seekedListener));
+    element.addEventListener('waiting', forward(this.waitingListener));
+    element.addEventListener('playing', forward(this.playingListener));
   }
 
   play(): Promise<void> {
@@ -94,6 +122,12 @@ export class MediaService {
     return this.media.currentTime;
   }
 
+  /** Playback position in percent of the duration, 0 while the duration is unknown. */
+  getProgression(): number {
+    const progression = (this.media.currentTime / this.media.duration) * 100;
+    return isFinite(progression) ? progression : 0;
+  }
+
   getDuration(): number {
     return this.media.duration;
   }
@@ -121,40 +155,46 @@ export class MediaService {
     this.progressionListeners = this.progressionListeners.filter((listener) => listener !== callback);
   }
 
-  activateVideoMode(video: HTMLVideoElement) {
-    const oldVolume = this.getVolume();
+  /** Moves the video element into the container (the video keeps playing). */
+  attachVideo(container: HTMLElement): void {
+    container.insertBefore(this.video, container.firstChild);
+  }
 
-    this.video = video;
-    this.media = this.video;
-    this.setVolume(oldVolume);
-    this.media.muted = this.muted;
-    this.video.removeEventListener('timeupdate', this.timeUpdateListener);
-    this.video.addEventListener('timeupdate', this.timeUpdateListener);
-    this.video.removeEventListener('ended', this.endedListener);
-    this.video.addEventListener('ended', this.endedListener);
-    this.video.removeEventListener('canplaythrough', this.canplaythroughListener);
-    this.video.addEventListener('canplaythrough', this.canplaythroughListener);
-    this.video.removeEventListener('seeked', this.seekedListener);
-    this.video.addEventListener('seeked', this.seekedListener);
-    this.video.removeEventListener('waiting', this.waitingListener);
-    this.video.addEventListener('waiting', this.waitingListener);
-    this.video.removeEventListener('playing', this.playingListener);
-    this.video.addEventListener('playing', this.playingListener);
+  /** Moves the video element back into the hidden host, e.g. when the page that displays it is destroyed. */
+  detachVideo(): void {
+    this.videoHost.appendChild(this.video);
+  }
+
+  get videoElement(): HTMLVideoElement {
+    return this.video;
+  }
+
+  activateVideoMode(): void {
+    this.activate(this.video);
+    this.videoMode = true;
   }
 
   getProgressionOffsetInSeconds(progressionPercent: number) {
     return progressionPercent * (this.media.duration / 100) - this.media.currentTime;
   }
 
-  activateAudioMode() {
-    this.video = null;
-    const oldVolume = this.getVolume();
-    this.media = this.audio;
-    this.setVolume(oldVolume);
-    this.media.muted = this.muted;
+  activateAudioMode(): void {
+    this.activate(this.audio);
+    this.videoMode = false;
   }
 
-  isVideoMode() {
-    return this.video !== null;
+  isVideoMode(): boolean {
+    return this.videoMode;
+  }
+
+  /** Makes the element the active one: the previous one is cleared, volume and mute state are taken over. */
+  private activate(element: HTMLAudioElement | HTMLVideoElement): void {
+    if (this.media !== element) {
+      const volume = this.getVolume();
+      this.stop();
+      this.media = element;
+      this.setVolume(volume);
+    }
+    this.media.muted = this.muted;
   }
 }

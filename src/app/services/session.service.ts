@@ -41,6 +41,8 @@ export class SessionService {
   }
 
   private joinedSessionId: number | null = null;
+  /** Whether the server confirmed the join of the current session, i.e. the player knows the state of the session. */
+  private joinAcknowledged = false;
   private joinRetry: ReturnType<typeof setTimeout> | null = null;
 
   /**
@@ -51,6 +53,16 @@ export class SessionService {
     this.init(sessionId);
     this.router.navigateByUrl(`/sessions/${sessionId}/lobby`).catch(console.error);
     this.joinedSessionId = sessionId;
+  }
+
+  /**
+   * Requests the join unless the client is already in the session: the session continues when the lobby is opened
+   * again, a new join would reload the media and interrupt the playback.
+   */
+  ensureJoined(): void {
+    if (!this.joinAcknowledged) {
+      this.requestJoin();
+    }
   }
 
   /**
@@ -73,6 +85,7 @@ export class SessionService {
 
   /** Called when the own join response arrived. */
   acknowledgeJoin(): void {
+    this.joinAcknowledged = true;
     this.cancelJoin();
   }
 
@@ -88,15 +101,19 @@ export class SessionService {
     if (currentSession !== sessionId && currentSession !== null) {
       this.leaveSession();
     }
-    this.sessionId.next(sessionId);
+    // the session of the connection has to be set before the listeners of sessionId subscribe to its topic
     this.wsConfigService.updateWsConfig({
       session: sessionId,
     });
     this.rxStompService.configure(this.wsConfigService.myRxStompConfig());
+    this.sessionId.next(sessionId);
   }
 
-  private leaveSession(): void {
+  /** Leaves the current session, which stops its playback. */
+  leaveSession(): void {
     if (this.sessionId.getValue() !== undefined && !!this.authenticationService.currentUserValue) {
+      this.cancelJoin();
+      this.joinAcknowledged = false;
       this.sessionId.next(null);
       this.joinedSessionId = null;
       this.wsService.publishSessionCommand(`leave/${this.authenticationService.currentUserValue.id}`, 'leave');

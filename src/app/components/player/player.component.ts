@@ -1,36 +1,13 @@
-import { AuthenticationService } from '../../services/authentication.service';
-import { Media } from '../../models/media';
 import { MediaService } from '../../services/media.service';
-import { HttpHelperService } from '../../services/http-helper.service';
-import { User } from '../../models/user';
-import { GenericDataObject } from '../../models/genericDataObject';
-import { WsService } from '../../services/ws.service';
-import { MinimalMedia } from '../../models/minimalMedia';
 import { Song } from '../../models/song';
 import { Video } from '../../models/video';
-import { AutoplayService } from '../../services/autoplay.service';
 import { Chapter } from '../../models/chapter';
-import { UserStatusService } from '../../services/user-status.service';
 import { UserStatus } from '../../models/userStatus';
-import { ClockSyncService } from '../../services/clock-sync.service';
+import { PlayerEngineService } from '../../services/player-engine.service';
+import { SettingsService } from '../../services/settings.service';
 
-export enum PlayerState {
-  WAITING = 'WAITING',
-  PLAY = 'PLAY',
-  PAUSE = 'PAUSE',
-  STOP = 'STOP',
-}
-
-/** A start later than this (ms) is compensated by starting further into the media. */
-const LATE_START_TOLERANCE = 30;
-/** Drift (ms) between the actual and the expected position that is tolerated during playback. */
-const DRIFT_TOLERANCE = 40;
-/** Drift (ms) up to which the playback rate is adjusted; a larger drift is corrected by seeking. */
-const MAX_RATE_CORRECTED_DRIFT = 1000;
-/** Maximum deviation of the playback rate from 1 when correcting a drift. */
-const MAX_RATE_CORRECTION = 0.05;
-/** Minimum time (ms) between two corrections by seeking, which need time to buffer. */
-const SEEK_CORRECTION_COOLDOWN = 3000;
+/** Drift (ms) from which a listener is shown as out of sync, see PlayerEngineService.correctDrift. */
+const OUT_OF_SYNC_THRESHOLD = 200;
 /**
  * Tolerance (s) when determining the current chapter: after jumping to a chapter, the position may end up slightly
  * before its start, which must not count as the previous chapter.
@@ -39,225 +16,84 @@ const CHAPTER_START_TOLERANCE = 0.5;
 /** Position (s) in a chapter after which "previous chapter" restarts the current chapter instead. */
 const CHAPTER_RESTART_THRESHOLD = 3;
 
+/**
+ * Base of the components that display the playback of the session. The playback itself is handled by the app-wide
+ * {@link PlayerEngineService}, so it does not depend on which of these components exists.
+ */
 export abstract class PlayerComponent {
-  static playerState: PlayerState = PlayerState.STOP;
-  static loopMode = false;
-  static queue: { id: number; title: string }[] = [];
-  static history: { id: number; title: string }[] = [];
-  static sessionUsers: User[] = [];
-  /** Playback status of the session users reported by their clients, by user id. */
-  static userStatuses = new Map<number, UserStatus>();
-  static currentMedia: Media = new Media(-1, 'SONG', '', '', []);
-  static songRating = 0;
-  static userSongRating = 0;
-  static videoElement: HTMLVideoElement;
-  /** Id of the media currently loaded into the media element. currentMedia is updated asynchronously. */
-  static preparedMediaId = -1;
-  private static _lastReadyEvent: { mediaId: number; time: number } | null;
-  /** Client time at which the current playback started at the given media position, used to correct drift. */
-  private static playbackAnchor: { mediaId: number; startTime: number; mediaTime: number } | null = null;
-  private static lastSeekCorrection = 0;
-  private static mediaInfoRequest = 0;
-  /** Pre-signed URL of the thumbnail sprite of the current video (seek bar preview), null if there is none. */
-  private static thumbnailUrl: string | null = null;
-  /** Chapters of the current video (seek bar markers), empty if there are none. */
-  private static chapters: Chapter[] = [];
-  /** Media whose thumbnails and chapters were requested. */
-  private static seekBarMediaId = -1;
-  selectedArtist: GenericDataObject[] = [];
-  selectedAlbum: GenericDataObject[] = [];
-  selectedGenres: GenericDataObject[] = [];
-  selectedTags: GenericDataObject[] = [];
-  protected httpHelperService!: HttpHelperService;
-  protected authenticationService!: AuthenticationService;
-  protected mediaService!: MediaService;
-  protected wsService!: WsService;
-  protected autoplayService!: AutoplayService;
-  protected userStatusService!: UserStatusService;
-  protected clockSyncService!: ClockSyncService;
+  protected constructor(
+    protected readonly engine: PlayerEngineService,
+    protected readonly mediaService: MediaService,
+    public readonly settingsService: SettingsService
+  ) {}
 
   get sessionUsers() {
-    return PlayerComponent.sessionUsers;
+    return this.engine.sessionUsers;
   }
 
   getUserStatus(userId: number): UserStatus | undefined {
-    return PlayerComponent.userStatuses.get(userId);
+    return this.engine.userStatuses.get(userId);
   }
 
   get currentMedia() {
-    return PlayerComponent.currentMedia;
+    return this.engine.currentMedia;
   }
 
   get userSongRating() {
-    return PlayerComponent.userSongRating;
+    return this.engine.userSongRating;
   }
 
   get songRating() {
-    return PlayerComponent.songRating;
+    return this.engine.songRating;
   }
 
   get playerState() {
-    return PlayerComponent.playerState;
+    return this.engine.playerState;
   }
 
   get loopMode() {
-    return PlayerComponent.loopMode;
+    return this.engine.loopMode;
   }
 
   get history() {
-    return PlayerComponent.history;
+    return this.engine.history;
   }
 
   get queue() {
-    return PlayerComponent.queue;
+    return this.engine.queue;
   }
 
   get thumbnailUrl() {
-    return PlayerComponent.thumbnailUrl;
+    return this.engine.thumbnailUrl;
   }
 
   get chapters() {
-    return PlayerComponent.chapters;
-  }
-
-  static get lastReadyEvent(): { mediaId: number; time: number } | null {
-    return this._lastReadyEvent;
-  }
-
-  static set lastReadyEvent(value: { mediaId: number; time: number } | null) {
-    this._lastReadyEvent = value;
+    return this.engine.chapters;
   }
 
   publishCommand(name: string): void {
-    this.wsService.publishSessionCommand(name, name);
+    this.engine.publishCommand(name);
   }
 
-  loadNewMedia(media: MinimalMedia, startMediaTime: number): void {
-    if (!media || media.id === -1) {
-      PlayerComponent.playerState = PlayerState.STOP;
-      this.userStatusService.setState('IDLE');
-      return;
-    }
-    this.userStatusService.setState('LOADING');
-    const isVideo = media.type.toUpperCase() == 'VIDEO';
-    PlayerComponent.preparedMediaId = media.id;
-
-    this.httpHelperService
-      .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
-      .then((url) => {
-        isVideo ? this.mediaService.activateVideoMode(PlayerComponent.videoElement) : this.mediaService.activateAudioMode();
-        this.prepareMediaStart(url, startMediaTime);
-      })
-      .catch(console.error);
-
-    this.loadSeekBarInfo(media, isVideo);
-    this.loadMediaInfo(media);
+  /** Starts, resumes or pauses the playback, depending on the state. */
+  togglePlayback(): void {
+    this.publishCommand(this.playerState === 'STOP' ? 'start' : this.playerState === 'PAUSE' ? 'resume' : 'pause');
   }
 
-  /**
-   * Loads the URL of the thumbnail sprite shown when hovering over the seek bar of a video and the chapters of the
-   * video (read by the server from the MP4, browsers do not expose them).
-   */
-  private loadSeekBarInfo(media: MinimalMedia, isVideo: boolean): void {
-    if (media.id === PlayerComponent.seekBarMediaId) {
-      return;
-    }
-    PlayerComponent.seekBarMediaId = media.id;
-    PlayerComponent.thumbnailUrl = null;
-    PlayerComponent.chapters = [];
-    if (!isVideo) {
-      return;
-    }
-    this.httpHelperService
-      .getPlain(`/api/v1/media/thumbnails/${media.id}?X-NPE-PSU-Duration=PT1H`)
-      .then((url) => {
-        // the media may have changed while the request was running
-        // the plain text response ends with a line break, which is not allowed in a CSS url()
-        if (PlayerComponent.seekBarMediaId === media.id) {
-          PlayerComponent.thumbnailUrl = url.trim();
-        }
-      })
-      // thumbnails are optional: without them the seek bar shows no preview
-      .catch(() => undefined);
-    this.httpHelperService
-      .getArray(`/api/v1/media/video/${media.id}/chapters`, Chapter)
-      .then((chapters) => {
-        if (PlayerComponent.seekBarMediaId === media.id) {
-          PlayerComponent.chapters = chapters;
-        }
-      })
-      // chapters are optional as well
-      .catch(() => undefined);
-  }
-
-  /** Loads the details (title, artist, ...) and ratings of the media, without loading the media itself. */
-  loadMediaInfo(media: MinimalMedia): void {
-    // responses may arrive out of order when the media changes quickly: only the latest request is applied
-    const request = ++PlayerComponent.mediaInfoRequest;
-    const request$: Promise<Media> =
-      media.type.toUpperCase() == 'VIDEO'
-        ? this.httpHelperService.get(`/api/v1/media/video/${media.id}`, Video)
-        : this.httpHelperService.get(`/api/v1/media/song/${media.id}`, Song);
-    request$
-      .then((details) => {
-        if (request === PlayerComponent.mediaInfoRequest) {
-          this.setNewMedia(details);
-        }
-      })
-      .catch(console.error);
+  onRating(rating: number): void {
+    this.engine.onRating(rating);
   }
 
   setVolume(value: number): void {
     this.mediaService.setVolume(value);
   }
 
-  onRating(rating: number): void {
-    const mediaId = PlayerComponent.currentMedia.id;
-    if (mediaId === -1) {
-      return;
-    }
-    PlayerComponent.userSongRating = rating;
-    this.httpHelperService
-      .put(`/api/v1/ratings/${mediaId}/addUserRating/${rating}`, null)
-      .then(() => {
-        this.getRating();
-        this.getUserRating();
-      })
-      .catch(console.error);
+  getVolume(): number {
+    return this.mediaService.getVolume();
   }
 
-  getRating(): void {
-    const mediaId = PlayerComponent.currentMedia.id;
-    if (mediaId === -1) {
-      PlayerComponent.songRating = 0;
-      return;
-    }
-    this.httpHelperService
-      .getPlain(`/api/v1/ratings/getSongRating/${mediaId}`)
-      .then((rating) => {
-        // the response may arrive after the media changed
-        if (PlayerComponent.currentMedia.id === mediaId) {
-          PlayerComponent.songRating = Number(rating);
-        }
-      })
-      .catch(console.error);
-  }
-
-  getUserRating(): void {
-    const mediaId = PlayerComponent.currentMedia.id;
-    if (mediaId === -1) {
-      PlayerComponent.userSongRating = 0;
-      return;
-    }
-    this.httpHelperService
-      .getPlain(`/api/v1/ratings/getUserRating/${mediaId}`)
-      .then((rating) => {
-        // the response may arrive after the media changed
-        if (PlayerComponent.currentMedia.id === mediaId) {
-          PlayerComponent.userSongRating = Number(rating);
-        }
-      })
-      .catch(console.error);
+  isVideoMode(): boolean {
+    return this.mediaService.isVideoMode();
   }
 
   removeSongFromQueueOrHistory(queueIndex: number, type: string, mediaId: number): void {
@@ -271,9 +107,8 @@ export abstract class PlayerComponent {
    * @param currentIndex target index in the same list
    */
   moveMedia(previousIndex: number, currentIndex: number): void {
-    const history = PlayerComponent.history;
-    const media =
-      previousIndex < history.length ? history[previousIndex] : PlayerComponent.queue[previousIndex - history.length - 1];
+    const history = this.history;
+    const media = previousIndex < history.length ? history[previousIndex] : this.queue[previousIndex - history.length - 1];
     if (!media || previousIndex === currentIndex) {
       return;
     }
@@ -289,181 +124,20 @@ export abstract class PlayerComponent {
     this.publishCommand(`skipTo/${index}/${mediaId}`);
   }
 
-  getVolume(): number {
-    return this.mediaService.getVolume();
-  }
-
-  protected processCommand(jsonString: string): void {
-    const commandObject = JSON.parse(jsonString);
-    switch (commandObject.type) {
-      case 'Start':
-      case 'Resume':
-        this.schedulePlay(commandObject.startServerTime + this.clockSyncService.serverTimeOffset.value);
-        break;
-      case 'SetMedia':
-        // every SetMedia starts a new sync round on the server, even for the same media at the same position
-        PlayerComponent.lastReadyEvent = null;
-        this.clearPlaybackAnchor();
-        this.mediaService.stop();
-        this.loadNewMedia(commandObject.currentMedia, 0);
-        this.reportReadyIfUnableToLoad(commandObject.currentMedia.id, 0);
-        // the details of the media are loaded asynchronously, the title is shown right away
-        PlayerComponent.currentMedia.title = commandObject.currentMedia.title;
-        // the server sends the queue and history along: they can not be derived from the media id, which may occur
-        // several times in both
-        PlayerComponent.queue = commandObject.queue;
-        PlayerComponent.history = commandObject.history;
-        break;
-      case 'Pause':
-        this.clearPlaybackAnchor();
-        this.mediaService.pauseAtPosition(commandObject.mediaStopTime);
-        PlayerComponent.playerState = PlayerState.PAUSE;
-        break;
-      case 'Stop':
-        this.clearPlaybackAnchor();
-        this.mediaService.stop();
-        this.userStatusService.setState('IDLE');
-        PlayerComponent.playerState = PlayerState.STOP;
-        // at the end of the queue the server sends the new queue and history: there is no current media any more
-        if (commandObject.history) {
-          PlayerComponent.queue = commandObject.queue;
-          PlayerComponent.history = commandObject.history;
-          PlayerComponent.currentMedia = new Media(-1, 'SONG', '', '', []);
-        }
-        break;
-      case 'Leave':
-        const userIndex = PlayerComponent.sessionUsers.findIndex((value) => value.id === commandObject.userId);
-        if (userIndex != -1) {
-          PlayerComponent.sessionUsers.splice(userIndex, 1);
-        }
-        PlayerComponent.userStatuses.delete(commandObject.userId);
-        break;
-      case 'Jump':
-        PlayerComponent.lastReadyEvent = null;
-        this.clearPlaybackAnchor();
-        this.userStatusService.setState('LOADING');
-        this.prepareMediaStart(null, commandObject.startMediaTime);
-        this.reportReadyIfUnableToLoad(PlayerComponent.preparedMediaId, commandObject.startMediaTime);
-        break;
-      case 'Join':
-        PlayerComponent.sessionUsers = commandObject.sessionUsers;
-        PlayerComponent.userStatuses = new Map(
-          (commandObject.userStatuses as UserStatus[]).map((status) => [status.userId, status])
-        );
-        if (commandObject.userId === this.authenticationService.currentUserValue?.id) {
-          this.onJoined();
-          // set join event as last ready object to not trigger a new sync on join.
-          PlayerComponent.queue = commandObject.queue;
-          PlayerComponent.history = commandObject.history;
-          PlayerComponent.loopMode = commandObject.loopMode;
-          switch (commandObject.sessionState) {
-            case 'PLAY':
-              PlayerComponent.lastReadyEvent = {
-                mediaId: commandObject.currentMedia?.id ?? -1,
-                time: commandObject.startMediaTime,
-              };
-              this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
-              PlayerComponent.playerState = PlayerState.PLAY;
-              const startTime = commandObject.startServerTime + this.clockSyncService.serverTimeOffset.value;
-              // the media element is still loading here, so pass the position instead of reading it
-              this.schedulePlay(startTime, commandObject.startMediaTime);
-              break;
-            case 'STOP':
-              this.mediaService.stop();
-              this.userStatusService.setState('IDLE');
-              const media = commandObject.currentMedia;
-              if (media) {
-                const mediaType = media.type.toUpperCase() as 'VIDEO' | 'SONG';
-                PlayerComponent.currentMedia = new Media(media.id, mediaType, media.title, '', []);
-                // the media is not loaded while stopped, but its details and ratings are shown
-                this.loadMediaInfo(media);
-              } else {
-                // nothing has been played in this session yet
-                PlayerComponent.currentMedia = new Media(-1, 'SONG', '', '', []);
-              }
-              PlayerComponent.playerState = PlayerState.STOP;
-              break;
-            case 'PAUSE':
-              this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
-              PlayerComponent.playerState = PlayerState.PAUSE;
-              break;
-            case 'SYNC_PLAY':
-            case 'SYNC_PAUSE':
-            case 'SYNC_STOP':
-              // a sync round is running: load the media and report ready so the round can include this user
-              PlayerComponent.lastReadyEvent = null;
-              this.loadNewMedia(commandObject.currentMedia, commandObject.startMediaTime);
-              if (commandObject.currentMedia) {
-                this.reportReadyIfUnableToLoad(commandObject.currentMedia.id, commandObject.startMediaTime);
-              }
-              PlayerComponent.playerState =
-                commandObject.sessionState === 'SYNC_PLAY'
-                  ? PlayerState.WAITING
-                  : commandObject.sessionState === 'SYNC_PAUSE'
-                  ? PlayerState.PAUSE
-                  : PlayerState.STOP;
-              break;
-          }
-        }
-        break;
-      case 'Update':
-        switch (commandObject.updateType) {
-          case 'LoopMode':
-            PlayerComponent.loopMode = commandObject.loopMode;
-            break;
-          case 'Queue':
-            PlayerComponent.queue = commandObject.queue;
-            break;
-          case 'History':
-            PlayerComponent.history = commandObject.history;
-            break;
-          case 'QueueAndHistory':
-            PlayerComponent.queue = commandObject.queue;
-            PlayerComponent.history = commandObject.history;
-            break;
-          case 'UserStatus':
-            PlayerComponent.userStatuses.set(commandObject.userStatus.userId, commandObject.userStatus);
-            break;
-        }
-        break;
-    }
-  }
-
-  /** Called when the own join response arrived. */
-  protected onJoined(): void {}
-
-  /**
-   * Browsers do not load media in hidden tabs before the user interacted with the page. Such a tab would never report
-   * ready, so the others would wait for the sync timeout: it reports ready right away instead and catches up (drift
-   * correction) once the user returns to the tab and interacts with it.
-   */
-  private reportReadyIfUnableToLoad(mediaId: number, time: number): void {
-    if (document.hidden && this.autoplayService.blocked.value) {
-      console.log('Hidden tab without user interaction can not load media: reporting ready');
-      this.indicateReadyFor(mediaId, time);
-    }
-  }
-
-  protected indicateReadyFor(mediaId: number, time: number) {
-    if (PlayerComponent.lastReadyEvent?.time == time && PlayerComponent._lastReadyEvent?.mediaId == mediaId) {
-      return false;
-    } else {
-      PlayerComponent.lastReadyEvent = { mediaId, time };
-      const id = this.authenticationService.currentUserValue?.id;
-      this.publishCommand(`ready/${id}/${mediaId}/${time}`);
-      return true;
-    }
-  }
-
   protected jumpOffset(offset: number) {
     this.publishCommand(`jump/${offset}`);
+  }
+
+  /** Jumps forward by the time skip length of the settings. */
+  timeSkip() {
+    this.jumpOffset(this.settingsService.defaultTimeSkipLength * 1000);
   }
 
   /** Index of the chapter at the current position, -1 without chapters or before the first one. */
   getCurrentChapterIndex(): number {
     const time = this.mediaService.getCurrentTime() + CHAPTER_START_TOLERANCE;
     let index = -1;
-    PlayerComponent.chapters.forEach((chapter, i) => {
+    this.chapters.forEach((chapter, i) => {
       if (chapter.start <= time) {
         index = i;
       }
@@ -472,11 +146,11 @@ export abstract class PlayerComponent {
   }
 
   getNextChapter(): Chapter | undefined {
-    return PlayerComponent.chapters[this.getCurrentChapterIndex() + 1];
+    return this.chapters[this.getCurrentChapterIndex() + 1];
   }
 
   isLastChapter(): boolean {
-    return this.getCurrentChapterIndex() >= PlayerComponent.chapters.length - 1;
+    return this.getCurrentChapterIndex() >= this.chapters.length - 1;
   }
 
   jumpToChapter(chapter: Chapter | undefined): void {
@@ -492,12 +166,12 @@ export abstract class PlayerComponent {
   /** Restarts the current chapter, or goes to the previous one when the current chapter has just started. */
   previousChapter(): void {
     const index = this.getCurrentChapterIndex();
-    const current = PlayerComponent.chapters[index];
+    const current = this.chapters[index];
     if (!current) {
       return;
     }
     const restart = this.mediaService.getCurrentTime() - current.start > CHAPTER_RESTART_THRESHOLD || index === 0;
-    this.jumpToChapter(restart ? current : PlayerComponent.chapters[index - 1]);
+    this.jumpToChapter(restart ? current : this.chapters[index - 1]);
   }
 
   protected getSubTitle() {
@@ -506,137 +180,56 @@ export abstract class PlayerComponent {
       : (this.currentMedia as Video).series?.name;
   }
 
-  private prepareMediaStart(url: string | null, startMediaTime: number): void {
-    if (!!url) {
-      this.mediaService.setSrc(url);
-    }
-    this.mediaService.setCurrentTime(startMediaTime / 1000);
-    this.mediaService.pause();
-  }
-
-  /**
-   * Continuously compares the playback position with the position expected from the scheduled start and corrects the
-   * drift, e.g. after buffering: small drifts by slightly changing the playback rate, large ones by seeking.
-   */
-  protected correctDrift(): void {
-    const anchor = PlayerComponent.playbackAnchor;
-    const now = new Date().getTime();
-    if (
-      !anchor ||
-      anchor.mediaId !== PlayerComponent.preparedMediaId ||
-      PlayerComponent.playerState !== PlayerState.PLAY ||
-      this.mediaService.isPaused() ||
-      now < anchor.startTime
-    ) {
-      return;
-    }
-    const expected = anchor.mediaTime + (now - anchor.startTime);
-    if (expected >= this.mediaService.getDuration() * 1000) {
-      return;
-    }
-    const drift = expected - this.mediaService.getCurrentTime() * 1000; // positive: behind the session
-    this.userStatusService.setDrift(drift);
-    if (Math.abs(drift) > MAX_RATE_CORRECTED_DRIFT) {
-      if (now - PlayerComponent.lastSeekCorrection > SEEK_CORRECTION_COOLDOWN) {
-        PlayerComponent.lastSeekCorrection = now;
-        console.log(`Drift of ${Math.round(drift)}ms: seeking`);
-        this.mediaService.setPlaybackRate(1);
-        this.mediaService.setCurrentTime(expected / 1000);
-      }
-    } else if (Math.abs(drift) > DRIFT_TOLERANCE) {
-      const correction = Math.max(-MAX_RATE_CORRECTION, Math.min(MAX_RATE_CORRECTION, drift / 3000));
-      this.mediaService.setPlaybackRate(1 + correction);
-    } else {
-      this.mediaService.setPlaybackRate(1);
+  getStateIcon(status: UserStatus | undefined): string {
+    switch (status?.state) {
+      case 'READY':
+        return 'check_circle';
+      case 'LOADING':
+        return 'hourglass_empty';
+      default:
+        return 'radio_button_unchecked';
     }
   }
 
-  /**
-   * Applies a change of the clock offset to the running playback: the anchor was derived from the server start time
-   * with the previous offset. The drift correction then moves the playback to the corrected position.
-   */
-  protected shiftPlaybackAnchor(offsetChange: number): void {
-    if (PlayerComponent.playbackAnchor) {
-      PlayerComponent.playbackAnchor.startTime += offsetChange;
+  getStateText(status: UserStatus | undefined): string {
+    switch (status?.state) {
+      case 'READY':
+        return 'Ready';
+      case 'LOADING':
+        return 'Loading / buffering';
+      case 'IDLE':
+        return 'No media loaded';
+      default:
+        return 'Status unknown';
     }
   }
 
-  private clearPlaybackAnchor(): void {
-    PlayerComponent.playbackAnchor = null;
-    this.mediaService.setPlaybackRate(1);
-    this.userStatusService.setDrift(null);
+  formatLatency(status: UserStatus | undefined): string {
+    return `${status?.latency ?? '–'} ms`;
   }
 
-  /**
-   * Starts the playback at the given client time.
-   *
-   * @param startTime client time in ms at which the playback starts.
-   * @param mediaTime media position in ms at the start time, defaults to the position the media is prepared at.
-   */
-  private schedulePlay(startTime: number, mediaTime = Math.round(this.mediaService.getCurrentTime() * 1000)): void {
-    PlayerComponent.playerState = PlayerState.WAITING;
-    PlayerComponent.playbackAnchor = { mediaId: PlayerComponent.preparedMediaId, startTime, mediaTime };
-    console.log('schedulePlay: waiting for: ' + (startTime - new Date().getTime()) + 'ms');
-    console.log('media start time: ' + mediaTime);
-    setTimeout(() => {
-      // the start command may arrive late, or the timeout fires late: start where the others already are
-      const lateness = new Date().getTime() - startTime;
-      if (lateness > LATE_START_TOLERANCE) {
-        console.log(`Late start by ${lateness}ms: starting further into the media`);
-        this.mediaService.setCurrentTime((mediaTime + lateness) / 1000);
-      }
-      if (this.autoplayService.blocked.value) {
-        this.playMuted();
-      } else {
-        this.mediaService.play().catch((reason) => {
-          if (reason?.name === 'NotAllowedError') {
-            this.playMuted();
-          } else {
-            console.error(reason);
-          }
-        });
-      }
-      PlayerComponent.playerState = PlayerState.PLAY;
-    }, startTime - new Date().getTime());
+  /** The drift is only known while the user is playing. */
+  hasDrift(status: UserStatus | undefined): boolean {
+    return status?.drift != null;
   }
 
-  /**
-   * Browsers only allow playback with sound after a user interaction. Muted playback is allowed and keeps the client in
-   * sync; the sound is enabled with the next interaction.
-   */
-  private playMuted(): void {
-    this.mediaService.setMuted(true);
-    this.autoplayService.reportBlocked(() => this.mediaService.setMuted(false));
-    this.mediaService.play().catch((reason) => {
-      if (reason?.name === 'NotAllowedError') {
-        // not even muted playback is allowed: join again after the interaction to catch up with the session
-        this.autoplayService.reportBlocked(() => {
-          const id = this.authenticationService.currentUserValue?.id;
-          !!id && this.wsService.publishSessionCommand(`join/${id}`, 'join');
-        });
-      } else {
-        console.error(reason);
-      }
-    });
+  isOutOfSync(status: UserStatus | undefined): boolean {
+    return status?.drift != null && Math.abs(status.drift) >= OUT_OF_SYNC_THRESHOLD;
   }
 
-  private setNewMedia(media: Media): void {
-    PlayerComponent.currentMedia = media;
-    // do not show the ratings of the previous media until the new ones are loaded
-    PlayerComponent.songRating = 0;
-    PlayerComponent.userSongRating = 0;
-    if (media.type == 'SONG') {
-      this.selectedAlbum = [new GenericDataObject((media as Song).album.id, (media as Song).album.name)];
-      this.selectedArtist = [new GenericDataObject((media as Song).artist.id, (media as Song).artist.name)];
-      this.selectedGenres = (media as Song).genres.map((value) => new GenericDataObject(value.id, value.name));
-    } else {
-      // TODO: dont assign video values to song variables
-      this.selectedAlbum = [new GenericDataObject((media as Video).season.id, (media as Video).season.name)];
-      this.selectedArtist = [new GenericDataObject((media as Video).series.id, (media as Video).series.name)];
-    }
-    this.selectedTags = media.tags.map((value) => new GenericDataObject(value.id, value.name));
+  /** Formats the drift as signed seconds or ms, positive: behind the session. */
+  formatDrift(drift: number): string {
+    const sign = drift > 0 ? '+' : drift < 0 ? '-' : '±';
+    const abs = Math.abs(drift);
+    return abs >= 1000 ? `${sign}${(abs / 1000).toFixed(1)} s` : `${sign}${abs} ms`;
+  }
 
-    this.getRating();
-    this.getUserRating();
+  /** Formats seconds as m:ss or h:mm:ss. */
+  formatTime(seconds: number): string {
+    const total = Math.floor(seconds);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const ss = String(total % 60).padStart(2, '0');
+    return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
   }
 }

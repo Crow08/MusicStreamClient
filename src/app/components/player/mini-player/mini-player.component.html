@@ -1,44 +1,71 @@
-<div *ngIf="displayMiniPlayer()">
-  <div style="display: flex">
-    <mat-card-title id="song-title">{{currentMedia.title || 'No current song'}}</mat-card-title>
-    <mat-card-subtitle>
-      {{getSubTitle() || 'Unknown Artist'}}<br/>
-    </mat-card-subtitle>
+<div class="mini-player">
+  <div class="media-info" [title]="(currentMedia.title || 'No current song') + ' – ' + (getSubTitle() || 'Unknown Artist')">
+    <mat-card-title class="song-title">{{ currentMedia.title || 'No current song' }}</mat-card-title>
+    <mat-card-subtitle>{{ getSubTitle() || 'Unknown Artist' }}</mat-card-subtitle>
   </div>
-  <div class="spacer"></div>
-  <div id="controls" style="display: flex">
-    <div>
-      <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"></app-player-track>
-      <div id="control-buttons">
-        <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button>
-          <mat-icon>skip_previous</mat-icon>
+  <div class="controls">
+    <app-player-track (seek)="jumpOffset($event)" [playerState]="playerState"
+                      [thumbnailUrl]="thumbnailUrl" [chapters]="chapters"></app-player-track>
+    <div class="control-buttons">
+      <button (click)="publishCommand('previous')" class="player-controls" color="accent" mat-raised-button title="Previous">
+        <mat-icon>skip_previous</mat-icon>
+      </button>
+      <button (click)="togglePlayback()" class="player-controls" color="accent" mat-raised-button
+              [title]="playerState === 'PLAY' ? 'Pause' : 'Play'">
+        <mat-icon>{{ playerState === 'PLAY' ? 'pause' : 'play_arrow' }}</mat-icon>
+      </button>
+      <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button title="Stop">
+        <mat-icon>stop</mat-icon>
+      </button>
+      <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button title="Next">
+        <mat-icon>skip_next</mat-icon>
+      </button>
+      <!-- with chapters, "next chapter" replaces the time skip, which moves into the chapter menu -->
+      <ng-container *ngIf="chapters.length > 0; else timeSkipButton">
+        <button (click)="nextChapter()" [disabled]="isLastChapter()" class="player-controls" color="accent"
+                mat-raised-button [title]="'Next chapter: ' + (getNextChapter()?.title ?? '')">
+          <mat-icon>fast_forward</mat-icon>
         </button>
-        <button
-          (click)="publishCommand(playerState === 'STOP' ? 'start' : playerState === 'PAUSE' ? 'resume' : 'pause')"
-          class="player-controls" color="accent" mat-raised-button>
-          <mat-icon>{{playerState === 'PLAY' ? 'pause' : 'play_arrow'}}</mat-icon>
+        <button [matMenuTriggerFor]="chapterMenu" class="player-controls" color="accent" mat-raised-button title="Chapters">
+          <mat-icon>more_vert</mat-icon>
         </button>
-        <button (click)="publishCommand('stop')" class="player-controls" color="accent" mat-raised-button>
-          <mat-icon>stop</mat-icon>
+      </ng-container>
+      <mat-slider title="Volume" color="accent" class="volume-slider" [max]="0.4" [min]="0" [step]="0.004">
+        <input matSliderThumb value="{{ getVolume() }}" (valueChange)="setVolume($event)" #slider>
+      </mat-slider>
+      <div class="spacer"></div>
+      <button (click)="backToSession()" class="player-controls" color="accent" mat-raised-button title="Back to the session">
+        <mat-icon>open_in_new</mat-icon>
+      </button>
+      <ng-template #timeSkipButton>
+        <button (click)="timeSkip()" class="player-controls" color="accent" mat-raised-button
+                [title]="'Skip ' + settingsService.defaultTimeSkipLength + ' s'">
+          <mat-icon>update</mat-icon>
         </button>
-        <button (click)="publishCommand('skip')" class="player-controls" color="accent" mat-raised-button>
-          <mat-icon>skip_next</mat-icon>
+      </ng-template>
+      <mat-menu #chapterMenu="matMenu">
+        <button (click)="previousChapter()" mat-menu-item>
+          <mat-icon>fast_rewind</mat-icon>
+          <span>Previous chapter</span>
         </button>
-        <button (click)="publishCommand('shuffle')" class="player-controls" color="accent" mat-raised-button>
-          <mat-icon>shuffle</mat-icon>
+        <button (click)="nextChapter()" [disabled]="isLastChapter()" mat-menu-item>
+          <mat-icon>fast_forward</mat-icon>
+          <span>Next chapter</span>
         </button>
-        <button (click)="publishCommand('loop/' + !loopMode)" class="player-controls" color="accent"
-                mat-raised-button>
-          <mat-icon>{{loopMode ? 'repeat_on' : 'repeat'}}</mat-icon>
+        <button (click)="timeSkip()" mat-menu-item>
+          <mat-icon>update</mat-icon>
+          <span>Skip {{ settingsService.defaultTimeSkipLength }} s</span>
         </button>
-        <mat-slider id="volume-slider" [max]="0.4" [min]="0" [step]="0.004">
-          <input matSliderThumb value="{{getVolume()}}" (valueChange)="setVolume($event)" #slider>
-        </mat-slider>
-      </div>
+        <mat-divider></mat-divider>
+        <button *ngFor="let chapter of chapters; let i = index" (click)="jumpToChapter(chapter)" mat-menu-item
+                [class.current-chapter]="i === getCurrentChapterIndex()">
+          <mat-icon>{{ i === getCurrentChapterIndex() ? 'play_arrow' : '' }}</mat-icon>
+          <span>{{ formatTime(chapter.start) }} {{ chapter.title }}</span>
+        </button>
+      </mat-menu>
     </div>
   </div>
-  <div class="spacer"></div>
-  <div style="display: flex">
+  <div class="side">
     <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
                      [songRating]="songRating"></app-rating-star>
   </div>
