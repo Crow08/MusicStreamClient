@@ -1,21 +1,41 @@
+// the page scrolls inside the content area when the settings are taller than the window
 :host {
-  margin: 20px;
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 20px;
 }
 
-.main-div {
+.settings {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.setting {
+  padding: 16px 0;
+
+  h3 {
+    margin: 0 0 12px;
+  }
+
+  p {
+    margin: 0 0 12px;
+  }
+
+  .hint {
+    opacity: 0.75;
+    font-size: 14px;
+  }
+}
+
+.slider-row,
+.buttons {
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex-direction: column;
-  gap: 5px;
+  gap: 12px;
+}
 
-  mat-card {
-    min-width: 200px;
-    max-width: 520px;
-  }
-
-  .spotify-buttons {
-    display: flex;
-    gap: 8px;
-  }
+mat-form-field {
+  width: 160px;
 }
