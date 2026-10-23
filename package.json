@@ -7,6 +7,7 @@
     "startProd": "ng serve --host 0.0.0.0 --disable-host-check --configuration production",
     "startPreProd": "ng serve --host 0.0.0.0 --disable-host-check --configuration preProd",
     "build": "ng build --configuration production --base-href /music-stream-server/",
+    "buildServer": "ng build --configuration production --base-href / && node scripts/copy-to-server.mjs",
     "lint": "ng lint"
   },
   "private": true,
