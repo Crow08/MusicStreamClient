@@ -1,4 +1,15 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { PlayerState } from '../../../models/playerState';
 import { MediaService } from '../../../services/media.service';
 import { debounce, interval, Subject, Subscription } from 'rxjs';
@@ -10,6 +21,10 @@ const THUMBNAIL_INTERVAL = 2;
 const THUMBNAIL_WIDTH = 160;
 const THUMBNAIL_HEIGHT = 90;
 const THUMBNAIL_COLUMNS = 10;
+/** A requested position counts as reached when the media is this close (seconds). */
+const SEEK_REACHED_TOLERANCE = 2;
+/** A requested position is shown at most this long (ms), in case the jump never takes effect. */
+const SEEK_PENDING_TIMEOUT = 10000;
 
 interface SeekPreview {
   /** Horizontal center of the preview, relative to the progress wrapper. */
@@ -45,6 +60,12 @@ export class PlayerTrackComponent implements OnInit, OnChanges, OnDestroy {
   slider!: ElementRef<HTMLElement>;
 
   preview: SeekPreview | null = null;
+  /**
+   * The position (percent) the user asked for. It is shown until the jump has taken effect: the media keeps playing at the
+   * old position until the session has agreed on the jump, the handle must not go back to it meanwhile.
+   */
+  seekTarget: number | null = null;
+  private seekTimeout: ReturnType<typeof setTimeout> | undefined;
   readonly thumbnailWidth = THUMBNAIL_WIDTH;
   readonly thumbnailHeight = THUMBNAIL_HEIGHT;
   /**
@@ -59,7 +80,15 @@ export class PlayerTrackComponent implements OnInit, OnChanges, OnDestroy {
   private seekSubscription: Subscription | null = null;
   private hovering = false;
   private dragging = false;
-  private readonly progressionListener = (progression: number) => (this.progression = progression);
+  private readonly progressionListener = (progression: number) => {
+    this.progression = progression;
+    if (this.seekTarget !== null) {
+      const duration = this.mediaService.getDuration();
+      if (isFinite(duration) && (Math.abs(progression - this.seekTarget) / 100) * duration < SEEK_REACHED_TOLERANCE) {
+        this.clearSeekTarget();
+      }
+    }
+  };
   // while dragging, the pointer may leave the slider: follow it on the document until it is released
   private readonly dragMoveListener = (event: PointerEvent) => this.updatePreview(event.clientX);
   private readonly dragEndListener = (event: PointerEvent) => this.endDrag(event);
@@ -77,18 +106,43 @@ export class PlayerTrackComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.preloadThumbnails();
+    // the session started again after the jump: the position is where the user asked for
+    if (changes['playerState'] && this.playerState === 'PLAY' && changes['playerState'].previousValue === 'WAITING') {
+      this.clearSeekTarget();
+    }
+  }
+
+  /** The value shown by the slider and the progress bar: the requested position until the jump has taken effect. */
+  get displayedProgression(): number {
+    return this.seekTarget ?? this.progression;
+  }
+
+  /** The session is busy with the jump or the start, which the user sees as loading. */
+  get loading(): boolean {
+    return this.playerState === 'WAITING' || this.seekTarget !== null;
   }
 
   ngOnDestroy(): void {
     this.mediaService.removeProgressionListener(this.progressionListener);
+    clearTimeout(this.seekTimeout);
     this.seekSubscription?.unsubscribe();
     this.removeDragListeners();
   }
 
   onSeek(value: number) {
+    this.seekTarget = value;
+    clearTimeout(this.seekTimeout);
+    this.seekTimeout = setTimeout(() => this.clearSeekTarget(), SEEK_PENDING_TIMEOUT);
     this.rawSeek.next(value);
+  }
+
+  private clearSeekTarget(): void {
+    this.seekTarget = null;
+    clearTimeout(this.seekTimeout);
+    // the position is only reported while playing: do not fall back to the one from before the jump
+    this.progression = this.mediaService.getProgression();
   }
 
   onPointerMove(event: PointerEvent) {
