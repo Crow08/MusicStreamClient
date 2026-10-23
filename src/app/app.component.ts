@@ -8,6 +8,8 @@ import { AuthenticationService } from './services/authentication.service';
 import { SessionService } from './services/session.service';
 import { SettingsService } from './services/settings.service';
 import { PlayerEngineService } from './services/player-engine.service';
+import { SpotifyService } from './services/spotify.service';
+import { SpotifyPlayerService } from './services/spotify-player.service';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +30,9 @@ export class AppComponent implements OnInit {
     private wsService: WsService,
     private snackBar: MatSnackBar,
     // the playback of the session lives in this service: it has to exist as long as the app
-    private playerEngine: PlayerEngineService
+    private playerEngine: PlayerEngineService,
+    private spotifyService: SpotifyService,
+    private spotifyPlayer: SpotifyPlayerService
   ) {}
 
   ngOnInit(): void {
@@ -39,6 +43,15 @@ export class AppComponent implements OnInit {
         duration: 4000,
       })
     );
+    // the Spotify player of a user who connected it once is connected again with every start of the app
+    this.authenticationService.currentUserChanges.subscribe((user) => {
+      if (user) {
+        this.spotifyService.canRestore && this.spotifyPlayer.connect();
+      } else {
+        this.spotifyPlayer.disconnect();
+        this.spotifyService.forgetSession();
+      }
+    });
     this.isDesktopLayout = window.innerWidth >= 991;
     window.onresize = () => (this.isDesktopLayout = window.innerWidth >= 991);
     this.sessionService.sessionId.subscribe((id) => {

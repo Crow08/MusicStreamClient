@@ -20,7 +20,7 @@ export class SpotifyDelegateComponent implements AfterViewInit {
           .exchangeAuthCodeForToken(urlQueryParams['code'])
           .then(() => (SpotifyDelegateComponent.info = 'Logged in.'))
           .catch(() => (SpotifyDelegateComponent.info = 'Failed to log in.'));
-        router.navigateByUrl('/').catch(console.error);
+        router.navigateByUrl('/settings').catch(console.error);
       }
     });
   }

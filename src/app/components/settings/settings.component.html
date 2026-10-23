@@ -26,4 +26,37 @@
       </mat-form-field>
     </mat-card-content>
   </mat-card>
+  <mat-card>
+    <mat-card-title>Spotify</mat-card-title>
+    <mat-card-content>
+      <p>
+        Spotify songs are played by your own Spotify Premium account in this browser. Without a connected account you can
+        not hear them, the session does not wait for you.
+      </p>
+      <p>
+        Status: <b>{{ spotifyPlayer.connection | async }}</b>
+        <span *ngIf="spotifyPlayer.error | async as error"> ({{ error }})</span>
+      </p>
+      <div class="spotify-buttons">
+        <a *ngIf="!spotifyLoggedIn" [href]="spotifyAuthUrl"><button mat-raised-button color="accent">Login with Spotify</button></a>
+        <button mat-raised-button color="accent" *ngIf="spotifyLoggedIn" (click)="connectSpotify()"
+                [disabled]="(spotifyPlayer.connection | async) === 'connected' || (spotifyPlayer.connection | async) === 'connecting'">
+          Connect player
+        </button>
+        <button mat-raised-button *ngIf="spotifyLoggedIn" (click)="disconnectSpotify()">Disconnect</button>
+      </div>
+    </mat-card-content>
+    <mat-card-content>
+      <h3>Spotify latency correction in milliseconds:</h3>
+      <mat-form-field>
+        <input matInput type="number" step="10" (input)="setSpotifyLatencyCorrection($event.target)"
+               value="{{getSpotifyLatencyCorrection()}}">
+      </mat-form-field>
+      <p>
+        Spotify starts about {{ spotifyDefaultLatency }} ms after it is told to (measured with built-in loudspeakers). Use a
+        positive value if Spotify starts later than the others for you (e.g. Bluetooth loudspeakers), a negative value if it
+        starts earlier. Used in total: {{ getSpotifyLatency() }} ms.
+      </p>
+    </mat-card-content>
+  </mat-card>
 </div>

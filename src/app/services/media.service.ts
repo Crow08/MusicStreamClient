@@ -1,5 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
+import { SpotifyPlayerService } from './spotify-player.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,8 @@ export class MediaService {
   private readonly videoHost = document.createElement('div');
   private media: HTMLAudioElement | HTMLVideoElement = this.audio;
   private videoMode = false;
+  /** The Spotify player is the active one, not an element. */
+  private spotifyMode = false;
   private muted = false;
 
   private progressionListeners: ((p: number) => void)[] = [];
@@ -42,15 +45,12 @@ export class MediaService {
   private playingListener = () => this.mediaPlaying.emit();
 
   private timeUpdateListener = () => {
-    this.progressionListeners.forEach((value) => {
-      if (!!this.media) {
-        value((this.media.currentTime / this.media.duration) * 100);
-      }
-    });
+    const progression = this.getProgression();
+    this.progressionListeners.forEach((value) => value(progression));
     this.timeUpdate.emit();
   };
 
-  constructor(private settingsService: SettingsService) {
+  constructor(private settingsService: SettingsService, private spotifyPlayer: SpotifyPlayerService) {
     this.setVolume(settingsService.defaultVolume);
     this.video.playsInline = true;
     this.video.style.width = '100%';
@@ -69,6 +69,24 @@ export class MediaService {
     this.videoHost.appendChild(this.video);
     document.body.appendChild(this.videoHost);
     [this.audio, this.video].forEach((element) => this.addListeners(element));
+    // the Spotify player reports like an element, but only while it is the active one
+    const spotify = (listener: () => void) => () => this.spotifyMode && listener();
+    this.spotifyPlayer.tick.subscribe(spotify(this.timeUpdateListener));
+    this.spotifyPlayer.ended.subscribe(spotify(this.endedListener));
+    this.spotifyPlayer.playing.subscribe(spotify(this.playingListener));
+  }
+
+  /**
+   * Delay (ms) between the call of play() and the audible start: the Spotify player starts audibly later than the call, so
+   * the call has to be made that much earlier. Zero for the elements.
+   */
+  get startLatency(): number {
+    return this.spotifyMode ? this.settingsService.spotifyLatency : 0;
+  }
+
+  /** The Spotify player can not change its speed: a drift can only be corrected by seeking. */
+  get supportsPlaybackRate(): boolean {
+    return !this.spotifyMode;
   }
 
   /** The events are only forwarded for the active element: the other one is not playing. */
@@ -83,19 +101,31 @@ export class MediaService {
   }
 
   play(): Promise<void> {
-    return this.media.play();
+    return this.spotifyMode ? this.spotifyPlayer.resume() : this.media.play();
   }
 
   pause(): void {
-    this.media.pause();
+    if (this.spotifyMode) {
+      this.spotifyPlayer.pause().catch(console.error);
+    } else {
+      this.media.pause();
+    }
   }
 
   stop(): void {
-    this.media.src = '';
+    if (this.spotifyMode) {
+      this.spotifyPlayer.pause().catch(console.error);
+    } else {
+      this.media.src = '';
+    }
   }
 
   setVolume(volume: number): void {
-    this.media.volume = volume;
+    if (this.spotifyMode) {
+      this.spotifyPlayer.setVolume(volume);
+    } else {
+      this.media.volume = volume;
+    }
   }
 
   /**
@@ -104,45 +134,89 @@ export class MediaService {
   setMuted(muted: boolean): void {
     this.muted = muted;
     this.media.muted = muted;
+    this.spotifyPlayer.setMuted(muted);
   }
 
   getVolume(): number {
-    return this.media.volume;
+    return this.spotifyMode ? this.spotifyPlayer.getVolume() : this.media.volume;
   }
 
   setSrc(src: string): void {
     this.media.src = src;
   }
 
+  /**
+   * Seeks. The Spotify player reports a position that runs the start latency ahead of what is audible (the audio starts
+   * that long after the counter): a paused player is set to the position itself, a playing one that much further.
+   */
   setCurrentTime(currentTime: number): void {
-    this.media.currentTime = currentTime;
+    if (!this.spotifyMode) {
+      this.media.currentTime = currentTime;
+      return;
+    }
+    const paused = this.spotifyPlayer.isPaused();
+    const position = Math.round(currentTime * 1000 + (paused ? 0 : this.startLatency));
+    this.spotifyPlayer
+      .seek(position)
+      .then(() => {
+        // like seeked of an element: a prepared position is reported as ready
+        if (paused) {
+          this.mediaCanPlayThrough.emit();
+        }
+      })
+      .catch(console.error);
   }
 
+  /**
+   * Pauses at the position and reports ready (canplaythrough) once it is reached, as the seeked event of an element does.
+   * The Spotify player has to be paused first: it only reports a paused position as prepared.
+   */
+  prepareAt(seconds: number): void {
+    if (!this.spotifyMode) {
+      this.media.currentTime = seconds;
+      this.media.pause();
+      return;
+    }
+    this.spotifyPlayer
+      .pauseAt(Math.round(seconds * 1000))
+      .then(() => this.mediaCanPlayThrough.emit())
+      .catch(console.error);
+  }
+
+  /** The audible position in seconds. */
   getCurrentTime(): number {
-    return this.media.currentTime;
+    if (!this.spotifyMode) {
+      return this.media.currentTime;
+    }
+    const position = this.spotifyPlayer.getPositionMs() - (this.spotifyPlayer.isPaused() ? 0 : this.startLatency);
+    return position / 1000;
   }
 
   /** Playback position in percent of the duration, 0 while the duration is unknown. */
   getProgression(): number {
-    const progression = (this.media.currentTime / this.media.duration) * 100;
+    const progression = (this.getCurrentTime() / this.getDuration()) * 100;
     return isFinite(progression) ? progression : 0;
   }
 
   getDuration(): number {
-    return this.media.duration;
+    return this.spotifyMode ? this.spotifyPlayer.getDurationMs() / 1000 : this.media.duration;
   }
 
   isPaused(): boolean {
-    return this.media.paused;
+    return this.spotifyMode ? this.spotifyPlayer.isPaused() : this.media.paused;
   }
 
   setPlaybackRate(rate: number): void {
-    if (this.media.playbackRate !== rate) {
+    if (!this.spotifyMode && this.media.playbackRate !== rate) {
       this.media.playbackRate = rate;
     }
   }
 
   pauseAtPosition(position: number): void {
+    if (this.spotifyMode) {
+      this.spotifyPlayer.pauseAt(position).catch(console.error);
+      return;
+    }
     this.media.pause();
     this.setCurrentTime(position / 1000);
   }
@@ -175,7 +249,34 @@ export class MediaService {
   }
 
   getProgressionOffsetInSeconds(progressionPercent: number) {
-    return progressionPercent * (this.media.duration / 100) - this.media.currentTime;
+    return progressionPercent * (this.getDuration() / 100) - this.getCurrentTime();
+  }
+
+  /**
+   * Makes the Spotify player the active one and loads the track paused at the start position, like setSrc of an element.
+   * Resolves to whether the player is ready to play it.
+   */
+  async loadSpotify(uri: string, startSeconds: number): Promise<boolean> {
+    this.activateSpotifyMode();
+    try {
+      this.spotifyPlayer.setMuted(this.muted);
+      await this.spotifyPlayer.load(uri, Math.round(startSeconds * 1000));
+      this.mediaCanPlayThrough.emit();
+      return true;
+    } catch (error) {
+      console.error('Spotify track could not be loaded', error);
+      return false;
+    }
+  }
+
+  activateSpotifyMode(): void {
+    if (!this.spotifyMode) {
+      const volume = this.getVolume();
+      this.stop();
+      this.spotifyMode = true;
+      this.videoMode = false;
+      this.spotifyPlayer.setVolume(volume);
+    }
   }
 
   activateAudioMode(): void {
@@ -189,9 +290,10 @@ export class MediaService {
 
   /** Makes the element the active one: the previous one is cleared, volume and mute state are taken over. */
   private activate(element: HTMLAudioElement | HTMLVideoElement): void {
-    if (this.media !== element) {
+    if (this.spotifyMode || this.media !== element) {
       const volume = this.getVolume();
       this.stop();
+      this.spotifyMode = false;
       this.media = element;
       this.setVolume(volume);
     }

@@ -71,6 +71,10 @@ export abstract class PlayerComponent {
     return this.engine.chapters;
   }
 
+  get playbackHint() {
+    return this.engine.playbackHint;
+  }
+
   publishCommand(name: string): void {
     this.engine.publishCommand(name);
   }
@@ -186,6 +190,8 @@ export abstract class PlayerComponent {
         return 'check_circle';
       case 'LOADING':
         return 'hourglass_empty';
+      case 'UNAVAILABLE':
+        return 'block';
       default:
         return 'radio_button_unchecked';
     }
@@ -199,6 +205,8 @@ export abstract class PlayerComponent {
         return 'Loading / buffering';
       case 'IDLE':
         return 'No media loaded';
+      case 'UNAVAILABLE':
+        return 'Can not play the current media (e.g. Spotify not connected)';
       default:
         return 'Status unknown';
     }

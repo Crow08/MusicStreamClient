@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { SettingsService, Theme } from '../../services/settings.service';
+import { SettingsService, SPOTIFY_DEFAULT_LATENCY, Theme } from '../../services/settings.service';
+import { SpotifyService } from '../../services/spotify.service';
+import { SpotifyPlayerService } from '../../services/spotify-player.service';
 
 @Component({
   selector: 'app-settings',
@@ -8,9 +10,43 @@ import { SettingsService, Theme } from '../../services/settings.service';
 })
 export class SettingsComponent {
   availableThemes: Theme[];
+  readonly spotifyDefaultLatency = SPOTIFY_DEFAULT_LATENCY;
+  readonly spotifyAuthUrl = this.spotifyService.getAuthUrl();
 
-  constructor(private settingsService: SettingsService) {
+  constructor(
+    private settingsService: SettingsService,
+    private spotifyService: SpotifyService,
+    public spotifyPlayer: SpotifyPlayerService
+  ) {
     this.availableThemes = settingsService.availableThemes;
+  }
+
+  get spotifyLoggedIn(): boolean {
+    return this.spotifyService.loggedIn || this.spotifyService.canRestore;
+  }
+
+  /** Connects the Spotify player of this browser; has to be called by a click, browsers only play after a gesture. */
+  connectSpotify(): void {
+    this.spotifyPlayer.connect().then((connected) => connected && this.spotifyPlayer.activateElement());
+  }
+
+  disconnectSpotify(): void {
+    this.spotifyPlayer.disconnect();
+    this.spotifyService.logout();
+  }
+
+  getSpotifyLatencyCorrection(): number {
+    return this.settingsService.spotifyLatencyCorrection;
+  }
+
+  getSpotifyLatency(): number {
+    return this.settingsService.spotifyLatency;
+  }
+
+  setSpotifyLatencyCorrection(target: EventTarget | null): void {
+    if (target instanceof HTMLInputElement && target.value !== '' && isFinite(Number(target.value))) {
+      this.settingsService.spotifyLatencyCorrection = Number(target.value);
+    }
   }
 
   volumeLabel(value: number): string {

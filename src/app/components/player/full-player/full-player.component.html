@@ -48,6 +48,10 @@
         <app-rating-star (rating)="onRating($event)" [currentRating]="userSongRating"
                          [songRating]="songRating"></app-rating-star>
       </div>
+      <div *ngIf="playbackHint" class="autoplay-hint" role="status">
+        <mat-icon>block</mat-icon>
+        {{ playbackHint }}
+      </div>
       <div *ngIf="autoplayBlocked" class="autoplay-hint" role="status">
         <mat-icon>volume_off</mat-icon>
         Your browser only allows muted playback until you interact with the page. Click anywhere to enable sound.

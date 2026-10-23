@@ -11,5 +11,11 @@
 
   mat-card {
     min-width: 200px;
+    max-width: 520px;
+  }
+
+  .spotify-buttons {
+    display: flex;
+    gap: 8px;
   }
 }

@@ -16,6 +16,7 @@ import { UserStatusService } from './user-status.service';
 import { UserStatus } from '../models/userStatus';
 import { ClockSyncService } from './clock-sync.service';
 import { SessionService } from './session.service';
+import { SpotifyPlayerService } from './spotify-player.service';
 import { PlayerState } from '../models/playerState';
 
 /** A start later than this (ms) is compensated by starting further into the media. */
@@ -28,6 +29,8 @@ const MAX_RATE_CORRECTED_DRIFT = 1000;
 const MAX_RATE_CORRECTION = 0.05;
 /** Minimum time (ms) between two corrections by seeking, which need time to buffer. */
 const SEEK_CORRECTION_COOLDOWN = 3000;
+/** Drift (ms) from which a player that can not change its speed (Spotify) seeks: a seek is audible. */
+const NO_RATE_SEEK_DRIFT = 500;
 
 const NO_MEDIA = () => new Media(-1, 'SONG', '', '', []);
 
@@ -57,6 +60,8 @@ export class PlayerEngineService {
   thumbnailUrl: string | null = null;
   /** Chapters of the current video (seek bar markers), empty if there are none. */
   chapters: Chapter[] = [];
+  /** Why the current media can not be played by this client (e.g. no Spotify Premium), empty while it can. */
+  playbackHint = '';
   selectedArtist: GenericDataObject[] = [];
   selectedAlbum: GenericDataObject[] = [];
   selectedGenres: GenericDataObject[] = [];
@@ -78,7 +83,8 @@ export class PlayerEngineService {
     private sessionService: SessionService,
     private autoplayService: AutoplayService,
     private userStatusService: UserStatusService,
-    private clockSyncService: ClockSyncService
+    private clockSyncService: ClockSyncService,
+    private spotifyPlayer: SpotifyPlayerService
   ) {
     this.mediaService.mediaEndedSubject.subscribe(() => this.publishCommand(`end/${this.currentMedia.id}`));
     this.mediaService.timeUpdate.subscribe(() => this.correctDrift());
@@ -96,6 +102,15 @@ export class PlayerEngineService {
       const time = Math.round(this.mediaService.getCurrentTime() * 1000);
       !!id && this.indicateReadyFor(this.preparedMediaId, time);
     });
+
+    // browsers only play the Spotify player after an interaction: then it is activated and the session joined again
+    this.spotifyPlayer.autoplayFailed.subscribe(() =>
+      this.autoplayService.reportBlocked(() => {
+        this.spotifyPlayer.activateElement();
+        const id = this.authenticationService.currentUserValue?.id;
+        !!id && this.wsService.publishSessionCommand(`join/${id}`, 'join');
+      })
+    );
 
     // the session topic is listened to as long as the client is in a session, not only while the lobby is open
     this.sessionService.sessionId.pipe(distinctUntilChanged()).subscribe((id) => {
@@ -132,6 +147,7 @@ export class PlayerEngineService {
     this.lastReadyEvent = null;
     this.thumbnailUrl = null;
     this.chapters = [];
+    this.playbackHint = '';
     this.seekBarMediaId = -1;
   }
 
@@ -144,17 +160,62 @@ export class PlayerEngineService {
     this.userStatusService.setState('LOADING');
     const isVideo = media.type.toUpperCase() == 'VIDEO';
     this.preparedMediaId = media.id;
+    this.playbackHint = '';
 
-    this.httpHelperService
+    this.loadSeekBarInfo(media, isVideo);
+    if (isVideo) {
+      this.loadFile(media, true, startMediaTime);
+      this.loadMediaInfo(media);
+      return;
+    }
+    // a song may be a Spotify track, which is not played from a file: its details tell
+    this.fetchMediaInfo(media)
+      .then((details) => {
+        // the media may have changed while the details were loaded
+        if (this.preparedMediaId !== media.id) {
+          return;
+        }
+        return details instanceof Song && details.spotify
+          ? this.loadSpotifyTrack(media, details, startMediaTime)
+          : this.loadFile(media, false, startMediaTime);
+      })
+      .catch(console.error);
+  }
+
+  private loadFile(media: MinimalMedia, isVideo: boolean, startMediaTime: number): Promise<void> {
+    return this.httpHelperService
       .getPlain(`/api/v1/media/data/${media.id}?X-NPE-PSU-Duration=PT1H`)
       .then((url) => {
         isVideo ? this.mediaService.activateVideoMode() : this.mediaService.activateAudioMode();
         this.prepareMediaStart(url, startMediaTime);
       })
       .catch(console.error);
+  }
 
-    this.loadSeekBarInfo(media, isVideo);
-    this.loadMediaInfo(media);
+  /** Loads a Spotify track into the player of this client, or tells the session that this client can not play it. */
+  private async loadSpotifyTrack(media: MinimalMedia, song: Song, startMediaTime: number): Promise<void> {
+    // from now on the commands of the session go to the Spotify player (and fail without it)
+    this.mediaService.activateSpotifyMode();
+    if (!(await this.spotifyPlayer.connect())) {
+      return this.spotifyUnavailable(media, startMediaTime, this.spotifyPlayer.error.value);
+    }
+    if (this.autoplayService.blocked.value) {
+      this.autoplayService.reportBlocked(() => this.spotifyPlayer.activateElement());
+    }
+    if (this.preparedMediaId !== media.id) {
+      return;
+    }
+    if (!(await this.mediaService.loadSpotify(song.uri, startMediaTime / 1000))) {
+      return this.spotifyUnavailable(media, startMediaTime, 'The Spotify track could not be loaded');
+    }
+  }
+
+  /** The others must not wait for a client that can not play the media: it reports ready right away. */
+  private spotifyUnavailable(media: MinimalMedia, startMediaTime: number, reason: string): void {
+    console.error(`Spotify is not available: ${reason}`);
+    this.playbackHint = `${reason || 'Spotify is not available'}, ${media.title} can not be played here.`;
+    this.userStatusService.setState('UNAVAILABLE');
+    this.indicateReadyFor(media.id, startMediaTime);
   }
 
   /**
@@ -195,19 +256,23 @@ export class PlayerEngineService {
 
   /** Loads the details (title, artist, ...) and ratings of the media, without loading the media itself. */
   loadMediaInfo(media: MinimalMedia): void {
+    this.fetchMediaInfo(media).catch(console.error);
+  }
+
+  /** Like loadMediaInfo, resolves to the details (also when a newer request has replaced them in the state). */
+  private fetchMediaInfo(media: MinimalMedia): Promise<Media> {
     // responses may arrive out of order when the media changes quickly: only the latest request is applied
     const request = ++this.mediaInfoRequest;
     const request$: Promise<Media> =
       media.type.toUpperCase() == 'VIDEO'
         ? this.httpHelperService.get(`/api/v1/media/video/${media.id}`, Video)
         : this.httpHelperService.get(`/api/v1/media/song/${media.id}`, Song);
-    request$
-      .then((details) => {
-        if (request === this.mediaInfoRequest) {
-          this.setNewMedia(details);
-        }
-      })
-      .catch(console.error);
+    return request$.then((details) => {
+      if (request === this.mediaInfoRequest) {
+        this.setNewMedia(details);
+      }
+      return details;
+    });
   }
 
   onRating(rating: number): void {
@@ -421,8 +486,7 @@ export class PlayerEngineService {
     if (!!url) {
       this.mediaService.setSrc(url);
     }
-    this.mediaService.setCurrentTime(startMediaTime / 1000);
-    this.mediaService.pause();
+    this.mediaService.prepareAt(startMediaTime / 1000);
   }
 
   /**
@@ -447,14 +511,16 @@ export class PlayerEngineService {
     }
     const drift = expected - this.mediaService.getCurrentTime() * 1000; // positive: behind the session
     this.userStatusService.setDrift(drift);
-    if (Math.abs(drift) > MAX_RATE_CORRECTED_DRIFT) {
+    // without a changeable speed (Spotify) only a large drift is corrected, by an audible seek
+    const rateCorrectable = this.mediaService.supportsPlaybackRate;
+    if (Math.abs(drift) > (rateCorrectable ? MAX_RATE_CORRECTED_DRIFT : NO_RATE_SEEK_DRIFT)) {
       if (now - this.lastSeekCorrection > SEEK_CORRECTION_COOLDOWN) {
         this.lastSeekCorrection = now;
         console.log(`Drift of ${Math.round(drift)}ms: seeking`);
         this.mediaService.setPlaybackRate(1);
         this.mediaService.setCurrentTime(expected / 1000);
       }
-    } else if (Math.abs(drift) > DRIFT_TOLERANCE) {
+    } else if (rateCorrectable && Math.abs(drift) > DRIFT_TOLERANCE) {
       const correction = Math.max(-MAX_RATE_CORRECTION, Math.min(MAX_RATE_CORRECTION, drift / 3000));
       this.mediaService.setPlaybackRate(1 + correction);
     } else {
@@ -489,9 +555,11 @@ export class PlayerEngineService {
     this.playbackAnchor = { mediaId: this.preparedMediaId, startTime, mediaTime };
     console.log('schedulePlay: waiting for: ' + (startTime - new Date().getTime()) + 'ms');
     console.log('media start time: ' + mediaTime);
+    // the Spotify player starts audibly later than the call: the call is made ahead, the position is corrected if it is late
+    const latency = this.mediaService.startLatency;
     setTimeout(() => {
       // the start command may arrive late, or the timeout fires late: start where the others already are
-      const lateness = new Date().getTime() - startTime;
+      const lateness = new Date().getTime() - (startTime - this.mediaService.startLatency);
       if (lateness > LATE_START_TOLERANCE) {
         console.log(`Late start by ${lateness}ms: starting further into the media`);
         this.mediaService.setCurrentTime((mediaTime + lateness) / 1000);
@@ -508,7 +576,7 @@ export class PlayerEngineService {
         });
       }
       this.playerState = PlayerState.PLAY;
-    }, startTime - new Date().getTime());
+    }, startTime - latency - new Date().getTime());
   }
 
   /**

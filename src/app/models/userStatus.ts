@@ -1,5 +1,8 @@
-/** IDLE: no media loaded, LOADING: loading or buffering the media, READY: the media can be played. */
-export type UserState = 'IDLE' | 'LOADING' | 'READY';
+/**
+ * IDLE: no media loaded, LOADING: loading or buffering the media, READY: the media can be played, UNAVAILABLE: the media
+ * can not be played by this client (e.g. a Spotify song without a connected Spotify Premium account).
+ */
+export type UserState = 'IDLE' | 'LOADING' | 'READY' | 'UNAVAILABLE';
 
 /** Playback status of a session user, reported by its client. */
 export interface UserStatus {

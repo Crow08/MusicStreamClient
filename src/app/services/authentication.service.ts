@@ -12,10 +12,13 @@ import { WsConfigService } from './ws-config.service';
 })
 export class AuthenticationService {
   private currentUserSubject: BehaviorSubject<User | null>;
+  /** The logged in user, null after the logout; emits the current user to new subscribers. */
+  readonly currentUserChanges: Observable<User | null>;
 
   constructor(private http: HttpClient, private wsConfigService: WsConfigService) {
     const storedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<User | null>(storedUser ? JSON.parse(storedUser) : null);
+    this.currentUserChanges = this.currentUserSubject.asObservable();
     this.currentUserSubject.subscribe((value) =>
       this.wsConfigService.updateWsConfig({
         login: value?.username,

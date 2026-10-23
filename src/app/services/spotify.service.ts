@@ -1,6 +1,7 @@
 ///<reference types="@types/spotify-web-playback-sdk"/>
 import { Injectable } from '@angular/core';
 import { HttpHelperService } from './http-helper.service';
+import { AuthenticationService } from './authentication.service';
 import { HttpParams } from '@angular/common/http';
 import { Media } from '../models/media';
 import { Tag } from '../models/tag';
@@ -8,6 +9,9 @@ import { environment } from '../../environments/environment';
 import { Song } from '../models/song';
 import { Album } from '../models/album';
 import { Artist } from '../models/artist';
+
+/** Before the token was kept per user of the app. */
+const LEGACY_REFRESH_TOKEN_KEY = 'msc_spotifyRefreshToken';
 
 interface LoginToken {
   token: string;
@@ -25,7 +29,24 @@ export class SpotifyService {
   spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
   spotifyClientId = 'e81973b027b3414f82a39cb0527b7fc2';
 
-  constructor(private httpHelper: HttpHelperService) {}
+  constructor(private httpHelper: HttpHelperService, private authenticationService: AuthenticationService) {}
+
+  /** The refresh token belongs to the user of the app: another user of the same browser must not get the Spotify login. */
+  private get refreshTokenKey(): string {
+    return `${LEGACY_REFRESH_TOKEN_KEY}_${this.authenticationService.currentUserValue?.id ?? 'anonymous'}`;
+  }
+
+  private get storedRefreshToken(): string | null {
+    const stored = localStorage.getItem(this.refreshTokenKey);
+    const legacy = localStorage.getItem(LEGACY_REFRESH_TOKEN_KEY);
+    if (stored === null && legacy !== null && this.authenticationService.currentUserValue) {
+      // the login of an earlier version belongs to the user who is logged in now
+      localStorage.setItem(this.refreshTokenKey, legacy);
+      localStorage.removeItem(LEGACY_REFRESH_TOKEN_KEY);
+      return legacy;
+    }
+    return stored;
+  }
 
   private static _loginToken: LoginToken = {
     token: '',
@@ -34,16 +55,16 @@ export class SpotifyService {
   };
 
   get loginToken(): LoginToken {
-    console.log(SpotifyService._loginToken);
     return SpotifyService._loginToken;
   }
 
   set loginToken(loginToken: LoginToken) {
-    console.log(loginToken);
     SpotifyService._loginToken.token = loginToken.token;
     SpotifyService._loginToken.expiresIn = loginToken.expiresIn;
     if (!!loginToken.refreshToken) {
       SpotifyService._loginToken.refreshToken = loginToken.refreshToken;
+      // lets the connection survive a reload of the page (the login itself needs a redirect to Spotify)
+      localStorage.setItem(this.refreshTokenKey, loginToken.refreshToken);
     }
     if (!!SpotifyService.refreshJob) {
       clearTimeout(SpotifyService.refreshJob);
@@ -75,8 +96,48 @@ export class SpotifyService {
     });
   }
 
+  get loggedIn(): boolean {
+    return !!SpotifyService._loginToken.token;
+  }
+
+  /** Whether a login of an earlier visit can be restored without a redirect to Spotify. */
+  get canRestore(): boolean {
+    return !!this.storedRefreshToken;
+  }
+
+  /** Gets an access token with the refresh token of an earlier visit. Resolves to whether the client is logged in. */
+  restore(): Promise<boolean> {
+    const stored = this.storedRefreshToken;
+    if (this.loggedIn || !stored) {
+      return Promise.resolve(this.loggedIn);
+    }
+    return this.httpHelper
+      .post('/api/v1/spotify/refresh', stored)
+      .then((loginToken) => {
+        this.loginToken = loginToken as LoginToken;
+        return true;
+      })
+      .catch((error) => {
+        console.error('Spotify login could not be restored', error);
+        localStorage.removeItem(this.refreshTokenKey);
+        return false;
+      });
+  }
+
+  /** Forgets the login of the current user for good. */
+  logout(): void {
+    localStorage.removeItem(this.refreshTokenKey);
+    this.forgetSession();
+  }
+
+  /** Drops the access token of this page, e.g. when the user of the app logs out. The stored login stays. */
+  forgetSession(): void {
+    clearTimeout(SpotifyService.refreshJob);
+    SpotifyService._loginToken.token = '';
+    SpotifyService._loginToken.refreshToken = '';
+  }
+
   refreshToken() {
-    console.log(this.loginToken);
     this.httpHelper
       .post('/api/v1/spotify/refresh', this.loginToken.refreshToken)
       .then((loginToken) => {
@@ -133,10 +194,10 @@ export class SpotifyService {
     this.play('spotify:track:0gkVD2tr14wCfJhqhdE94L').catch(console.error);
   }
 
-  play(uri: string) {
+  play(uri: string, positionMs = 0) {
     let body = JSON.stringify({
       uris: [uri],
-      position_ms: 0,
+      position_ms: positionMs,
     });
 
     return fetch(`https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`, {
